@@ -2,4 +2,3 @@
 .pydevproject
 *.pyc
 migrations/
-sqlite/**
