@@ -1,5 +1,6 @@
 .project
 .pydevproject
+config.yml
 *.pyc
-migrations/*
-sqlite/*
+migrations/
+sqlite/**
