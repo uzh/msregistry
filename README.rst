@@ -16,14 +16,13 @@ Installation instructions
 Before install *MSRegistry* I suggest to prepare a Python virtual environment
 using `virtualenv`:
 
-.. code-block:: bash
-    virtualenv env
-    source env/bin/active
+```virtualenv env
+source env/bin/active
+```
 
 Now we can easily install Python dependencies: 
 
-.. code-block:: bash
-    pip install -r requirements/common.txt
+```pip install -r requirements/common.txt```
 
 
 Deploy Database and run Web Application
@@ -31,15 +30,14 @@ Deploy Database and run Web Application
 
 Using `manage.py` we can create initial empty database
 
-.. code-block:: bash
-    python manage.py db init
-    python manage.py db migrate
-    python manage.py create``
+```python manage.py db init
+python manage.py db migrate
+python manage.py create
+```
 
 and run Web application
 
-.. code-block:: bash
-    python manage.py runserver``
+```python manage.py runserver```
 
 
 **********
