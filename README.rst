@@ -6,14 +6,14 @@
    http://docutils.sf.net/rst.html for more information
 
 
-MSRegistry Backend is the WEB Backend for *Swiss Multiple Sclerosis Registry*.
+MSRegistry Backend is the WEB Backend for **Swiss Multiple Sclerosis Registry**.
 It's developed in Python using Flask Framework.
 
 
 Install
 =======
 
-Before install *MSRegistry* I suggest to prepare a Python virtual environment
+Before install **MSRegistry** I suggest to prepare a Python virtual environment
 using `virtualenv`:
 
    ::
@@ -21,7 +21,7 @@ using `virtualenv`:
       $ virtualenv env
       $ source env/bin/active
 
-Now we can easily install Python dependencies: 
+Now you can easily install Python dependencies: 
 
    ::
 
@@ -32,7 +32,7 @@ Now we can easily install Python dependencies:
 Deploy Database and run Web Application
 =======================================
 
-Using `manage.py` we can create initial empty database
+Using ``manage.py`` you can create initial empty database
 
    ::
 
