@@ -50,7 +50,7 @@ and run Web application
 Config
 ======
 
-MSRegistry Backend configuration file is `config.yml`.
+MSRegistry Backend configuration file is ``config.yml``.
 
 
 .. References
