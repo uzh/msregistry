@@ -47,8 +47,7 @@ and run Web application
       $ python manage.py runserver
 
 
-References
-==========
+.. References
 
 .. _`Flask`: http://flask.pocoo.org/
 .. _`SQLAlchemy`: http://www.sqlalchemy.org/
