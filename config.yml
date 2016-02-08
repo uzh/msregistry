@@ -20,15 +20,15 @@ COMMON: &common
 DEVELOPMENT: &development
   <<: *common
   DEBUG: True
-  SQLALCHEMY_DATABASE_URI: 'sqlite:////sqlite/data-dev.sqlite'
+  SQLALCHEMY_DATABASE_URI: 'sqlite:///sqlite/data-dev.sqlite'
 
 PRODUCTION: &production
   <<: *common
-  SQLALCHEMY_DATABASE_URI: 'sqlite:////sqlite/data-dev.sqlite'
+  SQLALCHEMY_DATABASE_URI: 'sqlite:///sqlite/data-dev.sqlite'
 
 TESTING: &testing
   TESTING: True
-  SQLALCHEMY_DATABASE_URI: 'sqlite:////sqlite/data-dev.sqlite'
+  SQLALCHEMY_DATABASE_URI: 'sqlite:///sqlite/data-dev.sqlite'
   WTF_CSRF_ENABLED: False
 
 DEFAULT: &default
