@@ -75,7 +75,6 @@ def deploy():
 def create():
     "Creates database tables"
     db.create_all()
-    db.session.commit()
 
 
 @manager.command
@@ -83,7 +82,6 @@ def drop():
     "Drops all database tables"
     if prompt_bool("Are you sure ? You will lose all your data !"):
         db.drop_all()
-        db.session.commit()
 
 
 if __name__ == '__main__':
