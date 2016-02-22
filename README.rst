@@ -46,6 +46,12 @@ and run Web application
 
       $ python manage.py runserver
 
+If you need to populate database with sample data, use ``--sample_data`` option
+
+   ::
+
+      $ python manage.py create --sample_data
+      
 
 Config
 ======
