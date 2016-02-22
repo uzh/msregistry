@@ -31,16 +31,20 @@ class Language(db.Model):
     code = db.Column(db.String(2))
     name = db.Column(db.String(16))
     user = db.relationship("User", uselist=False, back_populates="language")
-        
+
+    def __init__(self, code=None, name=None):
+        self.code = code
+        self.name = name
+    
     def get(self):
-        return Language.query.filter_by(uniqueID=self.uniqueID).first()
+        return Language.query.get(self.id)
     
-    def getLanguage(self):
-        return self.get().language
-    
-    def setLanguage(self, language):
-        return db.session.query(Language).filter_by(uniqueID=self.uniqueID).update({'language': language})
-    
+    def getCode(self):
+        return self.get().code
+
+    def getName(self):
+        return self.get().name
+      
     def __repr__(self):
         return '<Language %r>' % self.name
 

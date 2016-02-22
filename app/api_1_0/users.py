@@ -32,20 +32,20 @@ from ..decorators import requires_auth
 @api.route('/user')
 @requires_auth
 def get_user():
-    user = User(uniqueID=_request_ctx_stack.top.uniqueID)
-    return jsonify(user.get(_request_ctx_stack.top.uniqueID).to_json())
+    user = User(_request_ctx_stack.top.uniqueID)
+    return jsonify(user.get().to_json())
 
 
 @api.route('/user/language', methods=['GET'])
 @requires_auth
 def get_user_language():
-    user = User(uniqueID=_request_ctx_stack.top.uniqueID)
+    user = User(_request_ctx_stack.top.uniqueID)
     return jsonify(language=user.getLanguage())
 
 
 @api.route('/user/language', methods=['POST'])
 @requires_auth
 def set_user_language():
-    user = User(uniqueID=_request_ctx_stack.top.uniqueID)
+    user = User(_request_ctx_stack.top.uniqueID)
     return jsonify(language=user.setLanguage(request.json['language']))
 

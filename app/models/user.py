@@ -16,7 +16,7 @@
 # General Public License along with MSRegistry Backend.  If not, see 
 # <http://www.gnu.org/licenses/>.
 
-__author__ = "Filippo Panessa <filippo.panessa@uzh.ch>"
+__author__ = "Filippo Panessa <filippo.panamenessa@uzh.ch>"
 __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 " University of Zurich")
 
@@ -24,7 +24,10 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 from datetime import datetime
 from app import db
 
+from language import Language
+
 from sqlalchemy.exc import IntegrityError
+
 
 class User(db.Model):
     __tablename__ = 'user'
@@ -34,12 +37,19 @@ class User(db.Model):
     confirmed = db.Column(db.Boolean, default=False)
     member_since = db.Column(db.DateTime, default=datetime.utcnow)
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
-    language_id = db.Column(db.Integer, db.ForeignKey('language.id'))
+    language_id = db.Column(db.Integer, db.ForeignKey('language.id'), default=2)
     language = db.relationship("Language", back_populates="user")
     
-    def create_if_not_exists(self, uniqueID):
+    def __init__(self, uniqueID=None, confirmed=None, member_since=None, 
+                 last_seen=None, language_id=None):
+        self.uniqueID = uniqueID
+        self.confirmed = confirmed
+        self.member_since = member_since
+        self.last_seen = last_seen
+        self.language_id = language_id
+    
+    def create_if_not_exists(self):
         if self.get() is None:
-            self.uniqueID = uniqueID
             db.session.add(self)
             try:
                 db.session.commit()
@@ -52,7 +62,7 @@ class User(db.Model):
         return User.query.filter_by(uniqueID=self.uniqueID).first()
     
     def getLanguage(self):
-        return self.get().language_id
+        return db.session.query(User).filter_by(uniqueID=self.uniqueID).join(User.language).all()[0].language.code
     
     def setLanguage(self, language):
         return db.session.query(User).filter_by(uniqueID=self.uniqueID).update({'language': language})
@@ -66,10 +76,11 @@ class User(db.Model):
             'uniqueID': self.uniqueID,
             'confirmed': self.confirmed,
             'member_since': self.member_since,
-            'last_seen': self.last_seen
+            'last_seen': self.last_seen,
+            'language': self.language_id
         }
         return json_user
     
     def __repr__(self):
-        return '<User %r>' % self.uniqueID
+        return '<User %r>' % (self.uniqueID)
 
