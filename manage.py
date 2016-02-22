@@ -25,10 +25,10 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 import os
 
 from app import create_app, db
-from app.models import User, Survey
+from app import models
 
 from flask.ext.migrate import Migrate, MigrateCommand
-from flask.ext.script import Manager, prompt_bool
+from flask.ext.script import Manager, Server, prompt_bool
 
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'DEFAULT')
@@ -37,7 +37,7 @@ migrate = Migrate(app, db)
 
 @manager.shell
 def make_shell_context():
-    return dict(app=app, db=db, User=User, Survey=Survey)
+    return dict(app=app, db=db, User=User, Language=Language, Survey=Survey)
 
 manager.add_command('db', MigrateCommand)
 
@@ -72,16 +72,43 @@ def deploy():
 
 
 @manager.command
-def create():
-    "Creates database tables"
-    db.create_all()
-
-
-@manager.command
 def drop():
     "Drops all database tables"
     if prompt_bool("Are you sure ? You will lose all your data !"):
         db.drop_all()
+
+
+@manager.command
+def create(default_data=True, sample_data=False):
+    "Creates database tables from sqlalchemy models"
+    db.create_all()
+    populate(default_data, sample_data)
+
+
+@manager.command
+def recreate(default_data=True, sample_data=False):
+    "Recreates database tables (same as issuing 'drop' and then 'create')"
+    drop()
+    create(default_data, sample_data)
+
+
+@manager.command
+def populate(default_data=False, sample_data=False):
+    "Populate database with default data"
+    from fixtures import dbfixture
+
+    datasets = []
+
+    if default_data:
+        from fixtures.default_data import all
+        datasets.extend(all)
+
+    if sample_data:
+        from fixtures.sample_data import all
+        datasets.extend(all)
+
+    data = dbfixture.data(*datasets)
+    data.setup()
 
 
 if __name__ == '__main__':

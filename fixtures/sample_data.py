@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # Copyright (C) 2016 University of Zurich.  All rights reserved.
 #
 # This file is part of MSRegistry Backend.
@@ -21,31 +23,19 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 " University of Zurich")
 
 
-from flask import jsonify, request, _request_ctx_stack
+from fixture import DataSet
+from datetime import datetime
 
-from . import api
-from app.models.user import User
-
-from ..decorators import requires_auth
+from default_data import LanguageData
 
 
-@api.route('/user')
-@requires_auth
-def get_user():
-    user = User(uniqueID=_request_ctx_stack.top.uniqueID)
-    return jsonify(user.get(_request_ctx_stack.top.uniqueID).to_json())
+class UserData(DataSet):
+    class filippo_panessa:
+        uniqueID = '01010101'
+        confirmed = False
+        member_since = datetime.utcnow()
+        last_seen = datetime.utcnow()
+        language = LanguageData.italian
 
 
-@api.route('/user/language', methods=['GET'])
-@requires_auth
-def get_user_language():
-    user = User(uniqueID=_request_ctx_stack.top.uniqueID)
-    return jsonify(language=user.getLanguage())
-
-
-@api.route('/user/language', methods=['POST'])
-@requires_auth
-def set_user_language():
-    user = User(uniqueID=_request_ctx_stack.top.uniqueID)
-    return jsonify(language=user.setLanguage(request.json['language']))
-
+all = {UserData}

@@ -58,3 +58,4 @@ def create_app(config_name):
     app.register_blueprint(api_1_0_blueprint, url_prefix='/api/v1.0')
 
     return app
+

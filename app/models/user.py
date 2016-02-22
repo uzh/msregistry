@@ -26,21 +26,19 @@ from app import db
 
 from sqlalchemy.exc import IntegrityError
 
-
 class User(db.Model):
-    __tablename__ = "users"
+    __tablename__ = 'user'
     
     id = db.Column(db.Integer, primary_key=True)
     uniqueID = db.Column(db.String(64), nullable=False, unique=True, index=True)
     confirmed = db.Column(db.Boolean, default=False)
     member_since = db.Column(db.DateTime, default=datetime.utcnow)
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
+    language_id = db.Column(db.Integer, db.ForeignKey('language.id'))
+    language = db.relationship("Language", back_populates="user")
     
-    def __init__(self, uniqueID):
-        self.uniqueID = uniqueID
-
     def create_if_not_exists(self, uniqueID):
-        if self.getByUniqueID(uniqueID) is None:
+        if self.get() is None:
             self.uniqueID = uniqueID
             db.session.add(self)
             try:
@@ -50,13 +48,19 @@ class User(db.Model):
                 return False
         return True
     
-    def getByUniqueID(self, uniqueID):
-        return User.query.filter_by(uniqueID=uniqueID).first()
+    def get(self):
+        return User.query.filter_by(uniqueID=self.uniqueID).first()
+    
+    def getLanguage(self):
+        return self.get().language_id
+    
+    def setLanguage(self, language):
+        return db.session.query(User).filter_by(uniqueID=self.uniqueID).update({'language': language})
     
     def ping(self):
         self.last_seen = datetime.utcnow()
         db.session.add(self)
-
+    
     def to_json(self):
         json_user = {
             'uniqueID': self.uniqueID,
@@ -65,7 +69,7 @@ class User(db.Model):
             'last_seen': self.last_seen
         }
         return json_user
-
+    
     def __repr__(self):
         return '<User %r>' % self.uniqueID
 

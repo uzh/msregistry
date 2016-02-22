@@ -21,31 +21,26 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 " University of Zurich")
 
 
-from flask import jsonify, request, _request_ctx_stack
+from datetime import datetime
+from app import db
 
-from . import api
-from app.models.user import User
-
-from ..decorators import requires_auth
-
-
-@api.route('/user')
-@requires_auth
-def get_user():
-    user = User(uniqueID=_request_ctx_stack.top.uniqueID)
-    return jsonify(user.get(_request_ctx_stack.top.uniqueID).to_json())
-
-
-@api.route('/user/language', methods=['GET'])
-@requires_auth
-def get_user_language():
-    user = User(uniqueID=_request_ctx_stack.top.uniqueID)
-    return jsonify(language=user.getLanguage())
-
-
-@api.route('/user/language', methods=['POST'])
-@requires_auth
-def set_user_language():
-    user = User(uniqueID=_request_ctx_stack.top.uniqueID)
-    return jsonify(language=user.setLanguage(request.json['language']))
+class Language(db.Model):
+    __tablename__ = 'language'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    code = db.Column(db.String(2))
+    name = db.Column(db.String(16))
+    user = db.relationship("User", uselist=False, back_populates="language")
+        
+    def get(self):
+        return Language.query.filter_by(uniqueID=self.uniqueID).first()
+    
+    def getLanguage(self):
+        return self.get().language
+    
+    def setLanguage(self, language):
+        return db.session.query(Language).filter_by(uniqueID=self.uniqueID).update({'language': language})
+    
+    def __repr__(self):
+        return '<Language %r>' % self.name
 

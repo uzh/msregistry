@@ -25,7 +25,7 @@ from datetime import datetime
 from app import db
 
 class Survey(db.Model):
-    __tablename__ = "surveys"
+    __tablename__ = 'surveys'
     
     id = db.Column(db.Integer, primary_key=True)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
@@ -34,4 +34,5 @@ class Survey(db.Model):
         self.timestamp = timestamp
     
     def __repr__(self):
-        return '<Survey %r>' % self.uniqueID
+        return '<Survey %r>' % self.id
+

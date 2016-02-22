@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # Copyright (C) 2016 University of Zurich.  All rights reserved.
 #
 # This file is part of MSRegistry Backend.
@@ -21,31 +23,13 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 " University of Zurich")
 
 
-from flask import jsonify, request, _request_ctx_stack
+from sqlalchemy import create_engine
+from fixture import SQLAlchemyFixture
+from fixture.style import NamedDataStyle
 
-from . import api
-from app.models.user import User
-
-from ..decorators import requires_auth
-
-
-@api.route('/user')
-@requires_auth
-def get_user():
-    user = User(uniqueID=_request_ctx_stack.top.uniqueID)
-    return jsonify(user.get(_request_ctx_stack.top.uniqueID).to_json())
+from app import models
+from app import db
 
 
-@api.route('/user/language', methods=['GET'])
-@requires_auth
-def get_user_language():
-    user = User(uniqueID=_request_ctx_stack.top.uniqueID)
-    return jsonify(language=user.getLanguage())
-
-
-@api.route('/user/language', methods=['POST'])
-@requires_auth
-def set_user_language():
-    user = User(uniqueID=_request_ctx_stack.top.uniqueID)
-    return jsonify(language=user.setLanguage(request.json['language']))
-
+engine = db.engine
+dbfixture = SQLAlchemyFixture(env=models, style=NamedDataStyle(), engine=engine)
