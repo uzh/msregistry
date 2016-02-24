@@ -25,11 +25,12 @@ from datetime import datetime
 from app import db
 
 from language import Language
+from serializer import Serializer
 
 from sqlalchemy.exc import IntegrityError
 
 
-class User(db.Model):
+class User(db.Model, Serializer):
     __tablename__ = 'user'
     
     id = db.Column(db.Integer, primary_key=True)
@@ -48,8 +49,9 @@ class User(db.Model):
         self.last_seen = last_seen
         self.language_id = language_id
     
-    def create_if_not_exists(self):
-        if self.get() is None:
+    def createIfNotExistsByUniqueID(self, uniqueID):
+        if self.getByUniqueID(uniqueID) is None:
+            self.uniqueID = uniqueID
             db.session.add(self)
             try:
                 db.session.commit()
@@ -58,28 +60,25 @@ class User(db.Model):
                 return False
         return True
     
-    def get(self):
-        return User.query.filter_by(uniqueID=self.uniqueID).first()
+    def getByUniqueID(self, uniqueID):
+        return User.query.filter_by(uniqueID=uniqueID).first()
     
-    def getLanguage(self):
-        return db.session.query(User).filter_by(uniqueID=self.uniqueID).join(User.language).all()[0].language.code
+    def getLanguageByUniqueID(self, uniqueID):
+        return db.session.query(User).filter_by(uniqueID=uniqueID).join(User.language).all()[0].language.code
     
-    def setLanguage(self, language):
-        return db.session.query(User).filter_by(uniqueID=self.uniqueID).update({'language': language})
+    def setLanguageByUniqueID(self, uniqueID, language):
+        return db.session.query(User).filter_by(uniqueID=uniqueID).update({'language': language})
     
     def ping(self):
         self.last_seen = datetime.utcnow()
         db.session.add(self)
     
-    def to_json(self):
-        json_user = {
-            'uniqueID': self.uniqueID,
-            'confirmed': self.confirmed,
-            'member_since': self.member_since,
-            'last_seen': self.last_seen,
-            'language': self.language_id
-        }
-        return json_user
+    def serialize(self):
+        d = Serializer.serialize(self)
+        del d['id']
+        del d['language_id']
+        del d['language']
+        return d
     
     def __repr__(self):
         return '<User %r>' % (self.uniqueID)

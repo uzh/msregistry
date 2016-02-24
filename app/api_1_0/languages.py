@@ -21,41 +21,17 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 " University of Zurich")
 
 
-from datetime import datetime
-from app import db
+from flask import jsonify, request, _request_ctx_stack
 
-from serializer import Serializer
+from . import api
+from app.models.language import Language
 
-class Language(db.Model, Serializer):
-    __tablename__ = 'language'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    code = db.Column(db.String(2))
-    name = db.Column(db.String(16))
-    user = db.relationship("User", uselist=False, back_populates="language")
+from ..decorators import requires_auth
 
-    def __init__(self, code=None, name=None):
-        self.code = code
-        self.name = name
-    
-    def getById(self, id):
-        return Language.query.get(id)
-    
-    def getAll(self):
-        return Language.query.all()
-    
-    def getCodeById(self, id):
-        return self.get(id).code
 
-    def getNameById(self, id):
-        return self.get(id).name
-
-    def serialize(self):
-        d = Serializer.serialize(self)
-        del d['id']
-        del d['user']
-        return d
-    
-    def __repr__(self):
-        return '<Language %r>' % (self.name)
+@api.route('/language')
+@requires_auth
+def get_languages():
+    language = Language()
+    return jsonify(languages=Language.serialize_list(language.getAll()))
 

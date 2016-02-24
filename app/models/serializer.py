@@ -21,41 +21,14 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 " University of Zurich")
 
 
-from datetime import datetime
-from app import db
+from sqlalchemy.inspection import inspect
 
-from serializer import Serializer
-
-class Language(db.Model, Serializer):
-    __tablename__ = 'language'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    code = db.Column(db.String(2))
-    name = db.Column(db.String(16))
-    user = db.relationship("User", uselist=False, back_populates="language")
-
-    def __init__(self, code=None, name=None):
-        self.code = code
-        self.name = name
-    
-    def getById(self, id):
-        return Language.query.get(id)
-    
-    def getAll(self):
-        return Language.query.all()
-    
-    def getCodeById(self, id):
-        return self.get(id).code
-
-    def getNameById(self, id):
-        return self.get(id).name
+class Serializer(object):
 
     def serialize(self):
-        d = Serializer.serialize(self)
-        del d['id']
-        del d['user']
-        return d
-    
-    def __repr__(self):
-        return '<Language %r>' % (self.name)
+        return {c: getattr(self, c) for c in inspect(self).attrs.keys()}
+
+    @staticmethod
+    def serialize_list(l):
+        return [m.serialize() for m in l]
 

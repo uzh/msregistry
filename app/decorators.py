@@ -67,8 +67,8 @@ def requires_auth(f):
         
         _request_ctx_stack.top.uniqueID = payload['sub']
         
-        user = User(_request_ctx_stack.top.uniqueID)
-        if user.create_if_not_exists() == False:
+        user = User()
+        if user.createIfNotExistsByUniqueID(_request_ctx_stack.top.uniqueID) == False:
             return internal_server_error('An error occurred while adding this user')
         
         return f(*args, **kwargs)
