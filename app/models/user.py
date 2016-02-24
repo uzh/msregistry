@@ -38,7 +38,8 @@ class User(db.Model, Serializer):
     confirmed = db.Column(db.Boolean, default=False)
     member_since = db.Column(db.DateTime, default=datetime.utcnow)
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
-    language_id = db.Column(db.Integer, db.ForeignKey('language.id'), default=2)
+    language_id = db.Column(db.Integer, db.ForeignKey('language.id'),
+                            default=['DEFAULT_USER_LANGUAGE'])
     language = db.relationship("Language", back_populates="user")
     
     def __init__(self, uniqueID=None, confirmed=None, member_since=None, 
