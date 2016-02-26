@@ -77,8 +77,11 @@ class User(db.Model, Serializer):
     def serialize(self):
         d = Serializer.serialize(self)
         del d['id']
-        del d['language_id']
         del d['language']
+        if d['language_id'] is not '':
+            language = Language()
+            d['language'] = language.getCodeById(d['language_id'])
+        del d['language_id']
         return d
     
     def __repr__(self):

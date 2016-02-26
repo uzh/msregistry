@@ -21,7 +21,6 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 " University of Zurich")
 
 
-from datetime import datetime
 from app import db
 
 from serializer import Serializer
@@ -45,10 +44,10 @@ class Language(db.Model, Serializer):
         return Language.query.all()
     
     def getCodeById(self, id):
-        return self.get(id).code
+        return self.getById(id).code
 
     def getNameById(self, id):
-        return self.get(id).name
+        return self.getById(id).name
 
     def serialize(self):
         d = Serializer.serialize(self)
