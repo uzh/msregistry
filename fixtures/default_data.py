@@ -25,19 +25,4 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 
 from fixture import DataSet
 
-
-class LanguageData(DataSet):
-    class german:
-        code = 'de'
-        name = 'German'
-        
-    class french:
-        code = 'fr'
-        name = 'French'
-
-    class italian:
-        code = 'it'
-        name = 'Italian'
-
-
-all = {LanguageData}
+all = {}

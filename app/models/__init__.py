@@ -22,5 +22,4 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 
 
 from user import User
-from language import Language 
 from survey import Survey

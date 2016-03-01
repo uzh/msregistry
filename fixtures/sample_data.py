@@ -26,8 +26,6 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 from fixture import DataSet
 from datetime import datetime
 
-from default_data import LanguageData
-
 
 class UserData(DataSet):
     class filippo_panessa:
@@ -35,7 +33,5 @@ class UserData(DataSet):
         confirmed = False
         member_since = datetime.utcnow()
         last_seen = datetime.utcnow()
-        language = LanguageData.italian
-
 
 all = {UserData}

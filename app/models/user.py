@@ -24,7 +24,6 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 from datetime import datetime
 from app import db
 
-from language import Language
 from serializer import Serializer
 
 from sqlalchemy.exc import IntegrityError
@@ -38,17 +37,13 @@ class User(db.Model, Serializer):
     confirmed = db.Column(db.Boolean, default=False)
     member_since = db.Column(db.DateTime, default=datetime.utcnow)
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
-    language_id = db.Column(db.Integer, db.ForeignKey('language.id'),
-                            default=['DEFAULT_USER_LANGUAGE'])
-    language = db.relationship("Language", back_populates="user")
     
-    def __init__(self, uniqueID=None, confirmed=None, member_since=None, 
-                 last_seen=None, language_id=None):
+    def __init__(self, uniqueID=None, confirmed=None,
+                 member_since=None, last_seen=None):
         self.uniqueID = uniqueID
         self.confirmed = confirmed
         self.member_since = member_since
         self.last_seen = last_seen
-        self.language_id = language_id
     
     def createIfNotExistsByUniqueID(self, uniqueID):
         if self.getByUniqueID(uniqueID) is None:
@@ -64,12 +59,6 @@ class User(db.Model, Serializer):
     def getByUniqueID(self, uniqueID):
         return User.query.filter_by(uniqueID=uniqueID).first()
     
-    def getLanguageByUniqueID(self, uniqueID):
-        return db.session.query(User).filter_by(uniqueID=uniqueID).join(User.language).all()[0].language.code
-    
-    def setLanguageByUniqueID(self, uniqueID, language):
-        return db.session.query(User).filter_by(uniqueID=uniqueID).update({'language': language})
-    
     def ping(self):
         self.last_seen = datetime.utcnow()
         db.session.add(self)
@@ -77,11 +66,6 @@ class User(db.Model, Serializer):
     def serialize(self):
         d = Serializer.serialize(self)
         del d['id']
-        del d['language']
-        if d['language_id'] is not '':
-            language = Language()
-            d['language'] = language.getCodeById(d['language_id'])
-        del d['language_id']
         return d
     
     def __repr__(self):

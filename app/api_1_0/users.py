@@ -21,7 +21,7 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 " University of Zurich")
 
 
-from flask import jsonify, request, _request_ctx_stack
+from flask import jsonify, _request_ctx_stack
 
 from . import api
 from app.models.user import User
@@ -35,17 +35,4 @@ def get_user():
     user = User()
     return jsonify(user.getByUniqueID(_request_ctx_stack.top.uniqueID).serialize())
 
-
-@api.route('/user/language', methods=['GET'])
-@requires_auth
-def get_user_language():
-    user = User()
-    return jsonify(language=user.getLanguageByUniqueID(_request_ctx_stack.top.uniqueID))
-
-
-@api.route('/user/language', methods=['POST'])
-@requires_auth
-def set_user_language():
-    user = User()
-    return jsonify(language=user.setLanguage(_request_ctx_stack.top.uniqueID, request.json['language']))
 
