@@ -3,6 +3,7 @@ argparse==1.2.1
 blinker==1.4
 dominate==2.1.16
 Flask==0.10.1
+Flask-Babel==0.9
 Flask-Bootstrap==3.3.5.7
 Flask-Cors==2.1.2
 Flask-Environments==0.1

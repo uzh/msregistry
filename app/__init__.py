@@ -26,6 +26,7 @@ from flask.ext.bootstrap import Bootstrap
 from flask.ext.mail import Mail
 from flask.ext.moment import Moment
 from flask.ext.sqlalchemy import SQLAlchemy
+from flask.ext.babel import Babel
 from flask_environments import Environments
 
 bootstrap = Bootstrap()
@@ -39,6 +40,7 @@ def create_app(config_name):
     env = Environments(app, default_env=config_name)
     app.config.from_object(env.from_yaml('config.yml'))
     
+    babel = Babel(app)
     bootstrap.init_app(app)
     mail.init_app(app)
     moment.init_app(app)
