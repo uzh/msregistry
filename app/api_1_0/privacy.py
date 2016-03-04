@@ -21,14 +21,20 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 " University of Zurich")
 
 
-from flask import jsonify
+from flask import current_app, jsonify, redirect, url_for
 
 from flask.ext.babel import gettext
 
 from . import api
 
 
-@api.route('/<lang_code>/privacy')
+@api.route('/privacy')
 def get_privacy_policy():
+    return redirect(url_for('api.get_multilanguage_privacy_policy', 
+                            lang_code=current_app.config['BABEL_DEFAULT_LOCALE']))
+
+
+@api.route('/<lang_code>/privacy')
+def get_multilanguage_privacy_policy():
     return jsonify(text=unicode(gettext(u'Privacy policy')))
 

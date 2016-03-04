@@ -41,7 +41,7 @@ def create_app(config_name):
     env = Environments(app, default_env=config_name)
     app.config.from_object(env.from_yaml('config.yml'))
     
-    babel = Babel(app)
+    babel = Babel(app, default_locale(app.config['BABEL_DEFAULT_LOCALE']))
 
     @babel.localeselector
     def get_locale():
