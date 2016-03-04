@@ -34,14 +34,14 @@ class User(db.Model, Serializer):
     
     id = db.Column(db.Integer, primary_key=True)
     uniqueID = db.Column(db.String(64), nullable=False, unique=True, index=True)
-    confirmed = db.Column(db.Boolean, default=False)
+    privacy_policy = db.Column(db.Boolean, default=False)
     member_since = db.Column(db.DateTime, default=datetime.utcnow)
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
     
-    def __init__(self, uniqueID=None, confirmed=None,
+    def __init__(self, uniqueID=None, privacy_policy=None,
                  member_since=None, last_seen=None):
         self.uniqueID = uniqueID
-        self.confirmed = confirmed
+        self.privacy_policy = privacy_policy
         self.member_since = member_since
         self.last_seen = last_seen
     
@@ -58,6 +58,9 @@ class User(db.Model, Serializer):
     
     def getByUniqueID(self, uniqueID):
         return User.query.filter_by(uniqueID=uniqueID).first()
+
+    def getPrivacyPolicyByUniqueID(self, uniqueID):
+        return self.getByUniqueID(uniqueID).privacy_policy
     
     def ping(self):
         self.last_seen = datetime.utcnow()

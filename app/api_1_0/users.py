@@ -35,3 +35,10 @@ def get_user():
     user = User()
     return jsonify(user.getByUniqueID(_request_ctx_stack.top.uniqueID).serialize())
 
+
+@api.route('/user/privacy')
+@requires_auth
+def get_user_privacy():
+    user = User()
+    return jsonify(privacy=user.getPrivacyPolicyByUniqueID(_request_ctx_stack.top.uniqueID))
+
