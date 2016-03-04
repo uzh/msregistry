@@ -15,7 +15,6 @@
 # You should have received a copy of the version 3 of the GNU Affero
 # General Public License along with MSRegistry Backend.  If not, see 
 # <http://www.gnu.org/licenses/>.
-from babel.core import default_locale
 
 __author__ = "Filippo Panessa <filippo.panessa@uzh.ch>"
 __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
@@ -30,6 +29,7 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.babel import Babel
 from flask_environments import Environments
 
+
 bootstrap = Bootstrap()
 mail = Mail()
 moment = Moment()
@@ -40,12 +40,11 @@ def create_app(config_name):
     app = Flask(__name__)
     env = Environments(app, default_env=config_name)
     app.config.from_object(env.from_yaml('config.yml'))
-    
-    babel = Babel(app, default_locale(app.config['BABEL_DEFAULT_LOCALE']))
+    babel = Babel(app)
 
     @babel.localeselector
     def get_locale():
-        return g.get('current_lang', 'en')
+        return g.get('current_lang')
     
     bootstrap.init_app(app)
     mail.init_app(app)
@@ -55,7 +54,7 @@ def create_app(config_name):
     if not app.debug and not app.testing and not app.config['SSL_DISABLE']:
         from flask.ext.sslify import SSLify
         sslify = SSLify(app)
-
+    
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
 
