@@ -30,7 +30,8 @@ from flask.ext.cors import cross_origin
 from flask import current_app
 
 from models.user import User
-from app.main.errors import authorization_header_missing, internal_server_error, invalid_header, token_expired, invalid_audience, token_invalid_signature
+from app.main.errors import authorization_header_missing, internal_server_error,\
+    invalid_header, token_expired, invalid_audience, token_invalid_signature
 
 
 def requires_auth(f):

@@ -15,13 +15,14 @@
 # You should have received a copy of the version 3 of the GNU Affero
 # General Public License along with MSRegistry Backend.  If not, see 
 # <http://www.gnu.org/licenses/>.
+from babel.core import default_locale
 
 __author__ = "Filippo Panessa <filippo.panessa@uzh.ch>"
 __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 " University of Zurich")
 
 
-from flask import Flask, jsonify
+from flask import Flask, abort, g, request, jsonify
 from flask.ext.bootstrap import Bootstrap
 from flask.ext.mail import Mail
 from flask.ext.moment import Moment
@@ -41,6 +42,11 @@ def create_app(config_name):
     app.config.from_object(env.from_yaml('config.yml'))
     
     babel = Babel(app)
+
+    @babel.localeselector
+    def get_locale():
+        return g.get('current_lang', 'en')
+    
     bootstrap.init_app(app)
     mail.init_app(app)
     moment.init_app(app)

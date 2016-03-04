@@ -21,7 +21,7 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 " University of Zurich")
 
 
-from flask import abort, request, current_app
+from flask import abort, current_app, request
 
 from flask.ext.sqlalchemy import get_debug_queries
 from . import main
@@ -37,7 +37,7 @@ def after_request(response):
                    query.context))
     return response
 
-
+    
 @main.route('/shutdown')
 def server_shutdown():
     if not current_app.testing:

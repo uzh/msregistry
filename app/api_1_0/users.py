@@ -35,4 +35,3 @@ def get_user():
     user = User()
     return jsonify(user.getByUniqueID(_request_ctx_stack.top.uniqueID).serialize())
 
-

@@ -16,7 +16,8 @@ COMMON: &common
   SLOW_DB_QUERY_TIME: 0.5
   OAUTH_CLIENT_ID: 'CLIENT_ID'
   OAUTH_CLIENT_SECRET: 'CLIENT_SECRET'
-  BABEL_DEFAULT_LOCALE: 'de' # values are { 'fr', 'de', 'it' }
+  BABEL_DEFAULT_LOCALE: 'de'
+  LANGUAGES: {'de': 'Deutsch', 'fr': 'Français', 'it': 'Italiano'}
 
 DEVELOPMENT: &development
   <<: *common

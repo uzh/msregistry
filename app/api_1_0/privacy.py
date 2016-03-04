@@ -21,18 +21,14 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 " University of Zurich")
 
 
-from flask import abort, current_app, Blueprint, g, request
+from flask import jsonify
 
-api = Blueprint('api', __name__)
+from flask.ext.babel import gettext
 
-from . import privacy, surveys, users
+from . import api
 
 
-@api.before_request
-def before():
-    if request.view_args and 'lang_code' in request.view_args:
-        if request.view_args['lang_code'] not in current_app.config['LANGUAGES'].keys():
-            return abort(404)
-        g.current_lang = request.view_args['lang_code']
-        request.view_args.pop('lang_code')
-        
+@api.route('/<lang_code>/privacy')
+def get_privacy_policy():
+    return jsonify(text=unicode(gettext(u'Privacy policy')))
+
