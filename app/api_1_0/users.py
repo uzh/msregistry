@@ -21,7 +21,7 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 " University of Zurich")
 
 
-from flask import jsonify, _request_ctx_stack
+from flask import jsonify, request, _request_ctx_stack
 
 from . import api
 from app.models.user import User
@@ -36,9 +36,20 @@ def get_user():
     return jsonify(user.getByUniqueID(_request_ctx_stack.top.uniqueID).serialize())
 
 
-@api.route('/user/privacy')
+@api.route('/user/privacy', methods=['GET'])
 @requires_auth
 def get_user_privacy():
     user = User()
     return jsonify(privacy=user.getPrivacyPolicyByUniqueID(_request_ctx_stack.top.uniqueID))
+
+
+@api.route('/user/privacy', methods=['POST'])
+@requires_auth
+def set_user_privacy():
+    user = User()
+    content = request.get_json(silent=True)
+    if content and 'privacy' in content:
+        return jsonify(success=bool(user.setPrivacyPolicyByUniqueID(content['privacy'], _request_ctx_stack.top.uniqueID)))
+    
+    return jsonify(success=bool(False))
 

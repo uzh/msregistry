@@ -23,10 +23,9 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 
 from datetime import datetime
 from app import db
+from sqlalchemy.orm import validates
 
 from serializer import Serializer
-
-from sqlalchemy.exc import IntegrityError
 
 
 class User(db.Model, Serializer):
@@ -49,11 +48,7 @@ class User(db.Model, Serializer):
         if self.getByUniqueID(uniqueID) is None:
             self.uniqueID = uniqueID
             db.session.add(self)
-            try:
-                db.session.commit()
-            except IntegrityError:
-                db.session.rollback()
-                return False
+            db.session.commit()
         return True
     
     def getByUniqueID(self, uniqueID):
@@ -61,6 +56,11 @@ class User(db.Model, Serializer):
 
     def getPrivacyPolicyByUniqueID(self, uniqueID):
         return self.getByUniqueID(uniqueID).privacy_policy
+    
+    def setPrivacyPolicyByUniqueID(self, privacy_policy, uniqueID):
+        if privacy_policy not in (True, False):
+            return False
+        return db.session.query(User).filter_by(uniqueID=uniqueID).update({'privacy_policy': privacy_policy})
     
     def ping(self):
         self.last_seen = datetime.utcnow()
