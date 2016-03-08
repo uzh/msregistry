@@ -8,7 +8,7 @@ Install
 -------
 
 Before install **MSRegistry** I suggest to prepare a Python virtual
-environment using \`virtualenv\`:
+environment using `virtualenv`:
 
 >     $ virtualenv env
 >     $ source env/bin/active
