@@ -30,8 +30,8 @@ from flask.ext.cors import cross_origin
 from flask import current_app
 
 from models.user import User
-from app.main.errors import authorization_header_missing, internal_server_error,\
-    invalid_header, token_expired, invalid_audience, token_invalid_signature
+from app.main.errors import authorization_required, internal_server_error,\
+    invalid_header, token_expired, invalid_audience, invalid_signature
 
 
 def requires_auth(f):
@@ -41,7 +41,7 @@ def requires_auth(f):
         app = current_app._get_current_object()
         auth = request.headers.get('Authorization', None)
         if not auth:
-            return authorization_header_missing('Authorization header is expected')
+            return authorization_required('Authorization header is expected')
         
         parts = auth.split()
 
@@ -60,11 +60,11 @@ def requires_auth(f):
                                  audience=app.config['OAUTH_CLIENT_ID']
                                  )
         except jwt.ExpiredSignature:
-            return token_expired('token is expired')
+            return token_expired('Token is expired')
         except jwt.InvalidAudienceError:
-            return invalid_audience('incorrect audience')
+            return invalid_audience('Incorrect audience')
         except jwt.DecodeError:
-            return token_invalid_signature('token signature is invalid')
+            return invalid_signature('Token signature is invalid')
         
         _request_ctx_stack.top.uniqueID = payload['sub']
         

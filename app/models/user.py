@@ -23,7 +23,6 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 
 from datetime import datetime
 from app import db
-from sqlalchemy.orm import validates
 
 from serializer import Serializer
 

@@ -49,10 +49,10 @@ def invalid_header(message):
     response.status_code = 401
     return response
 
-@main.app_errorhandler(401)
-def authorization_header_missing(message):
-    response = jsonify({'code': 'authorization_header_missing', 'description': message})
-    response.status_code = 401
+@main.app_errorhandler(403)
+def authorization_required(message):
+    response = jsonify({'code': 'authorization_required', 'description': message})
+    response.status_code = 403
     return response
 
 @main.app_errorhandler(400)
@@ -74,8 +74,8 @@ def invalid_audience(message):
     return response
 
 @main.app_errorhandler(400)
-def token_invalid_signature(message):
-    response = jsonify({'code': 'token_invalid_signature', 'description': message})
+def invalid_signature(message):
+    response = jsonify({'code': 'invalid_signature', 'description': message})
     response.status_code = 400
     return response
 
