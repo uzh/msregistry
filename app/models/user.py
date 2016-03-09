@@ -22,6 +22,7 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 
 
 from datetime import datetime
+
 from app import db
 
 from serializer import Serializer
@@ -52,7 +53,7 @@ class User(db.Model, Serializer):
     
     def getByUniqueID(self, uniqueID):
         return User.query.filter_by(uniqueID=uniqueID).first()
-
+    
     def getPrivacyPolicyByUniqueID(self, uniqueID):
         return self.getByUniqueID(uniqueID).privacy_policy
     
@@ -68,6 +69,8 @@ class User(db.Model, Serializer):
     def serialize(self):
         d = Serializer.serialize(self)
         del d['id']
+        d['member_since'] = d['member_since'].isoformat()
+        d['last_seen'] = d['last_seen'].isoformat()
         return d
     
     def __repr__(self):
