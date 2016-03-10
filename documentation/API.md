@@ -10,7 +10,7 @@ will accept, what the JSON object’s parameters will be in the response, and an
 example query/response.
 
 This documentation is for most recent version of the MS Registry REST API, 
-version 0.1.
+version v0.1.
 
 GET /auth/test
 --------------
