@@ -72,6 +72,8 @@ def requires_auth(f):
         if user.createIfNotExistsByUniqueID(_request_ctx_stack.top.uniqueID) == False:
             return internal_server_error('An error occurred while adding this user')
         
+        user.setLastSeenByUniqueID(_request_ctx_stack.top.uniqueID)
+        
         return f(*args, **kwargs)
 
     return decorated

@@ -62,9 +62,8 @@ class User(db.Model, Serializer):
             return False
         return db.session.query(User).filter_by(uniqueID=uniqueID).update({'privacy_policy': privacy_policy})
     
-    def ping(self):
-        self.last_seen = datetime.utcnow()
-        db.session.add(self)
+    def setLastSeenByUniqueID(self, uniqueID):
+        return db.session.query(User).filter_by(uniqueID=uniqueID).update({'last_seen': datetime.utcnow()})
     
     def serialize(self):
         d = Serializer.serialize(self)
