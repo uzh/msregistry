@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2016-03-04 13:45+0100\n"
-"PO-Revision-Date: 2016-03-04 13:45+0100\n"
+"POT-Creation-Date: 2016-03-12 17:28+0100\n"
+"PO-Revision-Date: 2016-03-12 17:28+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: de\n"
 "Language-Team: de <LL@li.org>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.2.0\n"
 
-#: app/api_1_0/privacy.py:33
-msgid "Privacy policy"
-msgstr "Privatleben-Politik"
+#: api_1_0/consent.py:39
+msgid "Informed consent"
+msgstr "Einwilligungserklärung"
 

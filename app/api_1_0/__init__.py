@@ -25,7 +25,8 @@ from flask import abort, current_app, Blueprint, g, request
 
 api = Blueprint('api', __name__)
 
-from . import privacy, surveys, users
+from . import surveys, users
+from app.api_1_0 import consent
 
 
 @api.before_request

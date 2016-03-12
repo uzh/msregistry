@@ -28,13 +28,13 @@ from flask.ext.babel import gettext
 from . import api
 
 
-@api.route('/privacy')
-def get_privacy_policy():
-    return redirect(url_for('api.get_multilanguage_privacy_policy', 
+@api.route('/consent')
+def get_consent():
+    return redirect(url_for('api.get_multilanguage_consent', 
                             lang_code=current_app.config['BABEL_DEFAULT_LOCALE']))
 
 
-@api.route('/<lang_code>/privacy')
-def get_multilanguage_privacy_policy():
-    return jsonify(text=unicode(gettext(u'Privacy policy')))
+@api.route('/<lang_code>/consent')
+def get_multilanguage_consent():
+    return jsonify(text=unicode(gettext(u'Informed consent')))
 
