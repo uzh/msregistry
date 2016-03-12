@@ -33,14 +33,14 @@ class User(db.Model, Serializer):
     
     id = db.Column(db.Integer, primary_key=True)
     uniqueID = db.Column(db.String(64), nullable=False, unique=True, index=True)
-    privacy_policy = db.Column(db.Boolean, default=False)
+    consent = db.Column(db.Boolean, default=False)
     member_since = db.Column(db.DateTime, default=datetime.utcnow)
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
     
-    def __init__(self, uniqueID=None, privacy_policy=None,
+    def __init__(self, uniqueID=None, consent=None,
                  member_since=None, last_seen=None):
         self.uniqueID = uniqueID
-        self.privacy_policy = privacy_policy
+        self.consent = consent
         self.member_since = member_since
         self.last_seen = last_seen
     
@@ -54,17 +54,16 @@ class User(db.Model, Serializer):
     def getByUniqueID(self, uniqueID):
         return User.query.filter_by(uniqueID=uniqueID).first()
     
-    def getPrivacyPolicyByUniqueID(self, uniqueID):
-        return self.getByUniqueID(uniqueID).privacy_policy
+    def getConsentByUniqueID(self, uniqueID):
+        return self.getByUniqueID(uniqueID).consent
     
-    def setPrivacyPolicyByUniqueID(self, privacy_policy, uniqueID):
-        if privacy_policy not in (True, False):
+    def setConsentByUniqueID(self, consent, uniqueID):
+        if consent not in (True, False):
             return False
-        return db.session.query(User).filter_by(uniqueID=uniqueID).update({'privacy_policy': privacy_policy})
+        return db.session.query(User).filter_by(uniqueID=uniqueID).update({'consent': consent})
     
-    def ping(self):
-        self.last_seen = datetime.utcnow()
-        db.session.add(self)
+    def setLastSeenByUniqueID(self, uniqueID):
+        return db.session.query(User).filter_by(uniqueID=uniqueID).update({'last_seen': datetime.utcnow()})
     
     def serialize(self):
         d = Serializer.serialize(self)

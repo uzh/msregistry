@@ -1,5 +1,5 @@
 MS Registry REST API Resources
-==================
+==============================
 
 Welcome to the MS Registry REST API. Below, you’ll find a full listing of all 
 the available  endpoints. As we add more endpoints, they will be automatically 
@@ -10,7 +10,7 @@ will accept, what the JSON object’s parameters will be in the response, and an
 example query/response.
 
 This documentation is for most recent version of the MS Registry REST API, 
-version v0.1.
+version v0.1.1.
 
 GET /auth/test
 --------------
@@ -96,7 +96,7 @@ Get metadata about the current user.
 |                     |                 | received from OAuth server           |
 |                     |                 |                                      |
 +---------------------+-----------------+--------------------------------------+
-| **privacy\_policy** | `(bool)`        | Has the privacy policy been          |
+| **consent**         | `(bool)`        | Has the Informed Consent been        |
 |                     |                 | accepted?                            |
 |                     |                 |                                      |
 +---------------------+-----------------+--------------------------------------+
@@ -157,21 +157,21 @@ curl \
 ```json
 {
   "uniqueID": "auth0|569cf82bfc02d8a0339beef4",
-  "privacy_policy": true,
+  "consent": true,
   "member_since": "2016-03-04T17:03:37",
   "last_seen": "2016-03-04T17:05:12"
 }
 ```
 
-GET /user/privacy
+GET /user/consent
 -----------------
 
-Get information about user acceptance of privacy policy. 
+Get information about user acceptance of Informed Consent. 
 
 ### Resource Information
 
 >     Method                     GET
->     URL                        /api/v1.0/user/privacy
+>     URL                        /api/v1.0/user/consent
 >     Requires authentication?   Yes
 
 ### Response Parameters
@@ -179,7 +179,7 @@ Get information about user acceptance of privacy policy.
 +---------------------+-----------------+--------------------------------------+
 | **Parameter**       | **Type**        | **Description**                      |
 +=====================+=================+======================================+
-| **privacy**         | `(bool)`        | Has the privacy policy been          |
+| **consent**         | `(bool)`        | Has the Informed Consent been        |
 |                     |                 | accepted?                            |
 |                     |                 |                                      |
 +---------------------+-----------------+--------------------------------------+
@@ -224,26 +224,26 @@ These are the possible errors returned by this endpoint.
 ```bash
 curl \
  -H 'authorization: Bearer YOUR_API_TOKEN' \
- 'https://ws.msregistry.s3it.uzh.ch/api/v1.0/user/privacy'
+ 'https://ws.msregistry.s3it.uzh.ch/api/v1.0/user/consent'
 ```
 
 #### Response
 
 ```json
 {
-  "privacy": true
+  "consent": true
 }
 ```
 
-POST /user/privacy
+POST /user/consent
 -----------------
 
-Set user acceptance of privacy policy. 
+Set user acceptance of Informed Consent. 
 
 ### Resource Information
 
 >     Method                     POST
->     URL                        /api/v1.0/user/privacy
+>     URL                        /api/v1.0/user/consent
 >     Requires authentication?   Yes
 
 ### Request Parameters
@@ -251,8 +251,8 @@ Set user acceptance of privacy policy.
 +---------------------+-----------------+--------------------------------------+
 | **Parameter**       | **Type**        | **Description**                      |
 +=====================+=================+======================================+
-| **privacy**         | `(bool)`        | Set True is privacy policy has been  |
-|                     |                 | accepted, False otherwise            |
+| **consent**         | `(bool)`        | Set True is Informed Consent has     |
+|                     |                 | been accepted, False otherwise       |
 |                     |                 |                                      |
 +---------------------+-----------------+--------------------------------------+
 
@@ -307,9 +307,9 @@ These are the possible errors returned by this endpoint.
 curl \
  -i -H "Accept: application/json" \
  -H "Content-Type: application/json" \
- -X POST -d "{'privacy': true}" \
+ -X POST -d "{'consent': true}" \
  -H 'authorization: Bearer YOUR_API_TOKEN' \
- 'https://ws.msregistry.s3it.uzh.ch/api/v1.0/user/privacy'
+ 'https://ws.msregistry.s3it.uzh.ch/api/v1.0/user/consent'
 ```
 
 #### Response
@@ -320,15 +320,15 @@ curl \
 }
 ```
 
-GET /\<lang\_code\>/privacy
+GET /\<lang\_code\>/consent
 -----------------
 
-Get privacy policy in three different languages. 
+Get Informed Consent in three different languages. 
 
 ### Resource Information
 
 >     Method                     GET
->     URL                        /api/v1.0/<lang_code>/privacy
+>     URL                        /api/v1.0/<lang_code>/consent
 >     Requires authentication?   No
 
 ### Method Parameters
@@ -346,7 +346,7 @@ Get privacy policy in three different languages.
 +---------------------+-----------------+--------------------------------------+
 | **Parameter**       | **Type**        | **Description**                      |
 +=====================+=================+======================================+
-| **text**            | `(string)`      | Text of Privacy Policy, translated   |
+| **text**            | `(string)`      | Text of Informed Consent, translated |
 |                     |                 | in three different languages         |
 |                     |                 |                                      |
 +---------------------+-----------------+--------------------------------------+
@@ -356,13 +356,13 @@ Get privacy policy in three different languages.
 ```bash
 curl \
  -H 'authorization: Bearer YOUR_API_TOKEN' \
- 'https://ws.msregistry.s3it.uzh.ch/api/v1.0/de/privacy'
+ 'https://ws.msregistry.s3it.uzh.ch/api/v1.0/de/consent'
 ```
 
 #### Response
 
 ```json
 {
-  "text": "Datenschutzbestimmungen Text"
+  "text": "Einwilligungserklärung"
 }
 ```

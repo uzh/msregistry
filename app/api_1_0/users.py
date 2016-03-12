@@ -36,20 +36,20 @@ def get_user():
     return jsonify(user.getByUniqueID(_request_ctx_stack.top.uniqueID).serialize())
 
 
-@api.route('/user/privacy', methods=['GET'])
+@api.route('/user/consent', methods=['GET'])
 @requires_auth
-def get_user_privacy():
+def get_user_consent():
     user = User()
-    return jsonify(privacy=user.getPrivacyPolicyByUniqueID(_request_ctx_stack.top.uniqueID))
+    return jsonify(consent=user.getConsentByUniqueID(_request_ctx_stack.top.uniqueID))
 
 
-@api.route('/user/privacy', methods=['POST'])
+@api.route('/user/consent', methods=['POST'])
 @requires_auth
-def set_user_privacy():
+def set_user_consent():
     user = User()
     content = request.get_json(silent=True)
-    if content and 'privacy' in content:
-        return jsonify(success=bool(user.setPrivacyPolicyByUniqueID(content['privacy'], _request_ctx_stack.top.uniqueID)))
+    if content and 'consent' in content:
+        return jsonify(success=bool(user.setConsentByUniqueID(content['consent'], _request_ctx_stack.top.uniqueID)))
     
     return jsonify(success=bool(False))
 
