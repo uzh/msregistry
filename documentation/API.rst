@@ -1,5 +1,9 @@
+==============================
 MS Registry REST API Resources
 ==============================
+
+Documentation Version
+---------------------
 
 Welcome to the MS Registry REST API. Below, you’ll find a full listing of all 
 the available  endpoints. As we add more endpoints, they will be automatically 
@@ -10,20 +14,24 @@ will accept, what the JSON object’s parameters will be in the response, and an
 example query/response.
 
 This documentation is for most recent version of the MS Registry REST API, 
-version v0.1.1.
+version v0.2.0.
 
 GET /auth/test
 --------------
 
 Test Bearer Token authentication.
 
-### Resource Information
+Resource Information
+````````````````````
 
->     Method                     GET
->     URL                        /auth/test
->     Requires authentication?   Yes
+   ::
 
-### Resource Errors
+      Method                      GET
+      URL                         /auth/test
+      Requires authentication?    Yes
+
+Resource Errors
+```````````````
 
 These are the possible errors returned by this endpoint.
 
@@ -58,36 +66,41 @@ These are the possible errors returned by this endpoint.
 |               |                      |                                       |
 +---------------+----------------------+---------------------------------------+
 
-### Example
+Example
+```````
 
-```bash
-curl \
- -H 'authorization: Bearer YOUR_API_TOKEN' \
- 'https://ws.msregistry.s3it.uzh.ch/auth/test'
-```
+.. code:: bash
 
-#### Response
+    curl \
+     -H 'authorization: Bearer YOUR_API_TOKEN' \
+     'https://ws.msregistry.s3it.uzh.ch/auth/test'
 
-```json
-{
-  "code": "authorization_success", 
-  "description": "All good. You only get this message if you're authenticated."
-}
 
-```
+Response
+::::::::
+
+.. code:: json
+
+    {
+      "code": "authorization_success", 
+      "description": "All good. You only get this message if you're authenticated."
+    }
 
 GET /user
 ---------
 
 Get metadata about the current user.
 
-### Resource Information
+Resource Information
+````````````````````
+   ::
 
->     Method                     GET
->     URL                        /api/v1.0/user
->     Requires authentication?   Yes
+      Method                      GET
+      URL                         /api/v1.0/user
+      Requires authentication?    Yes
 
-### Response Parameters
+Response Parameters
+```````````````````
 
 +---------------------+-----------------+--------------------------------------+
 | **Parameter**       | **Type**        | **Description**                      |
@@ -109,7 +122,8 @@ Get metadata about the current user.
 |                     |                 |                                      |
 +---------------------+-----------------+--------------------------------------+
 
-### Resource Errors
+Resource Errors
+```````````````
 
 These are the possible errors returned by this endpoint.
 
@@ -144,37 +158,43 @@ These are the possible errors returned by this endpoint.
 |               |                      |                                       |
 +---------------+----------------------+---------------------------------------+
 
-### Example
+Example
+```````
 
-```bash
-curl \
- -H 'authorization: Bearer YOUR_API_TOKEN' \
- 'https://ws.msregistry.s3it.uzh.ch/api/v1.0/user'
-```
+.. code:: bash
 
-#### Response
+    curl \
+     -H 'authorization: Bearer YOUR_API_TOKEN' \
+     'https://ws.msregistry.s3it.uzh.ch/api/v1.0/user'
 
-```json
-{
-  "uniqueID": "auth0|569cf82bfc02d8a0339beef4",
-  "consent": true,
-  "member_since": "2016-03-04T17:03:37",
-  "last_seen": "2016-03-04T17:05:12"
-}
-```
+Response
+::::::::
+
+.. code:: json
+
+    {
+      "uniqueID": "auth0|569cf82bfc02d8a0339beef4",
+      "consent": true,
+      "member_since": "2016-03-04T17:03:37",
+      "last_seen": "2016-03-04T17:05:12"
+    }
 
 GET /user/consent
 -----------------
 
 Get information about user acceptance of Informed Consent. 
 
-### Resource Information
+Resource Information
+````````````````````
 
->     Method                     GET
->     URL                        /api/v1.0/user/consent
->     Requires authentication?   Yes
+   ::
 
-### Response Parameters
+      Method                      GET
+      URL                         /api/v1.0/user/consent
+      Requires authentication?    Yes
+
+Response Parameters
+```````````````````
 
 +---------------------+-----------------+--------------------------------------+
 | **Parameter**       | **Type**        | **Description**                      |
@@ -184,7 +204,8 @@ Get information about user acceptance of Informed Consent.
 |                     |                 |                                      |
 +---------------------+-----------------+--------------------------------------+
 
-### Resource Errors
+Resource Errors
+```````````````
 
 These are the possible errors returned by this endpoint.
 
@@ -219,34 +240,40 @@ These are the possible errors returned by this endpoint.
 |               |                      |                                       |
 +---------------+----------------------+---------------------------------------+
 
-### Example
+Example
+```````
 
-```bash
-curl \
- -H 'authorization: Bearer YOUR_API_TOKEN' \
- 'https://ws.msregistry.s3it.uzh.ch/api/v1.0/user/consent'
-```
+.. code:: bash
 
-#### Response
+    curl \
+     -H 'authorization: Bearer YOUR_API_TOKEN' \
+     'https://ws.msregistry.s3it.uzh.ch/api/v1.0/user/consent'
 
-```json
-{
-  "consent": true
-}
-```
+Response
+::::::::
+
+.. code:: json
+
+    {
+        "consent": true
+    }
 
 POST /user/consent
------------------
+------------------
 
 Set user acceptance of Informed Consent. 
 
-### Resource Information
+Resource Information
+````````````````````
 
->     Method                     POST
->     URL                        /api/v1.0/user/consent
->     Requires authentication?   Yes
+   ::
 
-### Request Parameters
+      Method                      POST
+      URL                         /api/v1.0/user/consent
+      Requires authentication?    Yes
+
+Request Parameters
+``````````````````
 
 +---------------------+-----------------+--------------------------------------+
 | **Parameter**       | **Type**        | **Description**                      |
@@ -256,7 +283,8 @@ Set user acceptance of Informed Consent.
 |                     |                 |                                      |
 +---------------------+-----------------+--------------------------------------+
 
-### Response Parameters
+Response Parameters
+```````````````````
 
 +---------------------+-----------------+--------------------------------------+
 | **Parameter**       | **Type**        | **Description**                      |
@@ -266,7 +294,8 @@ Set user acceptance of Informed Consent.
 |                     |                 |                                      |
 +---------------------+-----------------+--------------------------------------+
 
-### Resource Errors
+Resource Errors
+```````````````
 
 These are the possible errors returned by this endpoint.
 
@@ -301,37 +330,44 @@ These are the possible errors returned by this endpoint.
 |               |                      |                                       |
 +---------------+----------------------+---------------------------------------+
 
-### Example
+Example
+```````
 
-```bash
-curl \
- -i -H "Accept: application/json" \
- -H "Content-Type: application/json" \
- -X POST -d "{'consent': true}" \
- -H 'authorization: Bearer YOUR_API_TOKEN' \
- 'https://ws.msregistry.s3it.uzh.ch/api/v1.0/user/consent'
-```
+.. code:: bash
 
-#### Response
+    curl \
+     -i -H "Accept: application/json" \
+     -H "Content-Type: application/json" \
+     -X POST -d "{'consent': true}" \
+     -H 'authorization: Bearer YOUR_API_TOKEN' \
+     'https://ws.msregistry.s3it.uzh.ch/api/v1.0/user/consent'
 
-```json
-{
-  "success": true
-}
-```
+Response
+::::::::
+
+.. code:: json
+
+    {
+      "success": true
+    }
+
 
 GET /\<lang\_code\>/consent
------------------
+---------------------------
 
 Get Informed Consent in three different languages. 
 
-### Resource Information
+Resource Information
+````````````````````
 
->     Method                     GET
->     URL                        /api/v1.0/<lang_code>/consent
->     Requires authentication?   No
+   ::
 
-### Method Parameters
+      Method                      GET
+      URL                         /api/v1.0/<lang_code>/consent
+      Requires authentication?    NO
+
+Method Parameters
+`````````````````
 
 +---------------------+-----------------+--------------------------------------+
 | **Parameter**       | **Type**        | **Description**                      |
@@ -341,7 +377,8 @@ Get Informed Consent in three different languages.
 |                     |                 |                                      |
 +---------------------+-----------------+--------------------------------------+
 
-### Response Parameters
+Response Parameters
+```````````````````
 
 +---------------------+-----------------+--------------------------------------+
 | **Parameter**       | **Type**        | **Description**                      |
@@ -351,18 +388,20 @@ Get Informed Consent in three different languages.
 |                     |                 |                                      |
 +---------------------+-----------------+--------------------------------------+
 
-### Example
+Example
+```````
 
-```bash
-curl \
- -H 'authorization: Bearer YOUR_API_TOKEN' \
- 'https://ws.msregistry.s3it.uzh.ch/api/v1.0/de/consent'
-```
+.. code:: bash
 
-#### Response
+    curl \
+     -H 'authorization: Bearer YOUR_API_TOKEN' \
+     'https://ws.msregistry.s3it.uzh.ch/api/v1.0/de/consent'
 
-```json
-{
-  "text": "Einwilligungserklärung"
-}
-```
+Response
+::::::::
+
+.. code:: json
+
+    {
+      "text": "Einwilligungserklärung"
+    }
