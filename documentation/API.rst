@@ -2,7 +2,7 @@
 MS Registry REST API Resources
 ==============================
 
-Documentation Version
+Document Version
 ---------------------
 
 Welcome to the MS Registry REST API. Below, you’ll find a full listing of all 
@@ -14,7 +14,7 @@ will accept, what the JSON object’s parameters will be in the response, and an
 example query/response.
 
 This documentation is for most recent version of the MS Registry REST API, 
-version v0.2.0.
+version **v0.2.0**.
 
 GET /auth/test
 --------------

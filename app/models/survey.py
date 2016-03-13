@@ -24,15 +24,6 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 from datetime import datetime
 from app import db
 
-class Survey(db.Model):
-    __tablename__ = 'surveys'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-
-    def __init__(self, timestamp):
-        self.timestamp = timestamp
-    
-    def __repr__(self):
-        return '<Survey %r>' % self.id
+class Survey(db.Document):
+    timestamp = db.DateTimeField(default=datetime.utcnow)
 

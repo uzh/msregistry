@@ -22,56 +22,42 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 
 
 from datetime import datetime
-
 from app import db
 
-from serializer import Serializer
-
-
-class User(db.Model, Serializer):
-    __tablename__ = 'user'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    uniqueID = db.Column(db.String(64), nullable=False, unique=True, index=True)
-    consent = db.Column(db.Boolean, default=False)
-    member_since = db.Column(db.DateTime, default=datetime.utcnow)
-    last_seen = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    def __init__(self, uniqueID=None, consent=None,
-                 member_since=None, last_seen=None):
-        self.uniqueID = uniqueID
-        self.consent = consent
-        self.member_since = member_since
-        self.last_seen = last_seen
+class User(db.Document):
+    uniqueID = db.StringField(unique=True, required=True)
+    consent = db.BooleanField(default=False, required=True)
+    member_since = db.DateTimeField(default=datetime.utcnow, required=True)
+    last_seen = db.DateTimeField(default=datetime.utcnow, required=True)
     
     def createIfNotExistsByUniqueID(self, uniqueID):
-        if self.getByUniqueID(uniqueID) is None:
+        if User.objects(uniqueID=uniqueID) is None:
             self.uniqueID = uniqueID
-            db.session.add(self)
-            db.session.commit()
+            self.save()
+        # TODO
         return True
     
     def getByUniqueID(self, uniqueID):
-        return User.query.filter_by(uniqueID=uniqueID).first()
+        return User.objects(uniqueID=uniqueID).first()
     
     def getConsentByUniqueID(self, uniqueID):
-        return self.getByUniqueID(uniqueID).consent
+        return User.objects(uniqueID=uniqueID).consent
     
     def setConsentByUniqueID(self, consent, uniqueID):
         if consent not in (True, False):
             return False
-        return db.session.query(User).filter_by(uniqueID=uniqueID).update({'consent': consent})
+        return User.objects(uniqueID=uniqueID).update(consent=consent)
     
     def setLastSeenByUniqueID(self, uniqueID):
-        return db.session.query(User).filter_by(uniqueID=uniqueID).update({'last_seen': datetime.utcnow()})
-    
+        return User.objects(uniqueID=uniqueID).update(last_seen=datetime.utcnow())
+        
     def serialize(self):
-        d = Serializer.serialize(self)
-        del d['id']
-        d['member_since'] = d['member_since'].isoformat()
-        d['last_seen'] = d['last_seen'].isoformat()
+        d = {
+               "uniqueID": str(self.uniqueID),
+               "consent": bool(self.consent)
+            }
+        d['member_since'] = self.member_since.isoformat()
+        d['last_seen'] = self.last_seen.isoformat()
+        
         return d
-    
-    def __repr__(self):
-        return '<User %r>' % (self.uniqueID)
 
