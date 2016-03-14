@@ -33,8 +33,8 @@ class User(db.Document):
     def createIfNotExistsByUniqueID(self, uniqueID):
         if User.objects(uniqueID=uniqueID) is None:
             self.uniqueID = uniqueID
-            self.save()
-        # TODO
+            return self.save()
+        
         return True
     
     def getByUniqueID(self, uniqueID):
