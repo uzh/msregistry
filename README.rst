@@ -32,26 +32,11 @@ Now you can easily install Python dependencies:
 Deploy Database and run Web Application
 =======================================
 
-Using ``manage.py`` you can create initial empty database
-
-   ::
-
-      $ python manage.py db init
-      $ python manage.py db migrate
-      $ python manage.py create
-
-and run Web application
+Use ``manage.py`` to run Web application
 
    ::
 
       $ python manage.py runserver
-
-If you need to populate database with sample data, use ``--sample_data`` option
-
-   ::
-
-      $ python manage.py create --sample_data
-      
 
 Config
 ======

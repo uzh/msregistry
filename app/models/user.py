@@ -50,7 +50,7 @@ class User(db.Document):
     
     def setLastSeenByUniqueID(self, uniqueID):
         return User.objects(uniqueID=uniqueID).update(last_seen=datetime.utcnow())
-        
+    
     def serialize(self):
         d = {
                "uniqueID": str(self.uniqueID),

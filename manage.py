@@ -26,7 +26,7 @@ import os
 
 from app import create_app
 
-from flask.ext.script import Manager, prompt_bool
+from flask.ext.script import Manager
 
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'DEFAULT')
@@ -52,46 +52,6 @@ def profile(length=25, profile_dir=None):
     app.wsgi_app = ProfilerMiddleware(app.wsgi_app, restrictions=[length],
                                       profile_dir=profile_dir)
     app.run()
-
-
-@manager.command
-def drop():
-    "Drops all database tables"
-    if prompt_bool("Are you sure ? You will lose all your data !"):
-        db.drop_all()
-
-
-@manager.command
-def create(default_data=True, sample_data=False):
-    "Creates database tables from sqlalchemy models"
-    db.create_all()
-    populate(default_data, sample_data)
-
-
-@manager.command
-def recreate(default_data=True, sample_data=False):
-    "Recreates database tables (same as issuing 'drop' and then 'create')"
-    drop()
-    create(default_data, sample_data)
-
-
-@manager.command
-def populate(default_data=False, sample_data=False):
-    "Populate database with default data"
-    from fixtures import dbfixture
-
-    datasets = []
-
-    if default_data:
-        from fixtures.default_data import all
-        datasets.extend(all)
-
-    if sample_data:
-        from fixtures.sample_data import all
-        datasets.extend(all)
-
-    data = dbfixture.data(*datasets)
-    data.setup()
 
 
 if __name__ == '__main__':
