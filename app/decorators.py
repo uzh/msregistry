@@ -103,6 +103,11 @@ def get_tokeninfo(f):
         else:
             _request_ctx_stack.top.roles = None
         
+        if 'app_metadata' in json_object and 'lang' in json_object:
+            _request_ctx_stack.top.lang = json_object['app_metadata']['lang']
+        else:
+            _request_ctx_stack.top.lang = None
+        
         return f(*args, **kwargs)
 
     return decorated

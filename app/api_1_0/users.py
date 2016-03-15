@@ -60,3 +60,10 @@ def set_user_consent():
 def get_user_roles():
     return jsonify(roles=_request_ctx_stack.top.roles)
 
+
+@api.route('/user/lang')
+@requires_auth
+@get_tokeninfo
+def get_user_lang():
+    return jsonify(lang=_request_ctx_stack.top.lang)
+
