@@ -86,7 +86,7 @@ def requires_auth(f):
 def get_tokeninfo(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        url = 'https://msregistry.eu.auth0.com/tokeninfo'
+        url = current_app.config['URL_TOKENINFO']
         
         values = {'id_token' : _request_ctx_stack.top.token }
         headers = { 'Accept' : 'application/json',

@@ -14,6 +14,7 @@ COMMON: &common
   OAUTH_CLIENT_SECRET: 'CLIENT_SECRET'
   BABEL_DEFAULT_LOCALE: 'de'
   LANGUAGES: {'de': 'Deutsch', 'fr': 'Français', 'it': 'Italiano'}
+  URL_TOKENINFO: 'https://example.com/tokeninfo'
 
 DEVELOPMENT: &development
   <<: *common
