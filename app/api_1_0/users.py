@@ -26,7 +26,7 @@ from flask import jsonify, request, _request_ctx_stack
 from . import api
 from app.models.user import User
 
-from ..decorators import requires_auth
+from ..decorators import requires_auth, get_tokeninfo
 
 
 @api.route('/user')
@@ -52,4 +52,11 @@ def set_user_consent():
         return jsonify(success=bool(user.setConsentByUniqueID(content['consent'], _request_ctx_stack.top.uniqueID)))
     
     return jsonify(success=bool(False))
+
+
+@api.route('/user/roles')
+@requires_auth
+@get_tokeninfo
+def get_user_roles():
+    return jsonify(roles=_request_ctx_stack.top.roles)
 

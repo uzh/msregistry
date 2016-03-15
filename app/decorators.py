@@ -23,6 +23,8 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 
 import jwt
 import base64
+import json
+import urllib, urllib2
 
 from functools import wraps
 from flask import request, _request_ctx_stack
@@ -53,6 +55,8 @@ def requires_auth(f):
             return invalid_header('Authorization header must be Bearer + \s + token')
 
         token = parts[1]
+        _request_ctx_stack.top.token = token
+         
         try:
             payload = jwt.decode(
                                  token,
@@ -73,6 +77,31 @@ def requires_auth(f):
             return internal_server_error('An error occurred while adding this user')
         
         user.setLastSeenByUniqueID(_request_ctx_stack.top.uniqueID)
+        
+        return f(*args, **kwargs)
+
+    return decorated
+
+
+def get_tokeninfo(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        url = 'https://msregistry.eu.auth0.com/tokeninfo'
+        
+        values = {'id_token' : _request_ctx_stack.top.token }
+        headers = { 'Accept' : 'application/json',
+                    'Authorization' : 'Bearer %s' % _request_ctx_stack.top.token }
+        
+        data = urllib.urlencode(values)
+        request = urllib2.Request(url, data, headers)
+        
+        json_data = urllib2.urlopen(request).read()
+        json_object = json.loads(json_data)
+        
+        if 'app_metadata' in json_object and 'roles' in json_object:
+            _request_ctx_stack.top.roles = json_object['app_metadata']['roles']
+        else:
+            _request_ctx_stack.top.roles = None
         
         return f(*args, **kwargs)
 
