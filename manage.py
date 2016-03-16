@@ -22,6 +22,7 @@ __author__ = "Filippo Panessa <filippo.panessa@uzh.ch>"
 __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 " University of Zurich")
 
+
 import os
 
 from app import create_app
