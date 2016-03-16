@@ -352,10 +352,10 @@ Response
     }
 
 
-GET /\<lang\_code\>/consent
----------------------------
+GET /user/roles
+---------------
 
-Get Informed Consent in three different languages. 
+Get User's Roles. 
 
 Resource Information
 ````````````````````
@@ -363,19 +363,8 @@ Resource Information
    ::
 
       Method                      GET
-      URL                         /api/v1.0/<lang_code>/consent
-      Requires authentication?    NO
-
-Method Parameters
-`````````````````
-
-+---------------------+-----------------+--------------------------------------+
-| **Parameter**       | **Type**        | **Description**                      |
-+=====================+=================+======================================+
-| **lang_code**       | `(string)`      | Three different languages. Accepted  |
-|                     |                 | values are: 'de', 'fr', 'it'         |
-|                     |                 |                                      |
-+---------------------+-----------------+--------------------------------------+
+      URL                         /api/v1.0/user/roles
+      Requires authentication?    YES
 
 Response Parameters
 ```````````````````
@@ -383,10 +372,50 @@ Response Parameters
 +---------------------+-----------------+--------------------------------------+
 | **Parameter**       | **Type**        | **Description**                      |
 +=====================+=================+======================================+
-| **text**            | `(string)`      | Text of Informed Consent, translated |
-|                     |                 | in three different languages         |
+| **roles**           | `(array)`       | Return user's roles stored on OAuth  |
+|                     |                 | Server. Returned values are:         |
+|                     |                 | 'doctor', 'patient', 'relative'.     |
+|                     |                 | If no roles are stored on OAuth      |
+|                     |                 | Server, return default role          |
+|                     |                 | 'patient'.                           |
 |                     |                 |                                      |
 +---------------------+-----------------+--------------------------------------+
+
+Resource Errors
+```````````````
+
+These are the possible errors returned by this endpoint.
+
++---------------+----------------------+---------------------------------------+
+| **HTTP Code** | **Error Identifier** | **Error Message**                     |
++===============+======================+=======================================+
+| 403           |authorization_required| Authorization header is expected      |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |invalid_header        | Authorization header must start with  |
+|               |                      | Bearer                                |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |invalid_header        | Token not found                       |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |invalid_header        | Authorization header must be Bearer + |
+|               |                      | token                                 |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 400           |token_expired         | Token is expired                      |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 400           |invalid_audience      | Incorrect audience                    |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 400           |invalid_signature     | Token signature is invalid            |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 500           |internal_server_error | An error occurred while adding this   |
+|               |                      | user                                  |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
 
 Example
 ```````
@@ -395,7 +424,7 @@ Example
 
     curl \
      -H 'authorization: Bearer YOUR_API_TOKEN' \
-     'https://ws.msregistry.s3it.uzh.ch/api/v1.0/de/consent'
+     'https://ws.msregistry.s3it.uzh.ch/api/v1.0/user/roles'
 
 Response
 ::::::::
@@ -403,5 +432,91 @@ Response
 .. code:: json
 
     {
-      "text": "Einwilligungserklärung"
+      "roles": [
+        "doctor", 
+        "patient"
+      ]
+    }
+
+GET /user/lang
+--------------
+
+Get User's Language. 
+
+Resource Information
+````````````````````
+
+   ::
+
+      Method                      GET
+      URL                         /api/v1.0/user/lang
+      Requires authentication?    YES
+
+Response Parameters
+```````````````````
+
++---------------------+-----------------+--------------------------------------+
+| **Parameter**       | **Type**        | **Description**                      |
++=====================+=================+======================================+
+| **lang**            | `(string)`      | Return user's language setting       |
+|                     |                 | stored on OAuth Server. Returned     |
+|                     |                 | values are: 'de', 'fr', 'it'.        |
+|                     |                 | If no language setting is stored on  |
+|                     |                 | OAuth Server, return default         |
+|                     |                 | language 'de'.                       |
+|                     |                 |                                      |
++---------------------+-----------------+--------------------------------------+
+
+Resource Errors
+```````````````
+
+These are the possible errors returned by this endpoint.
+
++---------------+----------------------+---------------------------------------+
+| **HTTP Code** | **Error Identifier** | **Error Message**                     |
++===============+======================+=======================================+
+| 403           |authorization_required| Authorization header is expected      |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |invalid_header        | Authorization header must start with  |
+|               |                      | Bearer                                |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |invalid_header        | Token not found                       |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |invalid_header        | Authorization header must be Bearer + |
+|               |                      | token                                 |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 400           |token_expired         | Token is expired                      |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 400           |invalid_audience      | Incorrect audience                    |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 400           |invalid_signature     | Token signature is invalid            |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 500           |internal_server_error | An error occurred while adding this   |
+|               |                      | user                                  |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+
+Example
+```````
+
+.. code:: bash
+
+    curl \
+     -H 'authorization: Bearer YOUR_API_TOKEN' \
+     'https://ws.msregistry.s3it.uzh.ch/api/v1.0/user/lang'
+
+Response
+::::::::
+
+.. code:: json
+
+    {
+      "lang": "de"
     }
