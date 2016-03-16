@@ -26,14 +26,4 @@ from flask import abort, current_app, Blueprint, g, request
 api = Blueprint('api', __name__)
 
 from . import surveys, users
-from app.api_1_0 import consent
 
-
-@api.before_request
-def before():
-    if request.view_args and 'lang_code' in request.view_args:
-        if request.view_args['lang_code'] not in current_app.config['LANGUAGES'].keys():
-            return abort(404)
-        g.current_lang = request.view_args['lang_code']
-        request.view_args.pop('lang_code')
-        

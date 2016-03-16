@@ -3,9 +3,6 @@ COMMON: &common
   TESTING: False
   SECRET_KEY: 't0p s3cr3t'
   SSL_DISABLE: False
-  SQLALCHEMY_COMMIT_ON_TEARDOWN: True
-  SQLALCHEMY_RECORD_QUERIES: True
-  SQLALCHEMY_TRACK_MODIFICATIONS: True
   MAIL_SERVER: 'smtp.googlemail.com'
   MAIL_PORT: 587
   MAIL_USE_TLS: True
@@ -13,25 +10,26 @@ COMMON: &common
   MAIL_PASSWORD: 'MAIL_PASSWORD'
   MAIL_SUBJECT_PREFIX: 'MAIL_SUBJECT_PREFIX'
   MAIL_SENDER: '<info@example.com>'
-  SLOW_DB_QUERY_TIME: 0.5
   OAUTH_CLIENT_ID: 'CLIENT_ID'
   OAUTH_CLIENT_SECRET: 'CLIENT_SECRET'
-  BABEL_DEFAULT_LOCALE: 'de'
-  LANGUAGES: {'de': 'Deutsch', 'fr': 'Français', 'it': 'Italiano'}
+  DEFAULT_ROLE: 'patient'
+  DEFAULT_LANG: 'de'
+  URL_TOKENINFO: 'https://example.com/tokeninfo'
 
 DEVELOPMENT: &development
   <<: *common
   DEBUG: True
-  SQLALCHEMY_DATABASE_URI: 'sqlite:////tmp/data-dev.sqlite'
+  MONGODB_DB: 'msdevelopment'
 
 PRODUCTION: &production
   <<: *common
-  SQLALCHEMY_DATABASE_URI: 'sqlite:////tmp/data-dev.sqlite'
+  MONGODB_DB: 'msregistry'
+  MONGODB_USERNAME: 'webapp'
+  MONGODB_PASSWORD: 'pwd123'
 
 TESTING: &testing
   TESTING: True
-  SQLALCHEMY_DATABASE_URI: 'sqlite:////tmp/data-dev.sqlite'
-  WTF_CSRF_ENABLED: False
+  MONGODB_DB: 'msdevelopment'
 
 DEFAULT: &default
   <<: *development

@@ -23,19 +23,7 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 
 from flask import abort, current_app, request
 
-from flask.ext.sqlalchemy import get_debug_queries
 from . import main
-
-
-@main.after_app_request
-def after_request(response):
-    for query in get_debug_queries():
-        if query.duration >= current_app.config['SLOW_DB_QUERY_TIME']:
-            current_app.logger.warning(
-                'Slow query: %s\nParameters: %s\nDuration: %fs\nContext: %s\n'
-                % (query.statement, query.parameters, query.duration,
-                   query.context))
-    return response
 
     
 @main.route('/shutdown')

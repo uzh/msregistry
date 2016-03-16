@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 # Copyright (C) 2016 University of Zurich.  All rights reserved.
 #
 # This file is part of MSRegistry Backend.
@@ -23,15 +21,27 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 " University of Zurich")
 
 
-from fixture import DataSet
+import unittest
+
 from datetime import datetime
 
+from app import create_app
+from app.models import User
 
-class UserData(DataSet):
-    class filippo_panessa:
-        uniqueID = '01010101'
-        confirmed = False
-        member_since = datetime.utcnow()
-        last_seen = datetime.utcnow()
 
-all = {UserData}
+class BasicsTestCase(unittest.TestCase):
+    def setUp(self):
+        self.app = create_app('TESTING')
+        self.app_context = self.app.app_context()
+        self.app_context.push()
+
+    def tearDown(self):
+        self.app_context.pop()
+
+    def test_create_user(self):
+        u = User(uniqueID='01010101', 
+                 consent=False, 
+                 member_since=datetime.utcnow,
+                 last_seen=datetime.utcnow)
+        u.save()
+
