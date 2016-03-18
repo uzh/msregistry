@@ -44,3 +44,9 @@ def add_survey():
     
     return jsonify(success=bool(False))
 
+
+@api.route('/survey/get/<string:_id>', methods=['GET'])
+def get_survey(_id):
+    survey = Survey()
+    return jsonify(survey.getById(_id).serialize())
+

@@ -29,7 +29,7 @@ class Survey(db.Document):
     survey = db.DictField()
     
     def getById(self, _id):
-        return Survey.objects(_id=_id).first()
+        return Survey.objects(id=_id).first()
     
     def getAll(self):
         return Survey.objects().all()
@@ -39,7 +39,7 @@ class Survey(db.Document):
         return self.save()
     
     def deleteById(self, _id):
-        return Survey.objects(_id=_id).delete()
+        return Survey.objects(id=_id).delete()
        
     def serialize(self):
         d = {
