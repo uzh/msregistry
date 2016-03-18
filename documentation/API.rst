@@ -3,7 +3,7 @@ MS Registry REST API Resources
 ==============================
 
 Document Version
----------------------
+----------------
 
 Welcome to the MS Registry REST API. Below, you’ll find a full listing of all 
 the available  endpoints. As we add more endpoints, they will be automatically 

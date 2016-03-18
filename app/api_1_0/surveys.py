@@ -21,13 +21,26 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 " University of Zurich")
 
 
+from flask import jsonify, request
+
 from . import api
+from app.models.survey import Survey
 
-from ..decorators import requires_auth
+from ..decorators import requires_auth, get_tokeninfo
 
 
-@api.route('/surveys/')
-@requires_auth
+@api.route('/survey')
 def get_surveys():
-    return
+    survey = Survey()
+    return jsonify(surveys=[ob.serialize() for ob in survey.getAll()])
+
+
+@api.route('/survey/add', methods=['POST'])
+def add_survey():
+    survey = Survey()
+    content = request.get_json(silent=True)
+    if content:
+        return jsonify(success=bool(survey.add(content)))
+    
+    return jsonify(success=bool(False))
 
