@@ -51,7 +51,7 @@ def get_survey(_id):
     survey = Survey()
     result = survey.getById(_id)
     if result is not None:
-        return result.serialize()
+        return jsonify(result.serialize())
     
     return page_not_found('Survey not founded')
 
@@ -59,8 +59,5 @@ def get_survey(_id):
 @api.route('/survey/del/<string:_id>', methods=['GET'])
 def del_survey(_id):
     survey = Survey()
-    if _id:
-        return jsonify(success=bool(survey.deleteById(_id)))
-
-    return jsonify(success=bool(False))
+    return jsonify(success=bool(survey.deleteById(_id)))
 

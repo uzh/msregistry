@@ -30,7 +30,7 @@ class Survey(db.Document):
     
     def getById(self, _id):
         try:
-            Survey.objects(id=_id).first()
+            return Survey.objects(id=_id).first()
         except Exception:
             return None
     
@@ -42,8 +42,11 @@ class Survey(db.Document):
         return self.save()
     
     def deleteById(self, _id):
-        return Survey.objects(id=_id).delete()
-       
+        try:
+            return Survey.objects(id=_id).delete()
+        except Exception:
+            return False
+    
     def serialize(self):
         d = {
                 "id": str(self.id),
