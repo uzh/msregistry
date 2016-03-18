@@ -30,6 +30,7 @@ from ..decorators import requires_auth, get_tokeninfo
 
 from app.main.errors import page_not_found
 
+
 @api.route('/survey')
 def get_surveys():
     survey = Survey()
@@ -53,7 +54,7 @@ def get_survey(_id):
     if result is not None:
         return jsonify(result.serialize())
     
-    return page_not_found('Survey not founded')
+    return page_not_found('Survey not found')
 
 
 @api.route('/survey/del/<string:_id>', methods=['GET'])

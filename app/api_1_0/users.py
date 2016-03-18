@@ -28,12 +28,18 @@ from app.models.user import User
 
 from ..decorators import requires_auth, get_tokeninfo
 
+from app.main.errors import page_not_found
+
 
 @api.route('/user')
 @requires_auth
 def get_user():
     user = User()
-    return jsonify(user.getByUniqueID(_request_ctx_stack.top.uniqueID).serialize())
+    result = user.getByUniqueID(_request_ctx_stack.top.uniqueID)
+    if result is not None:
+        return jsonify(result.serialize())
+    
+    return page_not_found('User not found')
 
 
 @api.route('/user/consent', methods=['GET'])
