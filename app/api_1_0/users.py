@@ -21,14 +21,12 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 " University of Zurich")
 
 
-from flask import jsonify, request, _request_ctx_stack
+from flask import abort, jsonify, request, _request_ctx_stack
 
 from . import api
 from app.models.user import User
 
 from ..decorators import requires_auth, get_tokeninfo
-
-from app.main.errors import page_not_found
 
 
 @api.route('/user')
@@ -39,7 +37,7 @@ def get_user():
     if result is not None:
         return jsonify(result.serialize())
     
-    return page_not_found('User not found')
+    return abort(404)
 
 
 @api.route('/user/consent', methods=['GET'])

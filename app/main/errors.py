@@ -32,8 +32,8 @@ def forbidden(e):
     return response
 
 @main.app_errorhandler(404)
-def page_not_found(message):
-    response = jsonify({'error': 'not found', 'message': message})
+def page_not_found(e):
+    response = jsonify({'error': 'not found'})
     response.status_code = 404
     return response
 
@@ -57,7 +57,7 @@ def authorization_required(message):
 
 @main.app_errorhandler(400)
 def bad_request(message):
-    response = jsonify({'error': 'bad request', 'message': message})
+    response = jsonify({'error': 'bad request', 'description': message})
     response.status_code = 400
     return response
 
@@ -81,7 +81,7 @@ def invalid_signature(message):
 
 @main.app_errorhandler(401)
 def unauthorized(message):
-    response = jsonify({'error': 'unauthorized', 'message': message})
+    response = jsonify({'error': 'unauthorized', 'description': message})
     response.status_code = 401
     return response
 
