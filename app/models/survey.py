@@ -29,7 +29,10 @@ class Survey(db.Document):
     survey = db.DictField()
     
     def getById(self, _id):
-        return Survey.objects(id=_id).first()
+        try:
+            Survey.objects(id=_id).first()
+        except Exception:
+            return None
     
     def getAll(self):
         return Survey.objects().all()

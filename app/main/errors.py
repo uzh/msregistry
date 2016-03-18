@@ -32,8 +32,8 @@ def forbidden(e):
     return response
 
 @main.app_errorhandler(404)
-def page_not_found(e):
-    response = jsonify({'error': 'not found'})
+def page_not_found(message):
+    response = jsonify({'error': 'not found', 'message': message})
     response.status_code = 404
     return response
 

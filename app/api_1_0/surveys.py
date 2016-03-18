@@ -28,6 +28,7 @@ from app.models.survey import Survey
 
 from ..decorators import requires_auth, get_tokeninfo
 
+from app.main.errors import page_not_found
 
 @api.route('/survey')
 def get_surveys():
@@ -48,5 +49,18 @@ def add_survey():
 @api.route('/survey/get/<string:_id>', methods=['GET'])
 def get_survey(_id):
     survey = Survey()
-    return jsonify(survey.getById(_id).serialize())
+    result = survey.getById(_id)
+    if result is not None:
+        return result.serialize()
+    
+    return page_not_found('Survey not founded')
+
+
+@api.route('/survey/del/<string:_id>', methods=['GET'])
+def del_survey(_id):
+    survey = Survey()
+    if _id:
+        return jsonify(success=bool(survey.deleteById(_id)))
+
+    return jsonify(success=bool(False))
 
