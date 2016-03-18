@@ -44,7 +44,10 @@ class User(db.Document):
             return None
     
     def getConsentByUniqueID(self, uniqueID):
-        return User.objects(uniqueID=uniqueID).consent
+        try:
+            return User.objects(uniqueID=uniqueID).consent
+        except Exception:
+            return None
     
     def setConsentByUniqueID(self, consent, uniqueID):
         if consent not in (True, False):

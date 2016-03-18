@@ -44,7 +44,11 @@ def get_user():
 @requires_auth
 def get_user_consent():
     user = User()
-    return jsonify(consent=user.getConsentByUniqueID(_request_ctx_stack.top.uniqueID))
+    result = user.getConsentByUniqueID(_request_ctx_stack.top.uniqueID)
+    if result is not None:
+        return jsonify(consent=result)
+    
+    return abort(404)
 
 
 @api.route('/user/consent', methods=['POST'])
