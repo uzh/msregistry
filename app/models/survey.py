@@ -25,5 +25,28 @@ from datetime import datetime
 from app import db
 
 class Survey(db.Document):
+    survey_id = db.IntField(max_length=16, primary_key = True)
     timestamp = db.DateTimeField(default=datetime.utcnow)
+    survey = db.DictField()
+    
+    def getById(self, survey_id):
+        return Survey.objects(survey_id=survey_id).first()
+    
+    def getAll(self):
+        return Survey.objects().all()
+    
+    def add(self, survey):
+        return Survey.objects().all()
+    
+    def deleteById(self, survey_id):
+        return Survey.objects(survey_id=survey_id).delete()
+            
+    def serialize(self):
+        d = {
+               "id": self.survey_id,
+               "timestamp": self.timestamp.isoformat(),
+               "survey": self.survey
+            }
+        
+        return d
 
