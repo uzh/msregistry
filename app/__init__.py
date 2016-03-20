@@ -23,14 +23,12 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 
 from flask import Flask, abort, g, request, jsonify
 from flask.ext.bootstrap import Bootstrap
-from flask.ext.mail import Mail
 from flask.ext.moment import Moment
 from flask.ext.mongoengine import MongoEngine
 from flask_environments import Environments
 
 
 bootstrap = Bootstrap()
-mail = Mail()
 moment = Moment()
 db = MongoEngine()
 
@@ -40,7 +38,6 @@ def create_app(config_name):
     app.config.from_object(env.from_yaml('config.yml'))
     
     bootstrap.init_app(app)
-    mail.init_app(app)
     moment.init_app(app)
     db.init_app(app)
     
