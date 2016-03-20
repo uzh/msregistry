@@ -33,7 +33,8 @@ from flask import current_app
 
 from models.user import User
 from app.main.errors import authorization_required, internal_server_error,\
-    invalid_header, token_expired, invalid_audience, invalid_signature
+    invalid_header, token_expired, invalid_audience, invalid_signature,\
+    unauthorized
 
 
 def requires_auth(f):
@@ -83,32 +84,49 @@ def requires_auth(f):
     return decorated
 
 
-def get_tokeninfo(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        url = current_app.config['URL_TOKENINFO']
-        
-        values = {'id_token' : _request_ctx_stack.top.token }
-        headers = { 'Accept' : 'application/json',
-                    'Authorization' : 'Bearer %s' % _request_ctx_stack.top.token }
-        
-        data = urllib.urlencode(values)
-        request = urllib2.Request(url, data, headers)
-        
-        json_data = urllib2.urlopen(request).read()
-        json_object = json.loads(json_data)
-        
-        if 'app_metadata' in json_object and 'roles' in json_object:
-            _request_ctx_stack.top.roles = json_object['app_metadata']['roles']
-        else:
-            _request_ctx_stack.top.roles = current_app.config['DEFAULT_ROLE']
-        
-        if 'app_metadata' in json_object and 'lang' in json_object:
-            _request_ctx_stack.top.lang = json_object['app_metadata']['lang']
-        else:
-            _request_ctx_stack.top.lang = current_app.config['DEFAULT_LANG']
-        
-        return f(*args, **kwargs)
+def requires_roles(roles=None):
+    def decorated(method):
+        @wraps(method)
+        def f(*args, **kwargs):
+            url = current_app.config['URL_TOKENINFO']
+            
+            values = {'id_token' : _request_ctx_stack.top.token }
+            headers = { 'Accept' : 'application/json',
+                        'Authorization' : 'Bearer %s' % _request_ctx_stack.top.token }
+            
+            data = urllib.urlencode(values)
+            request = urllib2.Request(url, data, headers)
+            
+            json_data = urllib2.urlopen(request).read()
+            json_object = json.loads(json_data)
+            
+            if 'app_metadata' in json_object and 'roles' in json_object:
+                _request_ctx_stack.top.roles = json_object['app_metadata']['roles']
+            else:
+                _request_ctx_stack.top.roles = current_app.config['DEFAULT_ROLE']
+            
+            if 'app_metadata' in json_object and 'lang' in json_object:
+                _request_ctx_stack.top.lang = json_object['app_metadata']['lang']
+            else:
+                _request_ctx_stack.top.lang = current_app.config['DEFAULT_LANG']
+            
+            if check_roles(roles, _request_ctx_stack.top.roles) is False:
+                return unauthorized('Unauthorized')
+            
+            return method(*args, **kwargs)
+            
+        return f
 
     return decorated
+
+
+def check_roles(roles, user_roles):
+    if roles is None:
+        return True
+    else:
+        for role in roles:
+            if role in _request_ctx_stack.top.roles:
+                return True
+        
+    return False
 

@@ -26,7 +26,7 @@ from flask import abort, jsonify, request, _request_ctx_stack
 from . import api
 from app.models.user import User
 
-from ..decorators import requires_auth, get_tokeninfo
+from ..decorators import requires_auth, requires_roles
 
 
 @api.route('/user')
@@ -65,14 +65,14 @@ def set_user_consent():
 
 @api.route('/user/roles')
 @requires_auth
-@get_tokeninfo
+@requires_roles(roles=None)
 def get_user_roles():
     return jsonify(roles=_request_ctx_stack.top.roles)
 
 
 @api.route('/user/lang')
 @requires_auth
-@get_tokeninfo
+@requires_roles(roles=None)
 def get_user_lang():
     return jsonify(lang=_request_ctx_stack.top.lang)
 

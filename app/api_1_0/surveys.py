@@ -26,16 +26,19 @@ from flask import abort, jsonify, request
 from . import api
 from app.models.survey import Survey
 
-from ..decorators import requires_auth, get_tokeninfo
+from ..decorators import requires_auth, requires_roles
 
 
 @api.route('/survey')
+@requires_auth
 def get_surveys():
     survey = Survey()
     return jsonify(surveys=[ob.serialize() for ob in survey.getAll()])
 
 
 @api.route('/survey/add', methods=['POST'])
+@requires_auth
+@requires_roles(roles=['admin'])
 def add_survey():
     survey = Survey()
     content = request.get_json(silent=True)
@@ -46,6 +49,7 @@ def add_survey():
 
 
 @api.route('/survey/get/<string:_id>', methods=['GET'])
+@requires_auth
 def get_survey(_id):
     survey = Survey()
     result = survey.getById(_id)
@@ -56,6 +60,8 @@ def get_survey(_id):
 
 
 @api.route('/survey/del/<string:_id>', methods=['GET'])
+@requires_auth
+@requires_roles(roles=['admin'])
 def del_survey(_id):
     survey = Survey()
     return jsonify(success=bool(survey.deleteById(_id)))

@@ -25,6 +25,7 @@ from flask import jsonify
 from app.exceptions import ValidationError
 from . import main
 
+
 @main.app_errorhandler(403)
 def forbidden(e):
     response = jsonify({'error': 'forbidden'})
@@ -84,7 +85,6 @@ def unauthorized(message):
     response = jsonify({'error': 'unauthorized', 'description': message})
     response.status_code = 401
     return response
-
 
 @main.errorhandler(ValidationError)
 def validation_error(e):

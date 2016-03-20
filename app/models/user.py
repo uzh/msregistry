@@ -60,10 +60,10 @@ class User(db.Document):
     def serialize(self):
         d = {
                "uniqueID": str(self.uniqueID),
-               "consent": bool(self.consent)
+               "consent": bool(self.consent),
+               "member_since": self.member_since.isoformat(),
+               "last_seen": self.last_seen.isoformat()
             }
-        d['member_since'] = self.member_since.isoformat()
-        d['last_seen'] = self.last_seen.isoformat()
         
         return d
 
