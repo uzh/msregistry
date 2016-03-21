@@ -31,10 +31,8 @@ from flask import request, _request_ctx_stack
 from flask.ext.cors import cross_origin
 from flask import current_app
 
-from models.user import User
-from app.main.errors import authorization_required, internal_server_error,\
-    invalid_header, token_expired, invalid_audience, invalid_signature,\
-    unauthorized
+from app.models.user import User
+from app.exceptions import InvalidApiUsage
 
 
 def requires_auth(f):
@@ -44,17 +42,20 @@ def requires_auth(f):
         app = current_app._get_current_object()
         auth = request.headers.get('Authorization', None)
         if not auth:
-            return authorization_required('Authorization header is expected')
+            raise InvalidApiUsage('Authorization header is expected', status_code=403, 
+                                  payload={'code': 'authorization_required'})
         
         parts = auth.split()
 
         if parts[0].lower() != 'bearer':
-            return invalid_header('Authorization header must start with Bearer')
+            raise InvalidApiUsage('Authorization header must start with Bearer', status_code=401, 
+                                  payload={'code': 'invalid_header'})
         elif len(parts) == 1:
-            return invalid_header('Token not found')
+            raise InvalidApiUsage('Token not found', status_code=401, 
+                                  payload={'code': 'invalid_header'})
         elif len(parts) > 2:
-            return invalid_header('Authorization header must be Bearer + \s + token')
-
+            raise InvalidApiUsage('Authorization header must be Bearer + \s + token', status_code=401, 
+                                  payload={'code': 'invalid_header'})
         token = parts[1]
         _request_ctx_stack.top.token = token
          
@@ -65,17 +66,21 @@ def requires_auth(f):
                                  audience=app.config['OAUTH_CLIENT_ID']
                                  )
         except jwt.ExpiredSignature:
-            return token_expired('Token is expired')
+            raise InvalidApiUsage('Token is expired', status_code=400, 
+                                  payload={'code': 'token_expired'})
         except jwt.InvalidAudienceError:
-            return invalid_audience('Incorrect audience')
+            raise InvalidApiUsage('Incorrect audience', status_code=400, 
+                                  payload={'code': 'invalid_audience'})
         except jwt.DecodeError:
-            return invalid_signature('Token signature is invalid')
+            raise InvalidApiUsage('Token signature is invalid', status_code=400, 
+                                  payload={'code': 'invalid_signature'})
         
         _request_ctx_stack.top.uniqueID = payload['sub']
         
         user = User()
         if user.createIfNotExistsByUniqueID(_request_ctx_stack.top.uniqueID) == False:
-            return internal_server_error('An error occurred while adding this user')
+            raise InvalidApiUsage('An error occurred while adding this user', status_code=500, 
+                                  payload={'code': 'internal_server_error'})
         
         user.setLastSeenByUniqueID(_request_ctx_stack.top.uniqueID)
         
@@ -111,7 +116,8 @@ def requires_roles(roles=None):
                 _request_ctx_stack.top.lang = current_app.config['DEFAULT_LANG']
             
             if check_roles(roles, _request_ctx_stack.top.roles) is False:
-                return unauthorized('Unauthorized')
+                raise InvalidApiUsage('Unauthorized', status_code=401, 
+                                      payload={'code': 'unauthorized'})
             
             return method(*args, **kwargs)
             
