@@ -21,12 +21,13 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 " University of Zurich")
 
 
-from flask import abort, jsonify, request
+from flask import jsonify, request
 
 from . import api
 from app.models.survey import Survey
 
-from ..decorators import requires_auth, requires_roles
+from app.auth.decorators import requires_auth, requires_roles
+from app.exceptions import InvalidApiUsage
 
 
 @api.route('/survey')
@@ -56,8 +57,9 @@ def get_survey(_id):
     if result is not None:
         return jsonify(result.serialize())
     
-    return abort(404)
-
+    raise InvalidApiUsage('Survey not found', status_code=404, 
+                            payload={'code': 'not_found'})
+    
 
 @api.route('/survey/del/<string:_id>', methods=['GET'])
 @requires_auth

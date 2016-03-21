@@ -23,7 +23,7 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 from flask import jsonify
 
 from . import auth
-from ..decorators import requires_auth
+from app.auth.decorators import requires_auth
 
 @auth.route('/test')
 @requires_auth

@@ -21,12 +21,13 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 " University of Zurich")
 
 
-from flask import abort, jsonify, request, _request_ctx_stack
+from flask import jsonify, request, _request_ctx_stack
 
 from . import api
 from app.models.user import User
 
-from ..decorators import requires_auth, requires_roles
+from app.auth.decorators import requires_auth, requires_roles
+from app.exceptions import InvalidApiUsage
 
 
 @api.route('/user')
@@ -37,7 +38,8 @@ def get_user():
     if result is not None:
         return jsonify(result.serialize())
     
-    return abort(404)
+    raise InvalidApiUsage('User not found', status_code=404, 
+                            payload={'code': 'not_found'})
 
 
 @api.route('/user/consent', methods=['GET'])
@@ -48,7 +50,8 @@ def get_user_consent():
     if result is not None:
         return jsonify(consent=result)
     
-    return abort(404)
+    raise InvalidApiUsage('User not found', status_code=404, 
+                            payload={'code': 'not_found'})
 
 
 @api.route('/user/consent', methods=['POST'])

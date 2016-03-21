@@ -21,7 +21,7 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 " University of Zurich")
 
 
-from flask import Flask, abort, g, request, jsonify
+from flask import Flask
 from flask.ext.bootstrap import Bootstrap
 from flask.ext.moment import Moment
 from flask.ext.mongoengine import MongoEngine
@@ -31,6 +31,7 @@ from flask_environments import Environments
 bootstrap = Bootstrap()
 moment = Moment()
 db = MongoEngine()
+
 
 def create_app(config_name):
     app = Flask(__name__)
