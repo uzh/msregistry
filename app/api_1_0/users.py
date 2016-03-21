@@ -60,7 +60,7 @@ def set_user_consent():
     user = User()
     content = request.get_json(silent=True)
     if content and 'consent' in content:
-        return jsonify(success=bool(user.setConsentByUniqueID(content['consent'],
+        return jsonify(success=bool(user.setConsentByUniqueID(content['consent'], 
                                                               _request_ctx_stack.top.uniqueID)))
         
     return jsonify(success=bool(False))

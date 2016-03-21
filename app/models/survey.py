@@ -24,30 +24,35 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 from datetime import datetime
 from app import db
 
+from user import User
+
 class Survey(db.Document):
+    user = db.ListField(db.ReferenceField(User))
     timestamp = db.DateTimeField(default=datetime.utcnow)
     survey = db.DictField()
     
-    def getById(self, _id):
+    def getByUniqueIDAndID(self, uniqueID, _id):
+        user = User()
         try:
-            return Survey.objects(id=_id).first()
+            return Survey.objects(id=_id, user__in=[user.getByUniqueID(uniqueID)]).first()
         except Exception:
             return None
     
     def getAll(self):
         return Survey.objects().all()
     
-    def add(self, survey):
+    def getAllByUniqueID(self, uniqueID):
+        user = User()
+        return Survey.objects(user__in=[user.getByUniqueID(uniqueID)])
+    
+    def addByUniqueID(self, uniqueID, survey):
+        user = User()
+        self.user = [user.getByUniqueID(uniqueID)]
         self.survey = survey
         return self.save()
     
-    def deleteById(self, _id):
-        try:
-            return Survey.objects(id=_id).delete()
-        except Exception:
-            return False
-    
     def serialize(self):
+        print str(self.user)
         d = {
                 "id": str(self.id),
                 "timestamp": self.timestamp.isoformat(),

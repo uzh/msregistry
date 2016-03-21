@@ -24,6 +24,7 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 from datetime import datetime
 from app import db
 
+
 class User(db.Document):
     uniqueID = db.StringField(unique=True, required=True)
     consent = db.BooleanField(default=False, required=True)
