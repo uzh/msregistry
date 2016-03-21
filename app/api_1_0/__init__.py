@@ -21,7 +21,7 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 " University of Zurich")
 
 
-from flask import abort, current_app, Blueprint, g, request
+from flask import Blueprint
 
 api = Blueprint('api', __name__)
 

@@ -21,13 +21,43 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 " University of Zurich")
 
 
+from flask import jsonify, request
+
 from . import api
+from app.models.survey import Survey
 
-from ..decorators import requires_auth
+from app.auth.decorators import requires_auth, requires_roles, _request_ctx_stack
+from app.exceptions import InvalidApiUsage
 
 
-@api.route('/surveys/')
+@api.route('/survey', methods=['GET'])
 @requires_auth
 def get_surveys():
-    return
+    survey = Survey()
+    return jsonify(surveys=[ob.serialize() for ob in survey.getAllByUniqueID(_request_ctx_stack.top.uniqueID)])
+
+
+@api.route('/survey', methods=['POST'])
+@requires_auth
+@requires_roles(roles=['patient','relative'])
+def add_survey():
+    survey = Survey()
+    content = request.get_json(silent=True)
+    if content:
+        return jsonify(success=bool(survey.addByUniqueID(_request_ctx_stack.top.uniqueID, content)))
+    
+    return jsonify(success=bool(False))
+
+
+@api.route('/survey/get/<string:_id>', methods=['GET'])
+@requires_auth
+@requires_roles(roles=['patient','relative'])
+def get_survey(_id):
+    survey = Survey()
+    result = survey.getByUniqueIDAndID(_request_ctx_stack.top.uniqueID, _id)
+    if result is not None:
+        return jsonify(result.serialize())
+    
+    raise InvalidApiUsage('Survey not found', status_code=404, 
+                            payload={'code': 'not_found'})
 

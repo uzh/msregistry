@@ -24,6 +24,7 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 from datetime import datetime
 from app import db
 
+
 class User(db.Document):
     uniqueID = db.StringField(unique=True, required=True)
     consent = db.BooleanField(default=False, required=True)
@@ -38,10 +39,16 @@ class User(db.Document):
         return True
     
     def getByUniqueID(self, uniqueID):
-        return User.objects(uniqueID=uniqueID).first()
+        try:
+            return User.objects(uniqueID=uniqueID).first()
+        except Exception:
+            return None
     
     def getConsentByUniqueID(self, uniqueID):
-        return User.objects(uniqueID=uniqueID).consent
+        try:
+            return User.objects(uniqueID=uniqueID).consent
+        except Exception:
+            return None
     
     def setConsentByUniqueID(self, consent, uniqueID):
         if consent not in (True, False):
@@ -54,10 +61,10 @@ class User(db.Document):
     def serialize(self):
         d = {
                "uniqueID": str(self.uniqueID),
-               "consent": bool(self.consent)
+               "consent": bool(self.consent),
+               "member_since": self.member_since.isoformat(),
+               "last_seen": self.last_seen.isoformat()
             }
-        d['member_since'] = self.member_since.isoformat()
-        d['last_seen'] = self.last_seen.isoformat()
         
         return d
 
