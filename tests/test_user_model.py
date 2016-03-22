@@ -54,9 +54,13 @@ class UserModelTestCase(unittest.TestCase):
     def test_setConsentByUniqueID(self):
         u = User()
         u.createIfNotExistsByUniqueID(self.uniqueID)
-        self.assertIn(u.setConsentByUniqueID(self.uniqueID, True), [True, False])
+        self.assertTrue(u.setConsentByUniqueID(self.uniqueID, True))
     
-    # TODO: getConsentByUniqueID
+    def test_getConsentByUniqueID(self):
+        u = User()
+        u.createIfNotExistsByUniqueID(self.uniqueID)
+        self.assertTrue(u.setConsentByUniqueID(self.uniqueID, True))
+        self.assertTrue(u.getConsentByUniqueID(self.uniqueID))
     
     def test_timestamps(self):
         u = User()
@@ -65,7 +69,7 @@ class UserModelTestCase(unittest.TestCase):
             (datetime.utcnow() - u.member_since).total_seconds() < 3)
         self.assertTrue(
             (datetime.utcnow() - u.last_seen).total_seconds() < 3)
-
+    
     def test_setLastSeenByUniqueID(self):
         u1 = User()
         u1.createIfNotExistsByUniqueID(self.uniqueID)
