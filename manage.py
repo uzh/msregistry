@@ -43,7 +43,8 @@ def test(coverage=False):
         os.execvp(sys.executable, [sys.executable] + sys.argv)
     import unittest
     tests = unittest.TestLoader().discover('tests')
-    unittest.TextTestRunner(verbosity=2).run(tests)
+    rc = unittest.TextTestRunner(verbosity=2).run(tests)
+    return (1 if rc.errors or rc.failures else 0)
 
 
 @manager.command
