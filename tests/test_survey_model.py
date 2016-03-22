@@ -26,7 +26,6 @@ import unittest
 from app import create_app
 from app.models import Survey
 
-
 class SurveyModelTestCase(unittest.TestCase):
     uniqueID = 'd4c74594d841139328695756648b6bd6'
     
@@ -40,8 +39,5 @@ class SurveyModelTestCase(unittest.TestCase):
 
     def test_addByUniqueID(self):
         u = Survey()
-        self.assertTrue(u.addByUniqueID(self.uniqueID, {'test': True}))
+        self.assertTrue(u.addByUniqueID(self.uniqueID, {}))
 
-    def test_getAllByUniqueID(self):
-        u = Survey()
-        self.assertTrue(u.getAllByUniqueID(self.uniqueID))

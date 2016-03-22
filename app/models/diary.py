@@ -27,20 +27,20 @@ from app import db
 from user import User
 
 class Diary(db.Document):
-    user = db.ListField(db.ReferenceField(User))
+    user = db.ReferenceField(User)
     timestamp = db.DateTimeField(default=datetime.utcnow)
     diary = db.DictField()
     
     def getByUniqueID(self, uniqueID):
         user = User()
         try:
-            return Diary.objects(user__in=[user.getByUniqueID(uniqueID)]).order_by('-id').first()
+            return Diary.objects(user=user.getByUniqueID(uniqueID)).order_by('-id').first()
         except Exception:
             return None
     
     def addByUniqueID(self, uniqueID, diary):
         user = User()
-        self.user = [user.getByUniqueID(uniqueID)]
+        self.user = user.getByUniqueID(uniqueID)
         self.diary = diary
         return self.save()
 
