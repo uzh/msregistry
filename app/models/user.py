@@ -50,7 +50,7 @@ class User(db.Document):
         except Exception:
             return None
     
-    def setConsentByUniqueID(self, consent, uniqueID):
+    def setConsentByUniqueID(self, uniqueID, consent):
         if consent not in (True, False):
             return False
         return User.objects(uniqueID=uniqueID).update(consent=consent)

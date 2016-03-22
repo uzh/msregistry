@@ -54,7 +54,7 @@ class UserModelTestCase(unittest.TestCase):
     def test_setConsentByUniqueID(self):
         u = User()
         u.createIfNotExistsByUniqueID(self.uniqueID)
-        self.assertIn(u.setConsentByUniqueID(True, self.uniqueID), [True, False])
+        self.assertIn(u.setConsentByUniqueID(self.uniqueID, True), [True, False])
     
     # TODO: getConsentByUniqueID
     
