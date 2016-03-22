@@ -34,18 +34,16 @@ class Diary(db.Document):
     def getByUniqueID(self, uniqueID):
         user = User()
         try:
-            return Diary.objects(user__in=[user.getByUniqueID(uniqueID)]).first()
+            return Diary.objects(user__in=[user.getByUniqueID(uniqueID)]).last()
         except Exception:
             return None
     
-    def addOrUpdateByUniqueID(self, uniqueID, diary):
-        if self.getByUniqueID(uniqueID) is None:
-            user = User()
-            self.user = [user.getByUniqueID(uniqueID)]
-            self.diary = diary
-            return self.save()
-        else:
-            return Diary.objects(user__in=[user.getByUniqueID(uniqueID)]).update(diary=diary)
+    def addByUniqueID(self, uniqueID, diary):
+        user = User()
+        self.user = [user.getByUniqueID(uniqueID)]
+        self.diary = diary
+        return self.save()
+
     
     def serialize(self):
         print str(self.user)
