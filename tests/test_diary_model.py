@@ -41,9 +41,9 @@ class DiaryModelTestCase(unittest.TestCase):
         u = Diary()
         self.assertTrue(u.addByUniqueID(self.uniqueID, {}))
 
-
     def test_getByUniqueID(self):
         u = Diary()
         u1 = u.getByUniqueID(self.uniqueID)
-        self.assertEqual(u1.user.uniqueID, self.uniqueID)
+        if u1.user.uniqueID and u1.user.uniqueID is not None:
+            self.assertEqual(u1.user.uniqueID, self.uniqueID)
 
