@@ -24,6 +24,7 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 from flask import jsonify, request
 
 from . import api
+from app.models.role import Role
 from app.models.survey import Survey
 
 from app.auth.decorators import requires_auth, requires_roles, _request_ctx_stack
@@ -39,7 +40,7 @@ def get_surveys():
 
 @api.route('/survey', methods=['POST'])
 @requires_auth
-@requires_roles(roles=['patient','relative'])
+@requires_roles(roles=[Role.patient, Role.relative])
 def add_survey():
     survey = Survey()
     content = request.get_json(silent=True)
@@ -51,7 +52,7 @@ def add_survey():
 
 @api.route('/survey/get/<string:_id>', methods=['GET'])
 @requires_auth
-@requires_roles(roles=['patient','relative'])
+@requires_roles(roles=[Role.patient, Role.relative])
 def get_survey(_id):
     survey = Survey()
     result = survey.getByUniqueIDAndID(_request_ctx_stack.top.uniqueID, _id)

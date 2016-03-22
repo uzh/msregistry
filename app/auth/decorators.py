@@ -31,6 +31,7 @@ from flask import request, _request_ctx_stack
 from flask.ext.cors import cross_origin
 from flask import current_app
 
+from app.models.role import Role
 from app.models.user import User
 from app.exceptions import InvalidApiUsage
 
@@ -115,7 +116,7 @@ def requires_roles(roles=None):
             else:
                 _request_ctx_stack.top.lang = current_app.config['DEFAULT_LANG']
             
-            if check_roles(roles, _request_ctx_stack.top.roles) is False:
+            if Role.authorizedRoles(roles, _request_ctx_stack.top.roles) is False:
                 raise InvalidApiUsage('Unauthorized', status_code=401, 
                                       payload={'code': 'unauthorized'})
             
@@ -124,15 +125,4 @@ def requires_roles(roles=None):
         return f
 
     return decorated
-
-
-def check_roles(roles, user_roles):
-    if roles is None:
-        return True
-    else:
-        for role in roles:
-            if role in _request_ctx_stack.top.roles:
-                return True
-        
-    return False
 
