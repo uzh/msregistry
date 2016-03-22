@@ -34,7 +34,7 @@ class Diary(db.Document):
     def getByUniqueID(self, uniqueID):
         user = User()
         try:
-            return Diary.objects(user__in=[user.getByUniqueID(uniqueID)]).last()
+            return Diary.objects(user__in=[user.getByUniqueID(uniqueID)]).order_by('-id').first()
         except Exception:
             return None
     
