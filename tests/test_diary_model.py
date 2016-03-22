@@ -44,6 +44,6 @@ class DiaryModelTestCase(unittest.TestCase):
     def test_getByUniqueID(self):
         u = Diary()
         u1 = u.getByUniqueID(self.uniqueID)
-        if u1.user.uniqueID and u1.user.uniqueID is not None:
+        if u1.user and u1.user is not None:
             self.assertEqual(u1.user.uniqueID, self.uniqueID)
 
