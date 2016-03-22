@@ -52,7 +52,6 @@ class Survey(db.Document):
         return self.save()
     
     def serialize(self):
-        print str(self.user)
         d = {
                 "id": str(self.id),
                 "timestamp": self.timestamp.isoformat(),
