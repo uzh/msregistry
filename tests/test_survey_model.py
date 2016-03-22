@@ -40,5 +40,8 @@ class SurveyModelTestCase(unittest.TestCase):
 
     def test_addByUniqueID(self):
         u = Survey()
-        self.assertTrue(u.addByUniqueID(self.uniqueID, {}))
+        self.assertTrue(u.addByUniqueID(self.uniqueID, {'test': True}))
 
+    def test_getAllByUniqueID(self):
+        u = Survey()
+        self.assertTrue(u.getAllByUniqueID(self.uniqueID))
