@@ -108,7 +108,7 @@ def requires_roles(roles=None):
             if 'app_metadata' in json_object and 'roles' in json_object:
                 _request_ctx_stack.top.roles = json_object['app_metadata']['roles']
             else:
-                _request_ctx_stack.top.roles = current_app.config['DEFAULT_ROLE']
+                _request_ctx_stack.top.roles = []
             
             if 'app_metadata' in json_object and 'lang' in json_object:
                 _request_ctx_stack.top.lang = json_object['app_metadata']['lang']
