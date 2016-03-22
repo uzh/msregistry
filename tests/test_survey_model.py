@@ -24,7 +24,7 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 import unittest
 
 from app import create_app
-from app.models import Survey
+from app.models import Survey, User
 
 class SurveyModelTestCase(unittest.TestCase):
     uniqueID = 'd4c74594d841139328695756648b6bd6'

@@ -44,7 +44,6 @@ class Diary(db.Document):
         self.diary = diary
         return self.save()
 
-    
     def serialize(self):
         d = {
                 "timestamp": self.timestamp.isoformat(),

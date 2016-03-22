@@ -24,7 +24,7 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 import unittest
 
 from app import create_app
-from app.models import Diary
+from app.models import Diary, User
 
 class DiaryModelTestCase(unittest.TestCase):
     uniqueID = 'd4c74594d841139328695756648b6bd6'
@@ -42,8 +42,9 @@ class DiaryModelTestCase(unittest.TestCase):
         self.assertTrue(u.addByUniqueID(self.uniqueID, {}))
 
     def test_getByUniqueID(self):
+        a = User()
+        self.assertTrue(a.createIfNotExistsByUniqueID(self.uniqueID))
         u = Diary()
         u1 = u.getByUniqueID(self.uniqueID)
-        if u1.user and u1.user is not None:
-            self.assertEqual(u1.user.uniqueID, self.uniqueID)
+        self.assertEqual(u1.user.uniqueID, self.uniqueID)
 
