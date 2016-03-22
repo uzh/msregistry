@@ -22,21 +22,10 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 
 
 class Role():
-    @staticmethod
-    def patient():
-        return 'patient'
-    
-    @staticmethod
-    def relative():
-        return 'relative'
-    
-    @staticmethod
-    def researcher():
-        return 'researcher'
-    
-    @staticmethod
-    def guest():
-        return 'guest'
+    patient = 'patient'
+    relative = 'relative'
+    researcher = 'researcher'
+    guest = 'guest'
     
     @staticmethod
     def authorizedRoles(roles, user_roles):
