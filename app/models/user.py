@@ -32,9 +32,8 @@ class User(db.Document):
     last_seen = db.DateTimeField(default=datetime.utcnow, required=True)
     
     def createIfNotExistsByUniqueID(self, uniqueID):
-        self.uniqueID = uniqueID
-        
-        if User.objects(uniqueID=uniqueID).first() is None:    
+        if User.objects(uniqueID=uniqueID).first() is None:
+            self.uniqueID = uniqueID
             return self.save()
         
         return True

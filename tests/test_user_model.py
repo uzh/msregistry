@@ -44,17 +44,19 @@ class UserModelTestCase(unittest.TestCase):
     def test_createIfNotExistsByUniqueID(self):
         u = User()
         self.assertTrue(u.createIfNotExistsByUniqueID(self.uniqueID))
-        self.assertEquals(u.uniqueID, self.uniqueID)
     
     def test_getByUniqueID(self):
-        u1 = User()
-        u1.createIfNotExistsByUniqueID(self.uniqueID)
-        u2 = u1.getByUniqueID(self.uniqueID)
-        self.assertEquals(u1.uniqueID, u2.uniqueID)
+        u = User()
+        self.assertTrue(u.createIfNotExistsByUniqueID(self.uniqueID))
+        u1 = u.getByUniqueID(self.uniqueID)
+        self.assertEquals(u1.uniqueID, self.uniqueID)
+    
+    def test_setConsentByUniqueID(self):
+        u = User()
+        u.createIfNotExistsByUniqueID(self.uniqueID)
+        self.assertIn(u.setConsentByUniqueID(True, self.uniqueID), [True, False])
     
     # TODO: getConsentByUniqueID
-    
-    # TODO: setConsentByUniqueID
     
     def test_timestamps(self):
         u = User()
