@@ -41,3 +41,9 @@ class DiaryModelTestCase(unittest.TestCase):
         u = Diary()
         self.assertTrue(u.addByUniqueID(self.uniqueID, {}))
 
+
+    def test_getByUniqueID(self):
+        u = Diary()
+        u1 = u.getByUniqueID(self.uniqueID)
+        self.assertEqual(u1.user.uniqueID, self.uniqueID)
+
