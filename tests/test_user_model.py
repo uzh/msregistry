@@ -14,9 +14,14 @@ class UserModelTestCase(unittest.TestCase):
 
     def tearDown(self):
         db.session.remove()
-        db.drop_all()
         self.app_context.pop()
 
+    def test_createIfNotExistsByUniqueID(self):
+        uniqueID = 'd4c74594d841139328695756648b6bd6'
+        u = User()
+        u.createIfNotExistsByUniqueID(uniqueID)
+        self.assertTrue(u.getByUniqueID(uniqueID))
+    
     def test_password_setter(self):
         u = User(password='cat')
         self.assertTrue(u.password_hash is not None)
