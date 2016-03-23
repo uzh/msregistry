@@ -5,6 +5,15 @@ MS Registry REST API Resources
 Document Version
 ----------------
 
+:Date:
+    2016-03-23
+:Version:
+    v0.3.0
+:Authors: 
+    Filippo Panessa <filippo.panessa@gmail.com>
+:Copyright:
+    Copyright (c) 2016 S3IT, Zentrale Informatik, University of Zurich
+
 Welcome to the MS Registry REST API. Below, you’ll find a full listing of all 
 the available  endpoints. As we add more endpoints, they will be automatically 
 documented here.
@@ -543,7 +552,7 @@ Response
     }
 
 GET /diary
---------------
+----------
 
 Get User's Diary. 
 
@@ -633,7 +642,7 @@ Response
     }
 
 POST /diary
-------------------
+-----------
 
 Write User's Diary or Update it. In case of Update, Backend keeps track of
 previous Diary versions.
@@ -709,6 +718,9 @@ These are the possible errors returned by this endpoint.
 | 401           |unauthorized          | Insufficient Roles                    |
 |               |                      |                                       |
 +---------------+----------------------+---------------------------------------+
+| 401           |unauthorized          | Consent Information not accepted      |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
 
 Example
 ```````
@@ -721,6 +733,320 @@ Example
      -X POST -d "{'value': 'any'}" \
      -H 'authorization: Bearer YOUR_API_TOKEN' \
      'https://ws.msregistry.s3it.uzh.ch/api/v1.0/diary'
+
+Response
+::::::::
+
+.. code:: json
+
+    {
+      "success": true
+    }
+
+GET /survey
+-----------
+
+Get All Surveys compiled by User. 
+
+Resource Information
+````````````````````
+
+   ::
+
+      Method                      GET
+      URL                         /api/v1.0/survey
+      Requires authentication?    YES
+      Requires Role?              Patient, Relative
+
+Response Parameters
+```````````````````
+
++---------------------+-----------------+--------------------------------------+
+| **Parameter**       | **Type**        | **Description**                      |
++=====================+=================+======================================+
+| **surveys**         | `(array)`       | Return list of all Surveys compiled  |
+|                     |                 | by User as JSON array                |
+|                     |                 |                                      |
++---------------------+-----------------+--------------------------------------+
+| **id**              | `(string)`      | Return Survey ID                     |
+|                     |                 |                                      |
++---------------------+-----------------+--------------------------------------+
+| **survey**          | `(json file)`   | Return User's Survey. Returned value |
+|                     |                 | is a RAW JSON file                   |
+|                     |                 |                                      |
++---------------------+-----------------+--------------------------------------+
+| **timestamp**       | `(iso 8601`     | Datetime the survey was inserted     |
+|                     | `datetime)`     |                                      |
+|                     |                 |                                      |
++---------------------+-----------------+--------------------------------------+
+
+Resource Errors
+```````````````
+
+These are the possible errors returned by this endpoint.
+
++---------------+----------------------+---------------------------------------+
+| **HTTP Code** | **Error Identifier** | **Error Message**                     |
++===============+======================+=======================================+
+| 403           |authorization_required| Authorization header is expected      |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |invalid_header        | Authorization header must start with  |
+|               |                      | Bearer                                |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |invalid_header        | Token not found                       |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |invalid_header        | Authorization header must be Bearer + |
+|               |                      | token                                 |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 400           |token_expired         | Token is expired                      |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 400           |invalid_audience      | Incorrect audience                    |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 400           |invalid_signature     | Token signature is invalid            |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 500           |internal_server_error | An error occurred while adding this   |
+|               |                      | user                                  |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |unauthorized          | Insufficient Roles                    |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+
+Example
+```````
+
+.. code:: bash
+
+    curl \
+     -H 'authorization: Bearer YOUR_API_TOKEN' \
+     'https://ws.msregistry.s3it.uzh.ch/api/v1.0/survey'
+
+Response
+::::::::
+
+.. code:: json
+
+    {
+        "surveys": [
+            {
+                "id": "56f2c662ec71bc2c6b001040", 
+                "survey": {
+                    "value": "any"
+                }, 
+                "timestamp": "2016-03-23T16:37:54.765000"
+            }, 
+            {
+                "id": "56f2c7cdec71bc2c6b001041", 
+                "survey": {
+                    "value": "any"
+                }, 
+                "timestamp": "2016-03-23T16:43:57.800000"
+            }
+        ]
+    }
+
+GET /survey/get/<id>
+--------------------
+
+Get All Surveys compiled by User. 
+
+Resource Information
+````````````````````
+
+   ::
+
+      Method                      GET
+      URL                         /api/v1.0/survey/get/<id>
+      Requires authentication?    YES
+      Requires Role?              Patient, Relative
+
+Request Parameters
+``````````````````
+
++---------------------+-----------------+--------------------------------------+
+| **Parameter**       | **Type**        | **Description**                      |
++=====================+=================+======================================+
+| **id**              | `(string)`      | Survey ID                            |
+|                     |                 |                                      |
++---------------------+-----------------+--------------------------------------+
+
+Response Parameters
+```````````````````
+
++---------------------+-----------------+--------------------------------------+
+| **Parameter**       | **Type**        | **Description**                      |
++=====================+=================+======================================+
+| **id**              | `(string)`      | Return Survey ID                     |
+|                     |                 |                                      |
++---------------------+-----------------+--------------------------------------+
+| **survey**          | `(json file)`   | Return user's Survey. Returned value |
+|                     |                 | is a RAW JSON file                   |
+|                     |                 |                                      |
++---------------------+-----------------+--------------------------------------+
+| **timestamp**       | `(iso 8601`     | Datetime the survey was inserted     |
+|                     | `datetime)`     |                                      |
+|                     |                 |                                      |
++---------------------+-----------------+--------------------------------------+
+
+Resource Errors
+```````````````
+
+These are the possible errors returned by this endpoint.
+
++---------------+----------------------+---------------------------------------+
+| **HTTP Code** | **Error Identifier** | **Error Message**                     |
++===============+======================+=======================================+
+| 403           |authorization_required| Authorization header is expected      |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |invalid_header        | Authorization header must start with  |
+|               |                      | Bearer                                |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |invalid_header        | Token not found                       |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |invalid_header        | Authorization header must be Bearer + |
+|               |                      | token                                 |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 400           |token_expired         | Token is expired                      |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 400           |invalid_audience      | Incorrect audience                    |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 400           |invalid_signature     | Token signature is invalid            |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 500           |internal_server_error | An error occurred while adding this   |
+|               |                      | user                                  |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |unauthorized          | Insufficient Roles                    |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+
+Example
+```````
+
+.. code:: bash
+
+    curl \
+     -H 'authorization: Bearer YOUR_API_TOKEN' \
+     'https://ws.msregistry.s3it.uzh.ch/api/v1.0/survey/get/56f2c662ec71bc2c6b001040'
+
+Response
+::::::::
+
+.. code:: json
+
+    {
+        "id": "56f2c662ec71bc2c6b001040", 
+        "survey": {
+            "value": "any"
+        }, 
+        "timestamp": "2016-03-23T16:37:54.765000"
+    }
+
+POST /survey
+------------
+
+Insert a new User's Survey.
+
+Resource Information
+````````````````````
+
+   ::
+
+      Method                      POST
+      URL                         /api/v1.0/survey
+      Requires authentication?    Yes
+      Requires Role?              Patient, Relative
+      Requires IC Accepted?       Yes
+
+Request Parameters
+``````````````````
+
++---------------------+-----------------+--------------------------------------+
+| **Parameter**       | **Type**        | **Description**                      |
++=====================+=================+======================================+
+| **survey**          | `(json file)`   | RAW JSON file                        |
+|                     |                 |                                      |
++---------------------+-----------------+--------------------------------------+
+
+Response Parameters
+```````````````````
+
++---------------------+-----------------+--------------------------------------+
+| **Parameter**       | **Type**        | **Description**                      |
++=====================+=================+======================================+
+| **success**         | `(bool)`        | Return True if survey was accepted,  |
+|                     |                 | False if JSON File is not well       |
+|                     |                 | formatted                            |
+|                     |                 |                                      |
++---------------------+-----------------+--------------------------------------+
+
+Resource Errors
+```````````````
+
+These are the possible errors returned by this endpoint.
+
++---------------+----------------------+---------------------------------------+
+| **HTTP Code** | **Error Identifier** | **Error Message**                     |
++===============+======================+=======================================+
+| 403           |authorization_required| Authorization header is expected      |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |invalid_header        | Authorization header must start with  |
+|               |                      | Bearer                                |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |invalid_header        | Token not found                       |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |invalid_header        | Authorization header must be Bearer + |
+|               |                      | token                                 |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 400           |token_expired         | Token is expired                      |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 400           |invalid_audience      | Incorrect audience                    |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 400           |invalid_signature     | Token signature is invalid            |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 500           |internal_server_error | An error occurred while adding this   |
+|               |                      | user                                  |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |unauthorized          | Insufficient Roles                    |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |unauthorized          | Consent Information not accepted      |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+
+Example
+```````
+
+.. code:: bash
+
+    curl \
+     -i -H "Accept: application/json" \
+     -H "Content-Type: application/json" \
+     -X POST -d "{'value': 'any'}" \
+     -H 'authorization: Bearer YOUR_API_TOKEN' \
+     'https://ws.msregistry.s3it.uzh.ch/api/v1.0/survey'
 
 Response
 ::::::::
