@@ -635,7 +635,8 @@ Response
 POST /diary
 ------------------
 
-Write User's Diary.
+Write User's Diary or Update it. In case of Update, Backend keeps track of
+previous Diary versions.
 
 Resource Information
 ````````````````````
