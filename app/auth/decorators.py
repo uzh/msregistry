@@ -126,3 +126,17 @@ def requires_roles(roles=None):
 
     return decorated
 
+
+def requires_consent(f):
+    @cross_origin(headers=['Content-Type', 'Authorization'])
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        user = User()
+        if user.getConsentByUniqueID(_request_ctx_stack.top.uniqueID) is False:
+            raise InvalidApiUsage('Consent Information not accepted', status_code=401, 
+                                  payload={'code': 'unauthorized'})
+        
+        return f(*args, **kwargs)
+
+    return decorated
+

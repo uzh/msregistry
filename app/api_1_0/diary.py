@@ -21,13 +21,13 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 " University of Zurich")
 
 
-from flask import jsonify, request
+from flask import jsonify, request, _request_ctx_stack
 
 from . import api
 from app.models.role import Role
 from app.models.diary import Diary
 
-from app.auth.decorators import requires_auth, requires_roles, _request_ctx_stack
+from app.auth.decorators import requires_auth, requires_roles, requires_consent
 from app.exceptions import InvalidApiUsage
 
 
@@ -47,6 +47,7 @@ def get_diary():
 @api.route('/diary', methods=['POST'])
 @requires_auth
 @requires_roles(roles=[Role.patient, Role.relative])
+@requires_consent
 def add_diary():
     diary = Diary()
     content = request.get_json(silent=True)
