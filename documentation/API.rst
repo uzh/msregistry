@@ -541,3 +541,191 @@ Response
     {
       "lang": "de"
     }
+
+GET /diary
+--------------
+
+Get User's Diary. 
+
+Resource Information
+````````````````````
+
+   ::
+
+      Method                      GET
+      URL                         /api/v1.0/diary
+      Requires authentication?    YES
+      Requires Role?              Patient, Relative
+
+Response Parameters
+```````````````````
+
++---------------------+-----------------+--------------------------------------+
+| **Parameter**       | **Type**        | **Description**                      |
++=====================+=================+======================================+
+| **diary**           | `(json file)`   | Return user's Diary. Returned value  |
+|                     |                 | is a RAW JSON file                   |
+|                     |                 |                                      |
++---------------------+-----------------+--------------------------------------+
+| **timestamp**       | `(iso 8601`     | Datetime the diary was updated       |
+|                     | `datetime)`     |                                      |
+|                     |                 |                                      |
++---------------------+-----------------+--------------------------------------+
+
+Resource Errors
+```````````````
+
+These are the possible errors returned by this endpoint.
+
++---------------+----------------------+---------------------------------------+
+| **HTTP Code** | **Error Identifier** | **Error Message**                     |
++===============+======================+=======================================+
+| 403           |authorization_required| Authorization header is expected      |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |invalid_header        | Authorization header must start with  |
+|               |                      | Bearer                                |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |invalid_header        | Token not found                       |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |invalid_header        | Authorization header must be Bearer + |
+|               |                      | token                                 |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 400           |token_expired         | Token is expired                      |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 400           |invalid_audience      | Incorrect audience                    |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 400           |invalid_signature     | Token signature is invalid            |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 500           |internal_server_error | An error occurred while adding this   |
+|               |                      | user                                  |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |unauthorized          | Insufficient Roles                    |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+
+Example
+```````
+
+.. code:: bash
+
+    curl \
+     -H 'authorization: Bearer YOUR_API_TOKEN' \
+     'https://ws.msregistry.s3it.uzh.ch/api/v1.0/diary'
+
+Response
+::::::::
+
+.. code:: json
+
+    {
+        "diary": {
+            "value": "any"
+        }, 
+        "timestamp": "2016-03-23T15:03:41.643000"
+    }
+
+POST /diary
+------------------
+
+Write User's Diary.
+
+Resource Information
+````````````````````
+
+   ::
+
+      Method                      POST
+      URL                         /api/v1.0/diary
+      Requires authentication?    Yes
+      Requires Role?              Patient, Relative
+      Requires IC Accepted?       Yes
+
+Request Parameters
+``````````````````
+
++---------------------+-----------------+--------------------------------------+
+| **Parameter**       | **Type**        | **Description**                      |
++=====================+=================+======================================+
+| **diary**           | `(json file)`   | RAW JSON file                        |
+|                     |                 |                                      |
++---------------------+-----------------+--------------------------------------+
+
+Response Parameters
+```````````````````
+
++---------------------+-----------------+--------------------------------------+
+| **Parameter**       | **Type**        | **Description**                      |
++=====================+=================+======================================+
+| **success**         | `(bool)`        | Return True if diary was accepted,   |
+|                     |                 | False if JSON File is not well       |
+|                     |                 | formatted                            |
+|                     |                 |                                      |
++---------------------+-----------------+--------------------------------------+
+
+Resource Errors
+```````````````
+
+These are the possible errors returned by this endpoint.
+
++---------------+----------------------+---------------------------------------+
+| **HTTP Code** | **Error Identifier** | **Error Message**                     |
++===============+======================+=======================================+
+| 403           |authorization_required| Authorization header is expected      |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |invalid_header        | Authorization header must start with  |
+|               |                      | Bearer                                |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |invalid_header        | Token not found                       |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |invalid_header        | Authorization header must be Bearer + |
+|               |                      | token                                 |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 400           |token_expired         | Token is expired                      |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 400           |invalid_audience      | Incorrect audience                    |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 400           |invalid_signature     | Token signature is invalid            |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 500           |internal_server_error | An error occurred while adding this   |
+|               |                      | user                                  |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |unauthorized          | Insufficient Roles                    |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+
+Example
+```````
+
+.. code:: bash
+
+    curl \
+     -i -H "Accept: application/json" \
+     -H "Content-Type: application/json" \
+     -X POST -d "{'value': 'any'}" \
+     -H 'authorization: Bearer YOUR_API_TOKEN' \
+     'https://ws.msregistry.s3it.uzh.ch/api/v1.0/diary'
+
+Response
+::::::::
+
+.. code:: json
+
+    {
+      "success": true
+    }

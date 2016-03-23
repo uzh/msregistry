@@ -33,7 +33,7 @@ from app.exceptions import InvalidApiUsage
 
 @api.route('/diary', methods=['GET'])
 @requires_auth
-@requires_roles(roles=[Role.patient])
+@requires_roles(roles=[Role.patient, Role.relative])
 def get_diary():
     diary = Diary()
     result = diary.getByUniqueID(_request_ctx_stack.top.uniqueID)
@@ -46,7 +46,7 @@ def get_diary():
 
 @api.route('/diary', methods=['POST'])
 @requires_auth
-@requires_roles(roles=[Role.patient])
+@requires_roles(roles=[Role.patient, Role.relative])
 def add_diary():
     diary = Diary()
     content = request.get_json(silent=True)
