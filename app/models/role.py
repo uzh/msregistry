@@ -16,14 +16,25 @@
 # General Public License along with MSRegistry Backend.  If not, see 
 # <http://www.gnu.org/licenses/>.
 
-__author__ = "Filippo Panessa <filippo.panessa@uzh.ch>"
+__author__ = "Filippo Panessa <filippo.panamenessa@uzh.ch>"
 __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 " University of Zurich")
 
 
-from flask import Blueprint
-
-api = Blueprint('api', __name__)
-
-from . import diary, user, survey
+class Role():
+    patient = 'patient'
+    relative = 'relative'
+    researcher = 'researcher'
+    guest = 'guest'
+    
+    @staticmethod
+    def authorizedRoles(roles, user_roles):
+        if roles is None:
+            return True
+        else:
+            for role in roles:
+                if role in user_roles:
+                    return True
+            
+        return False
 

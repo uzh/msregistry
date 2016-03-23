@@ -21,5 +21,7 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 " University of Zurich")
 
 
+from diary import Diary
+from role import Role
 from user import User
 from survey import Survey

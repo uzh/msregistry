@@ -21,9 +21,23 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 " University of Zurich")
 
 
-from flask import Blueprint
+import unittest
 
-api = Blueprint('api', __name__)
+from app import create_app
+from app.models import Survey
 
-from . import diary, user, survey
+class SurveyModelTestCase(unittest.TestCase):
+    uniqueID = 'd4c74594d841139328695756648b6bd6'
+    
+    def setUp(self):
+        self.app = create_app('TESTING')
+        self.app_context = self.app.app_context()
+        self.app_context.push()
+
+    def tearDown(self):
+        self.app_context.pop()
+
+    def test_addByUniqueID(self):
+        u = Survey()
+        self.assertTrue(u.addByUniqueID(self.uniqueID, {}))
 

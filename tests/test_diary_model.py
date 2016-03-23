@@ -23,13 +23,12 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 
 import unittest
 
-from datetime import datetime
-
 from app import create_app
-from app.models import User
+from app.models import Diary
 
-
-class BasicsTestCase(unittest.TestCase):
+class DiaryModelTestCase(unittest.TestCase):
+    uniqueID = 'd4c74594d841139328695756648b6bd6'
+    
     def setUp(self):
         self.app = create_app('TESTING')
         self.app_context = self.app.app_context()
@@ -38,10 +37,7 @@ class BasicsTestCase(unittest.TestCase):
     def tearDown(self):
         self.app_context.pop()
 
-    def test_create_user(self):
-        u = User(uniqueID='01010101', 
-                 consent=False, 
-                 member_since=datetime.utcnow,
-                 last_seen=datetime.utcnow)
-        u.save()
+    def test_addByUniqueID(self):
+        u = Diary()
+        self.assertTrue(u.addByUniqueID(self.uniqueID, {}))
 

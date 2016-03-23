@@ -31,6 +31,7 @@ from flask import request, _request_ctx_stack
 from flask.ext.cors import cross_origin
 from flask import current_app
 
+from app.models.role import Role
 from app.models.user import User
 from app.exceptions import InvalidApiUsage
 
@@ -108,15 +109,15 @@ def requires_roles(roles=None):
             if 'app_metadata' in json_object and 'roles' in json_object:
                 _request_ctx_stack.top.roles = json_object['app_metadata']['roles']
             else:
-                _request_ctx_stack.top.roles = current_app.config['DEFAULT_ROLE']
+                _request_ctx_stack.top.roles = []
             
             if 'app_metadata' in json_object and 'lang' in json_object:
                 _request_ctx_stack.top.lang = json_object['app_metadata']['lang']
             else:
                 _request_ctx_stack.top.lang = current_app.config['DEFAULT_LANG']
             
-            if check_roles(roles, _request_ctx_stack.top.roles) is False:
-                raise InvalidApiUsage('Unauthorized', status_code=401, 
+            if Role.authorizedRoles(roles, _request_ctx_stack.top.roles) is False:
+                raise InvalidApiUsage('Insufficient Roles', status_code=401, 
                                       payload={'code': 'unauthorized'})
             
             return method(*args, **kwargs)
@@ -126,13 +127,16 @@ def requires_roles(roles=None):
     return decorated
 
 
-def check_roles(roles, user_roles):
-    if roles is None:
-        return True
-    else:
-        for role in roles:
-            if role in _request_ctx_stack.top.roles:
-                return True
+def requires_consent(f):
+    @cross_origin(headers=['Content-Type', 'Authorization'])
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        user = User()
+        if user.getConsentByUniqueID(_request_ctx_stack.top.uniqueID) is False:
+            raise InvalidApiUsage('Consent Information not accepted', status_code=401, 
+                                  payload={'code': 'unauthorized'})
         
-    return False
+        return f(*args, **kwargs)
+
+    return decorated
 

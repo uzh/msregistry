@@ -21,9 +21,34 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 " University of Zurich")
 
 
-from flask import Blueprint
+from datetime import datetime
+from app import db
 
-api = Blueprint('api', __name__)
+from user import User
 
-from . import diary, user, survey
+class Diary(db.Document):
+    user = db.ReferenceField(User)
+    timestamp = db.DateTimeField(default=datetime.utcnow)
+    diary = db.DictField()
+    
+    def getByUniqueID(self, uniqueID):
+        user = User()
+        try:
+            return Diary.objects(user=user.getByUniqueID(uniqueID)).order_by('-id').first()
+        except Exception:
+            return None
+    
+    def addByUniqueID(self, uniqueID, diary):
+        user = User()
+        self.user = user.getByUniqueID(uniqueID)
+        self.diary = diary
+        return self.save()
+
+    def serialize(self):
+        d = {
+                "timestamp": self.timestamp.isoformat(),
+                "diary": self.diary
+            }
+        
+        return d
 
