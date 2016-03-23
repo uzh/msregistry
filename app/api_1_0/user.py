@@ -25,6 +25,7 @@ from flask import jsonify, request, _request_ctx_stack
 
 from . import api
 from app.models.user import User
+from app.models.role import Role
 
 from app.auth.decorators import requires_auth, requires_roles
 from app.exceptions import InvalidApiUsage
@@ -44,6 +45,7 @@ def get_user():
 
 @api.route('/user/consent', methods=['GET'])
 @requires_auth
+@requires_roles(roles=[Role.patient, Role.relative])
 def get_user_consent():
     user = User()
     result = user.getConsentByUniqueID(_request_ctx_stack.top.uniqueID)
@@ -56,6 +58,7 @@ def get_user_consent():
 
 @api.route('/user/consent', methods=['POST'])
 @requires_auth
+@requires_roles(roles=[Role.patient, Role.relative])
 def set_user_consent():
     user = User()
     content = request.get_json(silent=True)

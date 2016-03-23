@@ -117,7 +117,7 @@ def requires_roles(roles=None):
                 _request_ctx_stack.top.lang = current_app.config['DEFAULT_LANG']
             
             if Role.authorizedRoles(roles, _request_ctx_stack.top.roles) is False:
-                raise InvalidApiUsage('Unauthorized', status_code=401, 
+                raise InvalidApiUsage('Insufficient Roles', status_code=401, 
                                       payload={'code': 'unauthorized'})
             
             return method(*args, **kwargs)

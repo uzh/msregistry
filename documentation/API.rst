@@ -14,7 +14,7 @@ will accept, what the JSON object’s parameters will be in the response, and an
 example query/response.
 
 This documentation is for most recent version of the MS Registry REST API, 
-version **v0.2.0**.
+version **v0.3.0**.
 
 GET /auth/test
 --------------
@@ -29,6 +29,7 @@ Resource Information
       Method                      GET
       URL                         /auth/test
       Requires authentication?    Yes
+      Requires Role?              Every Role can access
 
 Resource Errors
 ```````````````
@@ -98,6 +99,7 @@ Resource Information
       Method                      GET
       URL                         /api/v1.0/user
       Requires authentication?    Yes
+      Requires Role?              Every Role can access
 
 Response Parameters
 ```````````````````
@@ -157,6 +159,9 @@ These are the possible errors returned by this endpoint.
 |               |                      | user                                  |
 |               |                      |                                       |
 +---------------+----------------------+---------------------------------------+
+| 404           |not_found             | User not found                        |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
 
 Example
 ```````
@@ -192,6 +197,7 @@ Resource Information
       Method                      GET
       URL                         /api/v1.0/user/consent
       Requires authentication?    Yes
+      Requires Role?              Patient, Relative
 
 Response Parameters
 ```````````````````
@@ -239,6 +245,9 @@ These are the possible errors returned by this endpoint.
 |               |                      | user                                  |
 |               |                      |                                       |
 +---------------+----------------------+---------------------------------------+
+| 401           |unauthorized          | Insufficient Roles                    |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
 
 Example
 ```````
@@ -271,6 +280,7 @@ Resource Information
       Method                      POST
       URL                         /api/v1.0/user/consent
       Requires authentication?    Yes
+      Requires Role?              Patient, Relative
 
 Request Parameters
 ``````````````````
@@ -329,6 +339,9 @@ These are the possible errors returned by this endpoint.
 |               |                      | user                                  |
 |               |                      |                                       |
 +---------------+----------------------+---------------------------------------+
+| 401           |unauthorized          | Insufficient Roles                    |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
 
 Example
 ```````
@@ -365,6 +378,7 @@ Resource Information
       Method                      GET
       URL                         /api/v1.0/user/roles
       Requires authentication?    YES
+      Requires Role?              Every Role can access
 
 Response Parameters
 ```````````````````
@@ -374,10 +388,10 @@ Response Parameters
 +=====================+=================+======================================+
 | **roles**           | `(array)`       | Return user's roles stored on OAuth  |
 |                     |                 | Server. Returned values are:         |
-|                     |                 | 'doctor', 'patient', 'relative'.     |
+|                     |                 | 'doctor', 'guest', 'patient',        |
+|                     |                 | 'relative', 'researcher'.            |
 |                     |                 | If no roles are stored on OAuth      |
-|                     |                 | Server, return default role          |
-|                     |                 | 'patient'.                           |
+|                     |                 | Server, return empty array.          |
 |                     |                 |                                      |
 +---------------------+-----------------+--------------------------------------+
 
@@ -416,6 +430,9 @@ These are the possible errors returned by this endpoint.
 |               |                      | user                                  |
 |               |                      |                                       |
 +---------------+----------------------+---------------------------------------+
+| 401           |unauthorized          | Insufficient Roles                    |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
 
 Example
 ```````
@@ -451,6 +468,7 @@ Resource Information
       Method                      GET
       URL                         /api/v1.0/user/lang
       Requires authentication?    YES
+      Requires Role?              Every Role can access
 
 Response Parameters
 ```````````````````
@@ -500,6 +518,9 @@ These are the possible errors returned by this endpoint.
 +---------------+----------------------+---------------------------------------+
 | 500           |internal_server_error | An error occurred while adding this   |
 |               |                      | user                                  |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |unauthorized          | Insufficient Roles                    |
 |               |                      |                                       |
 +---------------+----------------------+---------------------------------------+
 
