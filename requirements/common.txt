@@ -8,7 +8,6 @@ Flask-Environments==0.1
 Flask-Moment==0.5.1
 Flask-Script==2.0.5
 flask-mongoengine==0.7.5
-Flask-SSLify==0.1.5
 itsdangerous==0.24
 Jinja2==2.8
 Mako==1.0.3
