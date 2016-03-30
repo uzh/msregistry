@@ -132,7 +132,7 @@ def requires_consent(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         user = User()
-        if user.getConsentByUniqueID(_request_ctx_stack.top.uniqueID) is False:
+        if user.getDateSignedByUniqueID(_request_ctx_stack.top.uniqueID) is None:
             raise InvalidApiUsage('Consent Information not accepted', status_code=401, 
                                   payload={'code': 'unauthorized'})
         

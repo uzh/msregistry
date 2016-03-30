@@ -49,8 +49,9 @@ def get_user():
 def get_user_consent():
     user = User()
     result = user.getConsentByUniqueID(_request_ctx_stack.top.uniqueID)
+    
     if result is not None:
-        return jsonify(consent=result)
+        return jsonify(result.serialize(_request_ctx_stack.top.roles))
     
     raise InvalidApiUsage('User not found', status_code=404, 
                             payload={'code': 'not_found'})
@@ -61,10 +62,11 @@ def get_user_consent():
 @requires_roles(roles=[Role.patient, Role.relative])
 def set_user_consent():
     user = User()
-    content = request.get_json(silent=True)
-    if content and 'consent' in content:
-        return jsonify(success=bool(user.setConsentByUniqueID(_request_ctx_stack.top.uniqueID,
-                                                              content['consent'])))
+    consent = request.get_json(silent=True)
+    if consent:
+        return jsonify(success=bool(user.setConsentByUniqueIDAndRoles(_request_ctx_stack.top.uniqueID,
+                                                                      _request_ctx_stack.top.roles,
+                                                                      consent)))
     
     return jsonify(success=bool(False))
 
@@ -81,4 +83,5 @@ def get_user_roles():
 @requires_roles(roles=None)
 def get_user_lang():
     return jsonify(lang=_request_ctx_stack.top.lang)
+
 
