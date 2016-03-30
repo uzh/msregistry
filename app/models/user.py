@@ -68,6 +68,9 @@ class User(db.Document):
             return None
     
     def setConsentByUniqueIDAndRoles(self, uniqueID, roles, consent):
+        if type(consent) is not type(dict()):
+            return False
+        
         if 'birthdate' not in consent:
             return False
         elif 'sex' not in consent:

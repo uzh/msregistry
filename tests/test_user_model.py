@@ -32,7 +32,14 @@ from app.models import User
 
 class UserModelTestCase(unittest.TestCase):
     uniqueID = 'd4c74594d841139328695756648b6bd6'
-    
+    roles = ['patient']
+    consent = {"data_exchange_cohort": True,
+               "medical_record_abstraction": True,
+               "physician_contact_permitted": True,
+               "sex": "M",
+               "signature": "FP",
+               "birthdate": "12-25-1975"}
+
     def setUp(self):
         self.app = create_app('TESTING')
         self.app_context = self.app.app_context()
@@ -54,12 +61,12 @@ class UserModelTestCase(unittest.TestCase):
     def test_setConsentByUniqueID(self):
         u = User()
         u.createIfNotExistsByUniqueID(self.uniqueID)
-        self.assertTrue(u.setConsentByUniqueID(self.uniqueID, True))
+        self.assertTrue(u.setConsentByUniqueIDAndRoles(self.uniqueID, self.roles, self.consent))
     
     def test_getConsentByUniqueID(self):
         u = User()
         u.createIfNotExistsByUniqueID(self.uniqueID)
-        self.assertTrue(u.setConsentByUniqueID(self.uniqueID, True))
+        self.assertTrue(u.setConsentByUniqueIDAndRoles(self.uniqueID, self.roles, self.consent))
         self.assertTrue(u.getConsentByUniqueID(self.uniqueID))
     
     def test_timestamps(self):
