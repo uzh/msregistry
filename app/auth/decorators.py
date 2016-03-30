@@ -23,8 +23,6 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 
 import jwt
 import base64
-import json
-import urllib, urllib2
 
 from functools import wraps
 from flask import request, _request_ctx_stack
@@ -35,6 +33,7 @@ from app.models.role import Role
 from app.models.user import User
 from app.exceptions import InvalidApiUsage
 
+from app.auth.api import get_tokeninfo
 
 def requires_auth(f):
     @cross_origin(headers=['Content-Type', 'Authorization'])
@@ -94,27 +93,8 @@ def requires_roles(roles=None):
     def decorated(method):
         @wraps(method)
         def f(*args, **kwargs):
-            url = current_app.config['URL_TOKENINFO']
-            
-            values = {'id_token' : _request_ctx_stack.top.token }
-            headers = { 'Accept' : 'application/json',
-                        'Authorization' : 'Bearer %s' % _request_ctx_stack.top.token }
-            
-            data = urllib.urlencode(values)
-            request = urllib2.Request(url, data, headers)
-            
-            json_data = urllib2.urlopen(request).read()
-            json_object = json.loads(json_data)
-            
-            if 'app_metadata' in json_object and 'roles' in json_object:
-                _request_ctx_stack.top.roles = json_object['app_metadata']['roles']
-            else:
-                _request_ctx_stack.top.roles = []
-            
-            if 'app_metadata' in json_object and 'lang' in json_object:
-                _request_ctx_stack.top.lang = json_object['app_metadata']['lang']
-            else:
-                _request_ctx_stack.top.lang = current_app.config['DEFAULT_LANG']
+
+            _request_ctx_stack.top.roles, _request_ctx_stack.top.lang = get_tokeninfo(_request_ctx_stack.top.token)
             
             if Role.authorizedRoles(roles, _request_ctx_stack.top.roles) is False:
                 raise InvalidApiUsage('Insufficient Roles', status_code=401, 
