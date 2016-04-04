@@ -15,7 +15,6 @@
 # You should have received a copy of the version 3 of the GNU Affero
 # General Public License along with MSRegistry Backend.  If not, see 
 # <http://www.gnu.org/licenses/>.
-from __builtin__ import True
 
 __author__ = "Filippo Panessa <filippo.panamenessa@uzh.ch>"
 __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
@@ -27,20 +26,38 @@ from app import db
 
 from role import Role
 
+
 GENDER = ('M', 'F')
 
 class User(db.Document):
     uniqueID = db.StringField(unique=True, required=True)
     member_since = db.DateTimeField(default=datetime.utcnow, required=True)
     last_seen = db.DateTimeField(default=datetime.utcnow, required=True)
-    birthdate = db.DateTimeField()
-    sex = db.StringField(max_length=1)
+    _birthdate = db.DateTimeField(default=None, required=True)
+    _sex = db.StringField(max_length=1, default=None, required=True)
     physician_contact_permitted = db.BooleanField(default=False, required=True)
     medical_record_abstraction = db.BooleanField(default=False, required=True)
     data_exchange_cohort = db.BooleanField(default=False, required=True)
     signature = db.StringField(max_length=2)
     date_signed = db.DateTimeField()
-
+    
+    
+    @property
+    def birthdate(self):
+        return datetime.strptime(self._birthdate.isoformat(), "%Y-%m-%dT%H:%M:%S").strftime("%m-%d-%Y")
+    
+    @birthdate.setter
+    def birthdate(self, value):
+        self._birthdate = datetime.strptime(value, "%m-%d-%Y")
+    
+    @property
+    def sex(self):
+        return self._sex
+    
+    @sex.setter
+    def sex(self, value):
+        if value in GENDER:
+            self._sex = value
     
     def createIfNotExistsByUniqueID(self, uniqueID):
         if User.objects(uniqueID=uniqueID).first() is None:
@@ -50,73 +67,53 @@ class User(db.Document):
         return True
     
     def getByUniqueID(self, uniqueID):
-        try:
-            return User.objects(uniqueID=uniqueID).first()
-        except Exception:
-            return None
+        return User.objects(uniqueID=uniqueID).first()
     
     def getDateSignedByUniqueID(self, uniqueID):
-        try:
-            return User.objects(uniqueID=uniqueID).first().date_signed
-        except Exception:
-            return None
+        return User.objects(uniqueID=uniqueID).first().date_signed
     
     def getConsentByUniqueID(self, uniqueID):
-        try:
-            return User.objects(uniqueID=uniqueID).first()
-        except Exception:
-            return None
+        return User.objects(uniqueID=uniqueID).first()
     
-    def setConsentByUniqueIDAndRoles(self, uniqueID, roles, consent):
-        if type(consent) is not type(dict()):
-            return False
+    def setConsentByUniqueIDAndRoles(self, uniqueID, roles, birthdate, sex, signature,
+                                     physician_contact_permitted=None, 
+                                     medical_record_abstraction=None,
+                                     data_exchange_cohort=None):
         
-        if 'birthdate' not in consent:
-            return False
-        elif 'sex' not in consent:
-            return False
-        elif 'signature' not in consent:
-            return False
-        elif consent['sex'] not in GENDER:
-            return False
+        if birthdate is None:
+            raise ValueError('Birthdate None')
+        if sex is None:
+            raise ValueError('Sex None')
+        if signature is None:
+            raise ValueError('Signature None')
         
         if Role.patient in roles:
-            if 'physician_contact_permitted' not in consent:
-                return False
-            elif 'medical_record_abstraction' not in consent:
-                return False
-            elif 'data_exchange_cohort' not in consent:
-                return False
+            if physician_contact_permitted is None:
+                raise ValueError('Physician Contact Permitted None')
+            if medical_record_abstraction is None:
+                raise ValueError('Medical Record Abstraction None')
+            if data_exchange_cohort is None:
+                raise ValueError('Data Exchange Cohort None')
             
-            try:
-                return User.objects(uniqueID=uniqueID).update(
-                                                              birthdate=datetime.strptime(consent['birthdate'], "%m-%d-%Y"),
-                                                              sex=consent['sex'],
-                                                              signature=consent['signature'],
-                                                              physician_contact_permitted=consent['physician_contact_permitted'],
-                                                              medical_record_abstraction=consent['medical_record_abstraction'],
-                                                              data_exchange_cohort=consent['data_exchange_cohort'],
-                                                              date_signed=datetime.utcnow
-                                                              )
-            except db.ValidationError:
-                return False
-            except ValueError:
-                return False
+            return User.objects(uniqueID=uniqueID).update(
+                                                          _birthdate=birthdate,
+                                                          _sex=sex,
+                                                          signature=signature,
+                                                          physician_contact_permitted=physician_contact_permitted,
+                                                          medical_record_abstraction=medical_record_abstraction,
+                                                          data_exchange_cohort=data_exchange_cohort,
+                                                          date_signed=datetime.utcnow()
+                                                          )
         
-        if Role.relative in roles:
-            try:
-                return User.objects(uniqueID=uniqueID).update(
-                                                              birthdate=datetime.strptime(consent['birthdate'], "%m-%d-%Y"),
-                                                              sex=consent['sex'],
-                                                              signature=consent['signature'],
-                                                              date_signed=datetime.utcnow
-                                                              )
-            except db.ValidationError:
-                return False
-            except ValueError:
-                return False
-            
-        return False
+        elif Role.relative in roles:
+            return User.objects(uniqueID=uniqueID).update(
+                                                          _birthdate=birthdate,
+                                                          _sex=sex,
+                                                          signature=signature,
+                                                          date_signed=datetime.utcnow
+                                                          )
+        
+        raise ValueError('No Role provided')
     
     def setLastSeenByUniqueID(self, uniqueID):
         return User.objects(uniqueID=uniqueID).update(last_seen=datetime.utcnow())
@@ -131,7 +128,7 @@ class User(db.Document):
         if Role.patient in roles or Role.relative in roles:
             d = {
                     "sex": self.sex,
-                    "birthdate": datetime.strptime(self.birthdate.isoformat(), "%Y-%m-%dT%H:%M:%S").strftime("%m-%d-%Y"),
+                    "birthdate": self.birthdate,
                     "signature": self.signature
                 }
             

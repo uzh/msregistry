@@ -23,12 +23,14 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 
 from flask import jsonify, request, _request_ctx_stack
 
+from app import db
 from . import api
 from app.models.user import User
 from app.models.role import Role
 
 from app.auth.decorators import requires_auth, requires_roles
-from app.exceptions import InvalidApiUsage
+
+from app.errors import UserNotFound, MethodNotAllowed
 
 
 @api.route('/user')
@@ -39,8 +41,7 @@ def get_user():
     if result is not None:
         return jsonify(result.serialize())
     
-    raise InvalidApiUsage('User not found', status_code=404, 
-                            payload={'code': 'not_found'})
+    raise UserNotFound(_request_ctx_stack.top.uniqueID)
 
 
 @api.route('/user/consent', methods=['GET'])
@@ -53,8 +54,7 @@ def get_user_consent():
     if result is not None:
         return jsonify(result.serialize(_request_ctx_stack.top.roles))
     
-    raise InvalidApiUsage('User not found', status_code=404, 
-                            payload={'code': 'not_found'})
+    raise UserNotFound(_request_ctx_stack.top.uniqueID)
 
 
 @api.route('/user/consent', methods=['POST'])
@@ -64,11 +64,19 @@ def set_user_consent():
     user = User()
     consent = request.get_json(silent=True)
     if consent:
-        return jsonify(success=bool(user.setConsentByUniqueIDAndRoles(_request_ctx_stack.top.uniqueID,
-                                                                      _request_ctx_stack.top.roles,
-                                                                      consent)))
-    
-    return jsonify(success=bool(False))
+        try:
+            return jsonify(success=bool(user.setConsentByUniqueIDAndRoles(uniqueID=_request_ctx_stack.top.uniqueID,
+                                                                      roles=_request_ctx_stack.top.roles,
+                                                                      birthdate=consent['birthdate'], sex=consent['sex'], signature=consent['signature'],
+                                                                      physician_contact_permitted=consent['physician_contact_permitted'], 
+                                                                      medical_record_abstraction=consent['medical_record_abstraction'],
+                                                                      data_exchange_cohort=consent['data_exchange_cohort'])))
+        except ValueError:
+            raise MethodNotAllowed(str(ValueError))
+        except db.ValidationError:
+            raise MethodNotAllowed(str(db.ValidationError))
+    else:
+        return jsonify(success=bool(False))
 
 
 @api.route('/user/roles')

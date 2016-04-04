@@ -28,23 +28,37 @@ from app.models.role import Role
 from app.models.diary import Diary
 
 from app.auth.decorators import requires_auth, requires_roles, requires_consent
-from app.exceptions import InvalidApiUsage
+
+from werkzeug.exceptions import BadRequest
 
 
-@api.route('/diary', methods=['GET'])
+@api.route('/user/diary', methods=['GET'])
 @requires_auth
 @requires_roles(roles=[Role.patient, Role.relative])
-def get_diary():
+def get_user_diary():
     diary = Diary()
     result = diary.getByUniqueID(_request_ctx_stack.top.uniqueID)
     if result is not None:
         return jsonify(result.serialize())
     
-    raise InvalidApiUsage('Diary not found', status_code=404, 
+    raise BadRequest('Diary not found', status_code=404, 
                             payload={'code': 'not_found'})
 
 
-@api.route('/diary', methods=['POST'])
+@api.route('/user/diary/<string:_id>', methods=['GET'])
+@requires_auth
+@requires_roles(roles=[Role.patient, Role.relative])
+def get_user_diary_by_id(_id):
+    diary = Diary()
+    result = diary.getByUniqueIDAndID(_request_ctx_stack.top.uniqueID, _id)
+    if result is not None:
+        return jsonify(result.serialize())
+    
+    raise BadRequest('Survey not found', status_code=404, 
+                            payload={'code': 'not_found'})
+
+
+@api.route('/user/diary', methods=['POST'])
 @requires_auth
 @requires_roles(roles=[Role.patient, Role.relative])
 @requires_consent

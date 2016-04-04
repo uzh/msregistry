@@ -28,12 +28,13 @@ from app.models.role import Role
 from app.models.survey import Survey
 
 from app.auth.decorators import requires_auth, requires_roles, requires_consent
-from app.exceptions import InvalidApiUsage
+
+from werkzeug.exceptions import BadRequest
 
 
 @api.route('/survey', methods=['GET'])
 @requires_auth
-def get_surveys():
+def get_survey():
     survey = Survey()
     return jsonify(surveys=[ob.serialize() for ob in survey.getAllByUniqueID(_request_ctx_stack.top.uniqueID)])
 
@@ -51,15 +52,16 @@ def add_survey():
     return jsonify(success=bool(False))
 
 
-@api.route('/survey/get/<string:_id>', methods=['GET'])
+@api.route('/survey/<string:_id>', methods=['GET'])
 @requires_auth
 @requires_roles(roles=[Role.patient, Role.relative])
-def get_survey(_id):
+def get_survey_by_id(_id):
     survey = Survey()
     result = survey.getByUniqueIDAndID(_request_ctx_stack.top.uniqueID, _id)
     if result is not None:
         return jsonify(result.serialize())
     
-    raise InvalidApiUsage('Survey not found', status_code=404, 
+    raise BadRequest('Survey not found', status_code=404, 
                             payload={'code': 'not_found'})
+
 

@@ -31,9 +31,14 @@ from flask import current_app
 
 from app.models.role import Role
 from app.models.user import User
-from app.exceptions import InvalidApiUsage
+
+from app.errors import AuthorizationHeaderIsExpected, AuthorizationHeaderMustStartWithBearer, ConsentInformationNotAccepted
+from app.errors import IncorrectAudience, InsufficientRoles, TokenIsExpired, TokenIsInvalid, TokenNotFound
+
+from werkzeug.exceptions import InternalServerError
 
 from app.auth.api import get_tokeninfo
+
 
 def requires_auth(f):
     @cross_origin(headers=['Content-Type', 'Authorization'])
@@ -42,20 +47,16 @@ def requires_auth(f):
         app = current_app._get_current_object()
         auth = request.headers.get('Authorization', None)
         if not auth:
-            raise InvalidApiUsage('Authorization header is expected', status_code=403, 
-                                  payload={'code': 'authorization_required'})
+            raise AuthorizationHeaderIsExpected()
         
         parts = auth.split()
 
         if parts[0].lower() != 'bearer':
-            raise InvalidApiUsage('Authorization header must start with Bearer', status_code=401, 
-                                  payload={'code': 'invalid_header'})
+            raise AuthorizationHeaderMustStartWithBearer()
         elif len(parts) == 1:
-            raise InvalidApiUsage('Token not found', status_code=401, 
-                                  payload={'code': 'invalid_header'})
+            raise TokenNotFound()
         elif len(parts) > 2:
-            raise InvalidApiUsage('Authorization header must be Bearer + \s + token', status_code=401, 
-                                  payload={'code': 'invalid_header'})
+            raise AuthorizationHeaderMustStartWithBearer()
         token = parts[1]
         _request_ctx_stack.top.token = token
          
@@ -66,21 +67,17 @@ def requires_auth(f):
                                  audience=app.config['OAUTH_CLIENT_ID']
                                  )
         except jwt.ExpiredSignature:
-            raise InvalidApiUsage('Token is expired', status_code=400, 
-                                  payload={'code': 'token_expired'})
+            raise TokenIsExpired()
         except jwt.InvalidAudienceError:
-            raise InvalidApiUsage('Incorrect audience', status_code=400, 
-                                  payload={'code': 'invalid_audience'})
+            raise IncorrectAudience()
         except jwt.DecodeError:
-            raise InvalidApiUsage('Token signature is invalid', status_code=400, 
-                                  payload={'code': 'invalid_signature'})
+            raise TokenIsInvalid()
         
         _request_ctx_stack.top.uniqueID = payload['sub']
         
         user = User()
-        if user.createIfNotExistsByUniqueID(_request_ctx_stack.top.uniqueID) == False:
-            raise InvalidApiUsage('An error occurred while adding this user', status_code=500, 
-                                  payload={'code': 'internal_server_error'})
+        if user.createIfNotExistsByUniqueID(_request_ctx_stack.top.uniqueID) is False:
+            raise InternalServerError()
         
         user.setLastSeenByUniqueID(_request_ctx_stack.top.uniqueID)
         
@@ -97,8 +94,7 @@ def requires_roles(roles=None):
             _request_ctx_stack.top.roles, _request_ctx_stack.top.lang = get_tokeninfo(_request_ctx_stack.top.token)
             
             if Role.authorizedRoles(roles, _request_ctx_stack.top.roles) is False:
-                raise InvalidApiUsage('Insufficient Roles', status_code=401, 
-                                      payload={'code': 'unauthorized'})
+                raise InsufficientRoles()
             
             return method(*args, **kwargs)
             
@@ -108,15 +104,14 @@ def requires_roles(roles=None):
 
 
 def requires_consent(f):
-    @cross_origin(headers=['Content-Type', 'Authorization'])
     @wraps(f)
     def decorated(*args, **kwargs):
         user = User()
         if user.getDateSignedByUniqueID(_request_ctx_stack.top.uniqueID) is None:
-            raise InvalidApiUsage('Consent Information not accepted', status_code=401, 
-                                  payload={'code': 'unauthorized'})
+            raise ConsentInformationNotAccepted()
         
         return f(*args, **kwargs)
 
     return decorated
+
 

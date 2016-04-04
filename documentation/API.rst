@@ -214,8 +214,18 @@ Response Parameters
 +---------------------+-----------------+--------------------------------------+
 | **Parameter**       | **Type**        | **Description**                      |
 +=====================+=================+======================================+
-| **consent**         | `(bool)`        | Has the Informed Consent been        |
-|                     |                 | accepted?                            |
+| **birthdate**       | `(string)`      | Birthdate. Date must be sent in this |
+|                     |                 | form: %MM-%DD-%YYYY                  |
+|                     |                 |                                      |
++---------------------+-----------------+--------------------------------------+
+| **sex**             | `(string)`      | Sex. Accepted values are 'Male' and  |
+|                     |                 | 'Female'                             |
+|                     |                 |                                      |
++---------------------+-----------------+--------------------------------------+
+| **signature**       | `(string)`      | Signature by Initials                |
+|                     |                 |                                      |
++---------------------+-----------------+--------------------------------------+
+| **physician_contact_permitted**       | `(bool)`      | Signature by Initials                |
 |                     |                 |                                      |
 +---------------------+-----------------+--------------------------------------+
 
@@ -273,7 +283,13 @@ Response
 .. code:: json
 
     {
-        "consent": true
+        "birthdate": "12-25-1975", 
+        "data_exchange_cohort": true, 
+        "date_signed": "2016-03-30T14:33:48.011000", 
+        "medical_record_abstraction": true, 
+        "physician_contact_permitted": true, 
+        "sex": "M", 
+        "signature": "FP"
     }
 
 POST /user/consent

@@ -27,6 +27,7 @@ from flask.ext.moment import Moment
 from flask.ext.mongoengine import MongoEngine
 from flask_environments import Environments
 
+from app.exceptions import JSONExceptionHandler
 
 bootstrap = Bootstrap()
 moment = Moment()
@@ -41,6 +42,7 @@ def create_app(config_name):
     bootstrap.init_app(app)
     moment.init_app(app)
     db.init_app(app)
+    JSONExceptionHandler(app)
     
     if not app.debug and not app.testing and not app.config['SSL_DISABLE']:
         from flask.ext.sslify import SSLify
