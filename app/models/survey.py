@@ -33,10 +33,7 @@ class Survey(db.Document):
     
     def getByUniqueIDAndID(self, uniqueID, _id):
         user = User()
-        try:
-            return Survey.objects(id=_id, user=user.getByUniqueID(uniqueID)).first()
-        except Exception:
-            return None
+        return Survey.objects(id=_id, user=user.getByUniqueID(uniqueID)).first()
     
     def getAll(self):
         return Survey.objects().all()
