@@ -31,12 +31,13 @@ class Diary(db.Document):
     timestamp = db.DateTimeField(default=datetime.utcnow)
     diary = db.DictField()
     
-    def getByUniqueID(self, uniqueID):
+    def getAllByUniqueID(self, uniqueID):
         user = User()
-        try:
-            return Diary.objects(user=user.getByUniqueID(uniqueID)).order_by('-id').first()
-        except Exception:
-            return None
+        return Diary.objects(user=user.getByUniqueID(uniqueID)).order_by('-id')
+    
+    def getByUniqueIDAndID(self, uniqueID, _id):
+        user = User()
+        return Diary.objects(id=_id, user=user.getByUniqueID(uniqueID)).first()
     
     def addByUniqueID(self, uniqueID, diary):
         user = User()
@@ -46,6 +47,7 @@ class Diary(db.Document):
 
     def serialize(self):
         d = {
+                "id": str(self.id),
                 "timestamp": self.timestamp.isoformat(),
                 "diary": self.diary
             }

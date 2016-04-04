@@ -27,9 +27,11 @@ from . import api
 from app.models.role import Role
 from app.models.diary import Diary
 
+from app import db
+
 from app.auth.decorators import requires_auth, requires_roles, requires_consent
 
-from werkzeug.exceptions import BadRequest
+from app.errors import DiaryNotFound, MethodNotAllowed
 
 
 @api.route('/user/diary', methods=['GET'])
@@ -37,12 +39,7 @@ from werkzeug.exceptions import BadRequest
 @requires_roles(roles=[Role.patient, Role.relative])
 def get_user_diary():
     diary = Diary()
-    result = diary.getByUniqueID(_request_ctx_stack.top.uniqueID)
-    if result is not None:
-        return jsonify(result.serialize())
-    
-    raise BadRequest('Diary not found', status_code=404, 
-                            payload={'code': 'not_found'})
+    return jsonify(diaries=[ob.serialize() for ob in diary.getAllByUniqueID(_request_ctx_stack.top.uniqueID)])
 
 
 @api.route('/user/diary/<string:_id>', methods=['GET'])
@@ -50,12 +47,10 @@ def get_user_diary():
 @requires_roles(roles=[Role.patient, Role.relative])
 def get_user_diary_by_id(_id):
     diary = Diary()
-    result = diary.getByUniqueIDAndID(_request_ctx_stack.top.uniqueID, _id)
-    if result is not None:
-        return jsonify(result.serialize())
-    
-    raise BadRequest('Survey not found', status_code=404, 
-                            payload={'code': 'not_found'})
+    try:
+        return jsonify(diary.getByUniqueIDAndID(_request_ctx_stack.top.uniqueID, _id).serialize())
+    except:
+        raise DiaryNotFound(_id)
 
 
 @api.route('/user/diary', methods=['POST'])
@@ -64,9 +59,10 @@ def get_user_diary_by_id(_id):
 @requires_consent
 def add_diary():
     diary = Diary()
-    content = request.get_json(silent=True)
-    if content:
-        return jsonify(success=bool(diary.addByUniqueID(_request_ctx_stack.top.uniqueID, content)))
-    
-    return jsonify(success=bool(False))
+    try:
+        return jsonify(success=bool(diary.addByUniqueID(_request_ctx_stack.top.uniqueID, request.get_json(silent=True))))
+    except ValueError:
+        raise MethodNotAllowed()
+    except db.ValidationError:
+        raise MethodNotAllowed()
 

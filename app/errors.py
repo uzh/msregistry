@@ -88,17 +88,32 @@ class ConsentInformationNotAccepted(HTTPException):
         self.error = 'forbidden'
 
 class UserNotFound(NotFound):
-    code = 401
+    code = 404
     
     def __init__(self, UniqueID):
-        self.message = 'Couldn\'t found a user with UniqueID={}.'.format(UniqueID)
+        self.message = 'Couldn\'t found a User with UniqueID={}.'.format(UniqueID)
+        self.error = 'not_found'
+
+class DiaryNotFound(NotFound):
+    code = 404
+    
+    def __init__(self, _id):
+        self.message = 'Couldn\'t found a Diary with id={}.'.format(_id)
+        self.error = 'not_found'
+        
+class SurveyNotFound(NotFound):
+    code = 404
+    
+    def __init__(self, _id):
+        self.message = 'Couldn\'t found a Survey with id={}.'.format(_id)
+        self.error = 'not_found'
 
 class MethodNotAllowed(HTTPException):
-    code = 200
+    code = 405
     
     def __init__(self, message):
         super(MethodNotAllowed, self).__init__()
-        self.message = message
+        self.message = 'Method not Allowed'
         self.error = 'method_not_allowed'
 
 
