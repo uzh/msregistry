@@ -24,7 +24,7 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 import unittest
 
 from app import create_app
-from app.models import Diary
+from app.models import Diary, User
 
 class DiaryModelTestCase(unittest.TestCase):
     uniqueID = 'd4c74594d841139328695756648b6bd6'
@@ -38,6 +38,8 @@ class DiaryModelTestCase(unittest.TestCase):
         self.app_context.pop()
 
     def test_addByUniqueID(self):
-        u = Diary()
-        self.assertTrue(u.addByUniqueID(self.uniqueID, {}))
+        u = User()
+        self.assertTrue(u.createIfNotExistsByUniqueID(self.uniqueID))
+        d = Diary()
+        self.assertTrue(d.addByUniqueID(self.uniqueID, {'value': 'any'}))
 
