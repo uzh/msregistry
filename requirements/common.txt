@@ -7,7 +7,7 @@ Flask-Cors==2.1.2
 Flask-Environments==0.1
 Flask-Moment==0.5.1
 Flask-Script==2.0.5
-flask-mongoengine==0.7.5
+Flask-MongoAlchemy==0.7.2
 itsdangerous==0.24
 Jinja2==2.8
 Mako==1.0.3
