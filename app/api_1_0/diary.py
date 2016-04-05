@@ -40,7 +40,7 @@ from app.errors import DiaryNotFound, MethodNotAllowed
 def get_user_diary():
     diary = Diary()
     return jsonify(diaries=[ob.serialize() for ob in diary.getAllByUniqueID(_request_ctx_stack.top.uniqueID)])
-
+    
 
 @api.route('/user/diary/<string:_id>', methods=['GET'])
 @requires_auth
@@ -63,6 +63,6 @@ def add_diary():
         return jsonify(success=bool(diary.addByUniqueID(_request_ctx_stack.top.uniqueID, request.get_json(silent=True))))
     except ValueError:
         raise MethodNotAllowed()
-    except db.ValidationError:
+    except db.BadValueException:
         raise MethodNotAllowed()
 

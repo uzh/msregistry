@@ -33,18 +33,18 @@ from app.models import User
 class UserModelTestCase(unittest.TestCase):
     uniqueID = 'd4c74594d841139328695756648b6bd6'
     roles = ['patient']
-    consent = {"data_exchange_cohort": True,
-               "medical_record_abstraction": True,
-               "physician_contact_permitted": True,
-               "sex": "M",
-               "signature": "FP",
-               "birthdate": "12-25-1975"}
-
+    birthdate="12-25-1975"
+    sex="M"
+    signature="FP"
+    physician_contact_permitted=True
+    medical_record_abstraction=True
+    data_exchange_cohort=True
+    
     def setUp(self):
         self.app = create_app('TESTING')
         self.app_context = self.app.app_context()
         self.app_context.push()
-
+    
     def tearDown(self):
         self.app_context.pop()
 
@@ -61,12 +61,16 @@ class UserModelTestCase(unittest.TestCase):
     def test_setConsentByUniqueID(self):
         u = User()
         u.createIfNotExistsByUniqueID(self.uniqueID)
-        self.assertTrue(u.setConsentByUniqueIDAndRoles(self.uniqueID, self.roles, self.consent))
+        self.assertTrue(u.setConsentByUniqueIDAndRoles(self.uniqueID, self.roles, self.birthdate, self.sex, self.signature,
+                                                       self.physician_contact_permitted, self.medical_record_abstraction,
+                                                       self.data_exchange_cohort))
     
     def test_getConsentByUniqueID(self):
         u = User()
         u.createIfNotExistsByUniqueID(self.uniqueID)
-        self.assertTrue(u.setConsentByUniqueIDAndRoles(self.uniqueID, self.roles, self.consent))
+        self.assertTrue(u.setConsentByUniqueIDAndRoles(self.uniqueID, self.roles, self.birthdate, self.sex, self.signature,
+                                                       self.physician_contact_permitted, self.medical_record_abstraction,
+                                                       self.data_exchange_cohort))
         self.assertTrue(u.getConsentByUniqueID(self.uniqueID))
     
     def test_timestamps(self):
@@ -85,4 +89,5 @@ class UserModelTestCase(unittest.TestCase):
         u2 = User()
         u2.setLastSeenByUniqueID(self.uniqueID)
         self.assertTrue(u2.last_seen > last_seen_before)
+
 

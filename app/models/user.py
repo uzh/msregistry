@@ -27,63 +27,46 @@ from app import db
 from role import Role
 
 
-GENDER = ('M', 'F')
-
 class User(db.Document):
-    uniqueID = db.StringField(unique=True, required=True)
-    member_since = db.DateTimeField(default=datetime.utcnow, required=True)
-    last_seen = db.DateTimeField(default=datetime.utcnow, required=True)
-    _birthdate = db.DateTimeField(default=None, required=True)
-    _sex = db.StringField(max_length=1, default=None, required=True)
-    physician_contact_permitted = db.BooleanField(default=False, required=True)
-    medical_record_abstraction = db.BooleanField(default=False, required=True)
-    data_exchange_cohort = db.BooleanField(default=False, required=True)
-    signature = db.StringField(max_length=2)
-    date_signed = db.DateTimeField()
-    
-    
-    @property
-    def birthdate(self):
-        return datetime.strptime(self._birthdate.isoformat(), "%Y-%m-%dT%H:%M:%S").strftime("%m-%d-%Y")
-    
-    @birthdate.setter
-    def birthdate(self, value):
-        self._birthdate = datetime.strptime(value, "%m-%d-%Y")
-    
-    @property
-    def sex(self):
-        return self._sex
-    
-    @sex.setter
-    def sex(self, value):
-        if value in GENDER:
-            self._sex = value
+    uniqueID = db.StringField(required=True)
+    member_since = db.DateTimeField(default=datetime.utcnow(), required=True)
+    last_seen = db.DateTimeField(default=datetime.utcnow(), required=True)
+    birthdate = db.DateTimeField(default=None)
+    sex = db.EnumField(db.StringField(), ('male', 'female'), default=None)
+    physician_contact_permitted = db.BoolField(default=False, required=True)
+    medical_record_abstraction = db.BoolField(default=False, required=True)
+    data_exchange_cohort = db.BoolField(default=False, required=True)
+    signature = db.StringField(max_length=2, default=None)
+    date_signed = db.DateTimeField(default=None)
+
+    def getBirthdate(self):
+        return datetime.strptime(self.birthdate.isoformat(), "%Y-%m-%dT%H:%M:%S").strftime("%m-%d-%Y")
+     
+    def setBirthdate(self, value):
+        self.birthdate = datetime.strptime(value, "%m-%d-%Y")
     
     def createIfNotExistsByUniqueID(self, uniqueID):
-        if User.objects(uniqueID=uniqueID).first() is None:
+        if self.getByUniqueID(uniqueID) is None:
             self.uniqueID = uniqueID
-            return self.save()
+            self.save()
         
         return True
     
     def getByUniqueID(self, uniqueID):
-        return User.objects(uniqueID=uniqueID).first()
-    
+        return User.query.filter_by(uniqueID=uniqueID).first()
+        
     def getDateSignedByUniqueID(self, uniqueID):
-        return User.objects(uniqueID=uniqueID).first().date_signed
+        return self.getByUniqueID(uniqueID).date_signed
     
-    def getConsentByUniqueID(self, uniqueID):
-        return User.objects(uniqueID=uniqueID).first()
-    
-    def setConsentByUniqueIDAndRoles(self, uniqueID, roles, birthdate, sex, signature,
+    def setConsentByUniqueIDAndRoles(self, uniqueID, roles, sex, birthdate, signature,
                                      physician_contact_permitted=None, 
                                      medical_record_abstraction=None,
                                      data_exchange_cohort=None):
         
-        if birthdate is None:
-            raise ValueError('Birthdate None')
         if sex is None:
             raise ValueError('Sex None')
+        if birthdate is None:
+            raise ValueError('Birthdate None')
         if signature is None:
             raise ValueError('Signature None')
         
@@ -96,8 +79,8 @@ class User(db.Document):
                 raise ValueError('Data Exchange Cohort None')
             
             return User.objects(uniqueID=uniqueID).update(
-                                                          _birthdate=birthdate,
-                                                          _sex=sex,
+                                                          sex=sex,
+                                                          birthdate=birthdate,
                                                           signature=signature,
                                                           physician_contact_permitted=physician_contact_permitted,
                                                           medical_record_abstraction=medical_record_abstraction,
@@ -107,8 +90,8 @@ class User(db.Document):
         
         elif Role.relative in roles:
             return User.objects(uniqueID=uniqueID).update(
-                                                          _birthdate=birthdate,
-                                                          _sex=sex,
+                                                          sex=sex,
+                                                          birthdate=birthdate,
                                                           signature=signature,
                                                           date_signed=datetime.utcnow
                                                           )
@@ -116,7 +99,7 @@ class User(db.Document):
         raise ValueError('No Role provided')
     
     def setLastSeenByUniqueID(self, uniqueID):
-        return User.objects(uniqueID=uniqueID).update(last_seen=datetime.utcnow())
+        return User.query.filter(User.uniqueID == uniqueID).set(User.last_seen, datetime.utcnow()).execute()
     
     def serialize(self, roles=[]):
         d = {
@@ -128,7 +111,6 @@ class User(db.Document):
         if Role.patient in roles or Role.relative in roles:
             d = {
                     "sex": self.sex,
-                    "birthdate": self.birthdate,
                     "signature": self.signature
                 }
             

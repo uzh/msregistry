@@ -49,7 +49,8 @@ def get_user():
 @requires_roles(roles=[Role.patient, Role.relative])
 def get_user_consent():
     user = User()
-    result = user.getConsentByUniqueID(_request_ctx_stack.top.uniqueID)
+    #TODO: getConsentByUniqueID
+    result = user.getByUniqueID(_request_ctx_stack.top.uniqueID)
     
     if result is not None:
         return jsonify(result.serialize(_request_ctx_stack.top.roles))
@@ -63,33 +64,16 @@ def get_user_consent():
 def set_user_consent():
     user = User()
     consent = request.get_json(silent=True)
-    if consent:
-        try:
-            return jsonify(success=bool(user.setConsentByUniqueIDAndRoles(uniqueID=_request_ctx_stack.top.uniqueID,
-                                                                      roles=_request_ctx_stack.top.roles,
-                                                                      birthdate=consent['birthdate'], sex=consent['sex'], signature=consent['signature'],
-                                                                      physician_contact_permitted=consent['physician_contact_permitted'], 
-                                                                      medical_record_abstraction=consent['medical_record_abstraction'],
-                                                                      data_exchange_cohort=consent['data_exchange_cohort'])))
-        except ValueError:
-            raise MethodNotAllowed(str(ValueError))
-        except db.ValidationError:
-            raise MethodNotAllowed(str(db.ValidationError))
-    else:
-        return jsonify(success=bool(False))
-
-
-@api.route('/user/roles')
-@requires_auth
-@requires_roles(roles=None)
-def get_user_roles():
-    return jsonify(roles=_request_ctx_stack.top.roles)
-
-
-@api.route('/user/lang')
-@requires_auth
-@requires_roles(roles=None)
-def get_user_lang():
-    return jsonify(lang=_request_ctx_stack.top.lang)
+    try:
+        return jsonify(success=bool(user.setConsentByUniqueIDAndRoles(uniqueID=_request_ctx_stack.top.uniqueID,
+                                                                  roles=_request_ctx_stack.top.roles,
+                                                                  sex=consent['sex'], birthdate=consent['birthdate'], signature=consent['signature'],
+                                                                  physician_contact_permitted=consent['physician_contact_permitted'], 
+                                                                  medical_record_abstraction=consent['medical_record_abstraction'],
+                                                                  data_exchange_cohort=consent['data_exchange_cohort'])))
+    except ValueError:
+        raise MethodNotAllowed(message=str(ValueError))
+    except db.ValidationError:
+        raise MethodNotAllowed(message=str(db.ValidationError._message))
 
 

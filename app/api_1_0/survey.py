@@ -34,14 +34,14 @@ from app.auth.decorators import requires_auth, requires_roles, requires_consent
 from app.errors import SurveyNotFound, MethodNotAllowed
 
 
-@api.route('/survey', methods=['GET'])
+@api.route('/user/survey', methods=['GET'])
 @requires_auth
 def get_survey():
     survey = Survey()
     return jsonify(surveys=[ob.serialize() for ob in survey.getAllByUniqueID(_request_ctx_stack.top.uniqueID)])
 
 
-@api.route('/survey/<string:_id>', methods=['GET'])
+@api.route('/user/survey/<string:_id>', methods=['GET'])
 @requires_auth
 @requires_roles(roles=[Role.patient, Role.relative])
 def get_survey_by_id(_id):
@@ -52,7 +52,7 @@ def get_survey_by_id(_id):
         raise SurveyNotFound(_id)
     
 
-@api.route('/survey', methods=['POST'])
+@api.route('/user/survey', methods=['POST'])
 @requires_auth
 @requires_roles(roles=[Role.patient, Role.relative])
 @requires_consent
@@ -62,6 +62,6 @@ def add_survey():
         return jsonify(success=bool(survey.addByUniqueID(_request_ctx_stack.top.uniqueID, request.get_json(silent=True))))
     except ValueError:
         raise MethodNotAllowed()
-    except db.ValidationError:
+    except db.BadValueException:
         raise MethodNotAllowed()
 

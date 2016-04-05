@@ -35,8 +35,6 @@ from app.models.user import User
 from app.errors import AuthorizationHeaderIsExpected, AuthorizationHeaderMustStartWithBearer, ConsentInformationNotAccepted
 from app.errors import IncorrectAudience, InsufficientRoles, TokenIsExpired, TokenIsInvalid, TokenNotFound
 
-from werkzeug.exceptions import InternalServerError
-
 from app.auth.api import get_tokeninfo
 
 
@@ -76,9 +74,7 @@ def requires_auth(f):
         _request_ctx_stack.top.uniqueID = payload['sub']
         
         user = User()
-        if user.createIfNotExistsByUniqueID(_request_ctx_stack.top.uniqueID) is False:
-            raise InternalServerError()
-        
+        user.createIfNotExistsByUniqueID(_request_ctx_stack.top.uniqueID)
         user.setLastSeenByUniqueID(_request_ctx_stack.top.uniqueID)
         
         return f(*args, **kwargs)

@@ -113,7 +113,7 @@ class MethodNotAllowed(HTTPException):
     
     def __init__(self, message):
         super(MethodNotAllowed, self).__init__()
-        self.message = 'Method not Allowed'
+        self.message = message
         self.error = 'method_not_allowed'
 
 

@@ -26,28 +26,27 @@ from app import db
 
 from user import User
 
+
 class Diary(db.Document):
-    user = db.ReferenceField(User)
-    timestamp = db.DateTimeField(default=datetime.utcnow)
-    diary = db.DictField()
+    user = db.ObjectIdField(User)
+    timestamp = db.DateTimeField(default=datetime.utcnow())
+    diary = db.DictField(db.AnythingField(), required=True)
     
     def getAllByUniqueID(self, uniqueID):
-        user = User()
-        return Diary.objects(user=user.getByUniqueID(uniqueID)).order_by('-id')
+        return Diary.query.filter(Diary.user == User().query.filter(User.uniqueID == uniqueID).first().mongo_id).all()
     
     def getByUniqueIDAndID(self, uniqueID, _id):
-        user = User()
-        return Diary.objects(id=_id, user=user.getByUniqueID(uniqueID)).first()
+        return Diary.query.filter(Diary.user == User().query.filter(User.uniqueID == uniqueID).first().mongo_id, Diary.mongo_id == _id).first()
     
     def addByUniqueID(self, uniqueID, diary):
-        user = User()
-        self.user = user.getByUniqueID(uniqueID)
+        self.user = User().query.filter(User.uniqueID == uniqueID).first().mongo_id
         self.diary = diary
-        return self.save()
-
+        self.save()
+        return True
+    
     def serialize(self):
         d = {
-                "id": str(self.id),
+                "id": str(self.mongo_id),
                 "timestamp": self.timestamp.isoformat(),
                 "diary": self.diary
             }
