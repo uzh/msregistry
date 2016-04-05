@@ -64,19 +64,19 @@ class User(db.Document):
                                      data_exchange_cohort=None):
     
         if sex is None:
-            raise ValueError('Bad value for field of type "sex"')
+            raise ValueError('Bad value for field of type "sex". Reason: "Value cannot be null"')
         if birthdate is None:
-            raise ValueError('Bad value for field of type "birthdate"')
+            raise ValueError('Bad value for field of type "birthdate". Reason: "Value cannot be null"')
         if signature is None:
-            raise ValueError('Bad value for field of type "signature"')
+            raise ValueError('Bad value for field of type "signature". Reason: "Value cannot be null"')
         
         if Role.patient in roles:
             if physician_contact_permitted is None:
-                raise ValueError('Bad value for field of type "physician_contact_permitted"')
+                raise ValueError('Bad value for field of type "physician_contact_permitted". Reason: "Value cannot be null"')
             if medical_record_abstraction is None:
-                raise ValueError('Bad value for field of type "medical_record_abstraction"')
+                raise ValueError('Bad value for field of type "medical_record_abstraction". Reason: "Value cannot be null"')
             if data_exchange_cohort is None:
-                raise ValueError('Bad value for field of type "data_exchange_cohort"')
+                raise ValueError('Bad value for field of type "data_exchange_cohort". Reason: "Value cannot be null"')
             
             User.query.filter(User.uniqueID == uniqueID).set(sex=sex, 
                                                              birthdate=self._MDYToDatetime(birthdate), 
@@ -96,7 +96,7 @@ class User(db.Document):
                                                              ).execute()
             return True
         
-        raise ValueError('Bad value for field of type "roles"')
+        raise ValueError('Bad value for field of type "roles". Reason: "Value cannot be null"')
     
     def setLastSeenByUniqueID(self, uniqueID):
         User.query.filter(User.uniqueID == uniqueID).set(last_seen=datetime.utcnow()).execute()
