@@ -32,18 +32,18 @@ class User(db.Document):
     member_since = db.DateTimeField(default=datetime.utcnow(), required=True)
     last_seen = db.DateTimeField(default=datetime.utcnow(), required=True)
     birthdate = db.DateTimeField(default=None)
-    sex = db.EnumField(db.StringField(), ('male', 'female'), default=None)
+    sex = db.EnumField(db.StringField(), 'male', 'female', default=None)
     physician_contact_permitted = db.BoolField(default=False, required=True)
     medical_record_abstraction = db.BoolField(default=False, required=True)
     data_exchange_cohort = db.BoolField(default=False, required=True)
     signature = db.StringField(max_length=2, default=None)
     date_signed = db.DateTimeField(default=None)
 
-    def getBirthdate(self):
-        return datetime.strptime(self.birthdate.isoformat(), "%Y-%m-%dT%H:%M:%S").strftime("%m-%d-%Y")
-     
-    def setBirthdate(self, value):
-        self.birthdate = datetime.strptime(value, "%m-%d-%Y")
+    def _DatetimeToMDY(self, birthdate):
+        return datetime.strptime(birthdate.isoformat(), "%Y-%m-%dT%H:%M:%S").strftime("%m-%d-%Y")
+    
+    def _MDYToDatetime(self, birthdate):
+        return datetime.strptime(birthdate, "%m-%d-%Y" )
     
     def createIfNotExistsByUniqueID(self, uniqueID):
         if self.getByUniqueID(uniqueID) is None:
@@ -54,7 +54,7 @@ class User(db.Document):
     
     def getByUniqueID(self, uniqueID):
         return User.query.filter_by(uniqueID=uniqueID).first()
-        
+    
     def getDateSignedByUniqueID(self, uniqueID):
         return self.getByUniqueID(uniqueID).date_signed
     
@@ -62,41 +62,41 @@ class User(db.Document):
                                      physician_contact_permitted=None, 
                                      medical_record_abstraction=None,
                                      data_exchange_cohort=None):
-        
+    
         if sex is None:
-            raise ValueError('Sex None')
+            raise ValueError('Sex')
         if birthdate is None:
-            raise ValueError('Birthdate None')
+            raise ValueError('Birthdate')
         if signature is None:
-            raise ValueError('Signature None')
+            raise ValueError('Signature')
         
         if Role.patient in roles:
             if physician_contact_permitted is None:
-                raise ValueError('Physician Contact Permitted None')
+                raise ValueError('Physician Contact Permitted')
             if medical_record_abstraction is None:
-                raise ValueError('Medical Record Abstraction None')
+                raise ValueError('Medical Record Abstraction')
             if data_exchange_cohort is None:
-                raise ValueError('Data Exchange Cohort None')
+                raise ValueError('Data Exchange Cohort')
             
-            return User.objects(uniqueID=uniqueID).update(
-                                                          sex=sex,
-                                                          birthdate=birthdate,
-                                                          signature=signature,
-                                                          physician_contact_permitted=physician_contact_permitted,
-                                                          medical_record_abstraction=medical_record_abstraction,
-                                                          data_exchange_cohort=data_exchange_cohort,
-                                                          date_signed=datetime.utcnow()
-                                                          )
+            User.query.filter(User.uniqueID == uniqueID).set(sex=sex, 
+                                                             birthdate=self._MDYToDatetime(birthdate), 
+                                                             signature=signature, 
+                                                             physician_contact_permitted=physician_contact_permitted,
+                                                             medical_record_abstraction=medical_record_abstraction,
+                                                             data_exchange_cohort=data_exchange_cohort,
+                                                             date_signed=datetime.utcnow()
+                                                             ).execute()
+            return True
         
         elif Role.relative in roles:
-            return User.objects(uniqueID=uniqueID).update(
-                                                          sex=sex,
-                                                          birthdate=birthdate,
-                                                          signature=signature,
-                                                          date_signed=datetime.utcnow
-                                                          )
+            User.query.filter(User.uniqueID == uniqueID).set(sex=sex,
+                                                             birthdate=self._MDYToDatetime(birthdate),
+                                                             signature=signature,
+                                                             date_signed=datetime.utcnow()
+                                                             ).execute()
+            return True
         
-        raise ValueError('No Role provided')
+        raise ValueError('Role')
     
     def setLastSeenByUniqueID(self, uniqueID):
         return User.query.filter(User.uniqueID == uniqueID).set(User.last_seen, datetime.utcnow()).execute()
@@ -111,6 +111,7 @@ class User(db.Document):
         if Role.patient in roles or Role.relative in roles:
             d = {
                     "sex": self.sex,
+                    "birthdate": self._DatetimeToMDY(self.birthdate) if self.birthdate is not None else None,
                     "signature": self.signature
                 }
             

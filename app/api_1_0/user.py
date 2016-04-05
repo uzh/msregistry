@@ -49,7 +49,6 @@ def get_user():
 @requires_roles(roles=[Role.patient, Role.relative])
 def get_user_consent():
     user = User()
-    #TODO: getConsentByUniqueID
     result = user.getByUniqueID(_request_ctx_stack.top.uniqueID)
     
     if result is not None:
@@ -71,9 +70,9 @@ def set_user_consent():
                                                                   physician_contact_permitted=consent['physician_contact_permitted'], 
                                                                   medical_record_abstraction=consent['medical_record_abstraction'],
                                                                   data_exchange_cohort=consent['data_exchange_cohort'])))
-    except ValueError:
-        raise MethodNotAllowed(message=str(ValueError))
-    except db.ValidationError:
-        raise MethodNotAllowed(message=str(db.ValidationError._message))
+    except ValueError as error:
+        raise MethodNotAllowed(error.message)
+    except db.BadValueException as error:
+        raise MethodNotAllowed(error.message)
 
 
