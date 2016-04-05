@@ -21,13 +21,34 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 " University of Zurich")
 
 
-from flask import jsonify
-from app.exceptions import InvalidApiUsage
-from . import main
- 
-@main.app_errorhandler(InvalidApiUsage)
-def handle_invalid_usage(error):
-    response = jsonify(error.to_dict())
-    response.status_code = error.status_code
-    return response
+import json
+import urllib, urllib2
+
+from flask import current_app
+
+
+def get_tokeninfo(token):
+    url = current_app.config['URL_TOKENINFO']
+    
+    values = {'id_token' : token }
+    headers = { 'Accept' : 'application/json',
+                'Authorization' : 'Bearer %s' % token }
+    
+    data = urllib.urlencode(values)
+    request = urllib2.Request(url, data, headers)
+    
+    json_data = urllib2.urlopen(request).read()
+    json_object = json.loads(json_data)
+    
+    if 'app_metadata' in json_object and 'roles' in json_object:
+        roles = json_object['app_metadata']['roles']
+    else:
+        roles = []
+    
+    if 'app_metadata' in json_object and 'lang' in json_object:
+        lang = json_object['app_metadata']['lang']
+    else:
+        lang = current_app.config['DEFAULT_LANG']
+    
+    return roles, lang
 

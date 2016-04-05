@@ -27,32 +27,42 @@ from . import api
 from app.models.role import Role
 from app.models.diary import Diary
 
+from app import db
+
 from app.auth.decorators import requires_auth, requires_roles, requires_consent
-from app.exceptions import InvalidApiUsage
+
+from app.errors import DiaryNotFound, MethodNotAllowed
 
 
-@api.route('/diary', methods=['GET'])
+@api.route('/user/diary', methods=['GET'])
 @requires_auth
 @requires_roles(roles=[Role.patient, Role.relative])
-def get_diary():
+def get_user_diary():
     diary = Diary()
-    result = diary.getByUniqueID(_request_ctx_stack.top.uniqueID)
-    if result is not None:
-        return jsonify(result.serialize())
+    return jsonify(diaries=[ob.serialize() for ob in diary.getAllByUniqueID(_request_ctx_stack.top.uniqueID)])
     
-    raise InvalidApiUsage('Diary not found', status_code=404, 
-                            payload={'code': 'not_found'})
+
+@api.route('/user/diary/<string:_id>', methods=['GET'])
+@requires_auth
+@requires_roles(roles=[Role.patient, Role.relative])
+def get_user_diary_by_id(_id):
+    diary = Diary()
+    try:
+        return jsonify(diary.getByUniqueIDAndID(_request_ctx_stack.top.uniqueID, _id).serialize())
+    except:
+        raise DiaryNotFound(_id)
 
 
-@api.route('/diary', methods=['POST'])
+@api.route('/user/diary', methods=['POST'])
 @requires_auth
 @requires_roles(roles=[Role.patient, Role.relative])
 @requires_consent
 def add_diary():
     diary = Diary()
-    content = request.get_json(silent=True)
-    if content:
-        return jsonify(success=bool(diary.addByUniqueID(_request_ctx_stack.top.uniqueID, content)))
-    
-    return jsonify(success=bool(False))
+    try:
+        return jsonify(success=bool(diary.addByUniqueID(_request_ctx_stack.top.uniqueID, request.get_json(silent=True, force=True))))
+    except ValueError as error:
+        raise MethodNotAllowed(error.message)
+    except db.BadValueException as error:
+        raise MethodNotAllowed(error.message)
 

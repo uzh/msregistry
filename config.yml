@@ -11,17 +11,15 @@ COMMON: &common
 DEVELOPMENT: &development
   <<: *common
   DEBUG: True
-  MONGODB_DB: 'msdevelopment'
+  MONGOALCHEMY_DATABASE: 'msdevelopment'
 
 PRODUCTION: &production
   <<: *common
-  MONGODB_DB: 'msregistry'
-  MONGODB_USERNAME: 'webapp'
-  MONGODB_PASSWORD: 'pwd123'
+  MONGOALCHEMY_DATABASE: 'msregistry'
 
 TESTING: &testing
   TESTING: True
-  MONGODB_DB: 'msdevelopment'
+  MONGOALCHEMY_DATABASE: 'msdevelopment'
 
 DEFAULT: &default
   <<: *development

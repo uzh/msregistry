@@ -32,15 +32,22 @@ from app.models import User
 
 class UserModelTestCase(unittest.TestCase):
     uniqueID = 'd4c74594d841139328695756648b6bd6'
+    roles = ['patient']
+    birthdate="12-25-1975"
+    sex="male"
+    signature="FP"
+    physician_contact_permitted=True
+    medical_record_abstraction=True
+    data_exchange_cohort=True
     
     def setUp(self):
         self.app = create_app('TESTING')
         self.app_context = self.app.app_context()
         self.app_context.push()
-
+    
     def tearDown(self):
         self.app_context.pop()
-
+    
     def test_createIfNotExistsByUniqueID(self):
         u = User()
         self.assertTrue(u.createIfNotExistsByUniqueID(self.uniqueID))
@@ -54,13 +61,17 @@ class UserModelTestCase(unittest.TestCase):
     def test_setConsentByUniqueID(self):
         u = User()
         u.createIfNotExistsByUniqueID(self.uniqueID)
-        self.assertTrue(u.setConsentByUniqueID(self.uniqueID, True))
+        self.assertTrue(u.setConsentByUniqueIDAndRoles(self.uniqueID, self.roles, self.sex, self.birthdate, self.signature,
+                                                       self.physician_contact_permitted, self.medical_record_abstraction,
+                                                       self.data_exchange_cohort))
     
     def test_getConsentByUniqueID(self):
         u = User()
         u.createIfNotExistsByUniqueID(self.uniqueID)
-        self.assertTrue(u.setConsentByUniqueID(self.uniqueID, True))
-        self.assertTrue(u.getConsentByUniqueID(self.uniqueID))
+        self.assertTrue(u.setConsentByUniqueIDAndRoles(self.uniqueID, self.roles, self.sex, self.birthdate, self.signature,
+                                                       self.physician_contact_permitted, self.medical_record_abstraction,
+                                                       self.data_exchange_cohort))
+        self.assertNotEqual(u.getByUniqueID(self.uniqueID).date_signed, None)
     
     def test_timestamps(self):
         u = User()
@@ -70,12 +81,4 @@ class UserModelTestCase(unittest.TestCase):
         self.assertTrue(
             (datetime.utcnow() - u.last_seen).total_seconds() < 3)
     
-    def test_setLastSeenByUniqueID(self):
-        u1 = User()
-        u1.createIfNotExistsByUniqueID(self.uniqueID)
-        last_seen_before = u1.last_seen
-        time.sleep(2)
-        u2 = User()
-        u2.setLastSeenByUniqueID(self.uniqueID)
-        self.assertTrue(u2.last_seen > last_seen_before)
 

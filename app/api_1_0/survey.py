@@ -27,39 +27,41 @@ from . import api
 from app.models.role import Role
 from app.models.survey import Survey
 
+from app import db
+
 from app.auth.decorators import requires_auth, requires_roles, requires_consent
-from app.exceptions import InvalidApiUsage
+
+from app.errors import SurveyNotFound, MethodNotAllowed
 
 
-@api.route('/survey', methods=['GET'])
+@api.route('/user/survey', methods=['GET'])
 @requires_auth
-def get_surveys():
+def get_survey():
     survey = Survey()
     return jsonify(surveys=[ob.serialize() for ob in survey.getAllByUniqueID(_request_ctx_stack.top.uniqueID)])
 
 
-@api.route('/survey', methods=['POST'])
+@api.route('/user/survey/<string:_id>', methods=['GET'])
+@requires_auth
+@requires_roles(roles=[Role.patient, Role.relative])
+def get_survey_by_id(_id):
+    survey = Survey()
+    try:
+        return jsonify(survey.getByUniqueIDAndID(_request_ctx_stack.top.uniqueID, _id).serialize())
+    except:
+        raise SurveyNotFound(_id)
+    
+
+@api.route('/user/survey', methods=['POST'])
 @requires_auth
 @requires_roles(roles=[Role.patient, Role.relative])
 @requires_consent
 def add_survey():
     survey = Survey()
-    content = request.get_json(silent=True)
-    if content:
-        return jsonify(success=bool(survey.addByUniqueID(_request_ctx_stack.top.uniqueID, content)))
-    
-    return jsonify(success=bool(False))
-
-
-@api.route('/survey/get/<string:_id>', methods=['GET'])
-@requires_auth
-@requires_roles(roles=[Role.patient, Role.relative])
-def get_survey(_id):
-    survey = Survey()
-    result = survey.getByUniqueIDAndID(_request_ctx_stack.top.uniqueID, _id)
-    if result is not None:
-        return jsonify(result.serialize())
-    
-    raise InvalidApiUsage('Survey not found', status_code=404, 
-                            payload={'code': 'not_found'})
+    try:
+        return jsonify(success=bool(survey.addByUniqueID(_request_ctx_stack.top.uniqueID, request.get_json(silent=True, force=True))))
+    except ValueError as error:
+        raise MethodNotAllowed(error.message)
+    except db.BadValueException as error:
+        raise MethodNotAllowed(error.message)
 

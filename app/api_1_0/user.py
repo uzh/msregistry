@@ -27,8 +27,11 @@ from . import api
 from app.models.user import User
 from app.models.role import Role
 
+from app import db
+
 from app.auth.decorators import requires_auth, requires_roles
-from app.exceptions import InvalidApiUsage
+
+from app.errors import UserNotFound, MethodNotAllowed
 
 
 @api.route('/user')
@@ -39,8 +42,7 @@ def get_user():
     if result is not None:
         return jsonify(result.serialize())
     
-    raise InvalidApiUsage('User not found', status_code=404, 
-                            payload={'code': 'not_found'})
+    raise UserNotFound(_request_ctx_stack.top.uniqueID)
 
 
 @api.route('/user/consent', methods=['GET'])
@@ -48,12 +50,12 @@ def get_user():
 @requires_roles(roles=[Role.patient, Role.relative])
 def get_user_consent():
     user = User()
-    result = user.getConsentByUniqueID(_request_ctx_stack.top.uniqueID)
-    if result is not None:
-        return jsonify(consent=result)
+    result = user.getByUniqueID(_request_ctx_stack.top.uniqueID)
     
-    raise InvalidApiUsage('User not found', status_code=404, 
-                            payload={'code': 'not_found'})
+    if result is not None:
+        return jsonify(result.serialize(_request_ctx_stack.top.roles))
+    
+    raise UserNotFound(_request_ctx_stack.top.uniqueID)
 
 
 @api.route('/user/consent', methods=['POST'])
@@ -61,24 +63,17 @@ def get_user_consent():
 @requires_roles(roles=[Role.patient, Role.relative])
 def set_user_consent():
     user = User()
-    content = request.get_json(silent=True)
-    if content and 'consent' in content:
-        return jsonify(success=bool(user.setConsentByUniqueID(_request_ctx_stack.top.uniqueID,
-                                                              content['consent'])))
-    
-    return jsonify(success=bool(False))
+    consent = request.get_json(silent=True, force=True)
+    try:
+        return jsonify(success=bool(user.setConsentByUniqueIDAndRoles(uniqueID=_request_ctx_stack.top.uniqueID,
+                                                                  roles=_request_ctx_stack.top.roles,
+                                                                  sex=consent['sex'], birthdate=consent['birthdate'], signature=consent['signature'],
+                                                                  physician_contact_permitted=consent['physician_contact_permitted'], 
+                                                                  medical_record_abstraction=consent['medical_record_abstraction'],
+                                                                  data_exchange_cohort=consent['data_exchange_cohort'])))
+    except ValueError as error:
+        raise MethodNotAllowed(error.message)
+    except db.BadValueException as error:
+        raise MethodNotAllowed(error.message)
 
-
-@api.route('/user/roles')
-@requires_auth
-@requires_roles(roles=None)
-def get_user_roles():
-    return jsonify(roles=_request_ctx_stack.top.roles)
-
-
-@api.route('/user/lang')
-@requires_auth
-@requires_roles(roles=None)
-def get_user_lang():
-    return jsonify(lang=_request_ctx_stack.top.lang)
 

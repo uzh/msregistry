@@ -26,34 +26,27 @@ from app import db
 
 from user import User
 
+
 class Survey(db.Document):
-    user = db.ReferenceField(User)
-    timestamp = db.DateTimeField(default=datetime.utcnow)
-    survey = db.DictField()
-    
-    def getByUniqueIDAndID(self, uniqueID, _id):
-        user = User()
-        try:
-            return Survey.objects(id=_id, user=user.getByUniqueID(uniqueID)).first()
-        except Exception:
-            return None
-    
-    def getAll(self):
-        return Survey.objects().all()
+    user = db.ObjectIdField(User)
+    timestamp = db.DateTimeField(default=datetime.utcnow())
+    survey = db.DictField(db.AnythingField(), required=True)
     
     def getAllByUniqueID(self, uniqueID):
-        user = User()
-        return Survey.objects(user=user.getByUniqueID(uniqueID))
+        return Survey.query.filter(Survey.user == User().query.filter(User.uniqueID == uniqueID).first().mongo_id).all()
+    
+    def getByUniqueIDAndID(self, uniqueID, _id):
+        return Survey.query.filter(Survey.user == User().query.filter(User.uniqueID == uniqueID).first().mongo_id, Survey.mongo_id == _id).first()
     
     def addByUniqueID(self, uniqueID, survey):
-        user = User()
-        self.user = user.getByUniqueID(uniqueID)
+        self.user = User().query.filter(User.uniqueID == uniqueID).first().mongo_id
         self.survey = survey
-        return self.save()
+        self.save()
+        return True
     
     def serialize(self):
         d = {
-                "id": str(self.id),
+                "id": str(self.mongo_id),
                 "timestamp": self.timestamp.isoformat(),
                 "survey": self.survey
             }
