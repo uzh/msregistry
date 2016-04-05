@@ -99,7 +99,8 @@ class User(db.Document):
         raise ValueError('Role')
     
     def setLastSeenByUniqueID(self, uniqueID):
-        return User.query.filter(User.uniqueID == uniqueID).set(User.last_seen, datetime.utcnow()).execute()
+        User.query.filter(User.uniqueID == uniqueID).set(last_seen=datetime.utcnow()).execute()
+        return True
     
     def serialize(self, roles=[]):
         d = {
