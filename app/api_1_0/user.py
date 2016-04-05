@@ -63,7 +63,7 @@ def get_user_consent():
 @requires_roles(roles=[Role.patient, Role.relative])
 def set_user_consent():
     user = User()
-    consent = request.get_json(silent=True)
+    consent = request.get_json(silent=True, force=True)
     try:
         return jsonify(success=bool(user.setConsentByUniqueIDAndRoles(uniqueID=_request_ctx_stack.top.uniqueID,
                                                                   roles=_request_ctx_stack.top.roles,

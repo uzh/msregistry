@@ -59,7 +59,7 @@ def get_survey_by_id(_id):
 def add_survey():
     survey = Survey()
     try:
-        return jsonify(success=bool(survey.addByUniqueID(_request_ctx_stack.top.uniqueID, request.get_json(silent=True))))
+        return jsonify(success=bool(survey.addByUniqueID(_request_ctx_stack.top.uniqueID, request.get_json(silent=True, force=True))))
     except ValueError as error:
         raise MethodNotAllowed(error.message)
     except db.BadValueException as error:
