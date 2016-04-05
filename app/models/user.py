@@ -64,19 +64,19 @@ class User(db.Document):
                                      data_exchange_cohort=None):
     
         if sex is None:
-            raise ValueError('Sex')
+            raise ValueError('Bad value for field of type "sex"')
         if birthdate is None:
-            raise ValueError('Birthdate')
+            raise ValueError('Bad value for field of type "birthdate"')
         if signature is None:
-            raise ValueError('Signature')
+            raise ValueError('Bad value for field of type "signature"')
         
         if Role.patient in roles:
             if physician_contact_permitted is None:
-                raise ValueError('Physician Contact Permitted')
+                raise ValueError('Bad value for field of type "physician_contact_permitted"')
             if medical_record_abstraction is None:
-                raise ValueError('Medical Record Abstraction')
+                raise ValueError('Bad value for field of type "medical_record_abstraction"')
             if data_exchange_cohort is None:
-                raise ValueError('Data Exchange Cohort')
+                raise ValueError('Bad value for field of type "data_exchange_cohort"')
             
             User.query.filter(User.uniqueID == uniqueID).set(sex=sex, 
                                                              birthdate=self._MDYToDatetime(birthdate), 
@@ -96,7 +96,7 @@ class User(db.Document):
                                                              ).execute()
             return True
         
-        raise ValueError('Role')
+        raise ValueError('Bad value for field of type "roles"')
     
     def setLastSeenByUniqueID(self, uniqueID):
         User.query.filter(User.uniqueID == uniqueID).set(last_seen=datetime.utcnow()).execute()

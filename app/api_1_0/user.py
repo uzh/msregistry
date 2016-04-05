@@ -23,10 +23,11 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 
 from flask import jsonify, request, _request_ctx_stack
 
-from app import db
 from . import api
 from app.models.user import User
 from app.models.role import Role
+
+from app import db
 
 from app.auth.decorators import requires_auth, requires_roles
 
