@@ -55,8 +55,11 @@ class User(db.Document):
     def getByUniqueID(self, uniqueID):
         return User.query.filter_by(uniqueID=uniqueID).first()
     
-    def getDateSignedByUniqueID(self, uniqueID):
-        return self.getByUniqueID(uniqueID).date_signed
+    def getUserConsentByUniqueID(self, uniqueID):
+        if self.getByUniqueID(uniqueID).date_signed is not None:
+            return True
+        else:
+            return False
     
     def setRelativeConsentByUniqueID(self, uniqueID, sex, birthdate, signature):
         

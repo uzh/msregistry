@@ -48,6 +48,19 @@ def get_user():
     raise UserNotFound(_request_ctx_stack.top.uniqueID)
 
 
+@api.route('/user/consent/info', methods=['GET'])
+@requires_auth
+@requires_roles(roles=[Role.patient, Role.relative])
+def get_user_consent_info():
+    user = User()
+    result = user.getUserConsentByUniqueID(_request_ctx_stack.top.uniqueID)
+    
+    if result is not None:
+        return jsonify(accepted=bool(result))
+    
+    raise UserNotFound(_request_ctx_stack.top.uniqueID)
+
+
 @api.route('/user/consent', methods=['GET'])
 @requires_auth
 @requires_roles(roles=[Role.patient, Role.relative])
@@ -76,7 +89,9 @@ def set_user_consent():
         
         try:
             return jsonify(success=bool(user.setRelativeConsentByUniqueID(uniqueID=_request_ctx_stack.top.uniqueID,
-                                                                          sex=consent['sex'], birthdate=consent['birthdate'], signature=consent['signature'])))
+                                                                          sex=consent['sex'], 
+                                                                          birthdate=consent['birthdate'],
+                                                                          signature=consent['signature'])))
         except ValueError as error:
             raise MethodNotAllowed(error.message)
         except db.BadValueException as error:
@@ -89,10 +104,11 @@ def set_user_consent():
         
         try:
             return jsonify(success=bool(user.setPatientConsentByUniqueID(uniqueID=_request_ctx_stack.top.uniqueID,
-                                                                      sex=consent['sex'], birthdate=consent['birthdate'], signature=consent['signature'],
-                                                                      physician_contact_permitted=consent['physician_contact_permitted'], 
-                                                                      medical_record_abstraction=consent['medical_record_abstraction'],
-                                                                      data_exchange_cohort=consent['data_exchange_cohort'])))
+                                                                         sex=consent['sex'], birthdate=consent['birthdate'], 
+                                                                         signature=consent['signature'],
+                                                                         physician_contact_permitted=consent['physician_contact_permitted'], 
+                                                                         medical_record_abstraction=consent['medical_record_abstraction'],
+                                                                         data_exchange_cohort=consent['data_exchange_cohort'])))
         except ValueError as error:
             raise MethodNotAllowed(error.message)
         except db.BadValueException as error:
