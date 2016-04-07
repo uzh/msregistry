@@ -24,7 +24,6 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 import unittest
 
 from datetime import datetime
-import time
 
 from app import create_app
 from app.models import User
@@ -33,7 +32,7 @@ from app.models import User
 class UserModelTestCase(unittest.TestCase):
     uniqueID = 'd4c74594d841139328695756648b6bd6'
     roles = ['patient']
-    birthdate="12-25-1975"
+    birthdate="25.12.1975"
     sex="male"
     signature="FP"
     physician_contact_permitted=True
@@ -58,19 +57,24 @@ class UserModelTestCase(unittest.TestCase):
         u1 = u.getByUniqueID(self.uniqueID)
         self.assertEquals(u1.uniqueID, self.uniqueID)
     
-    def test_setConsentByUniqueID(self):
+    def test_setPatientConsentByUniqueID(self):
         u = User()
         u.createIfNotExistsByUniqueID(self.uniqueID)
-        self.assertTrue(u.setConsentByUniqueIDAndRoles(self.uniqueID, self.roles, self.sex, self.birthdate, self.signature,
+        self.assertTrue(u.setPatientConsentByUniqueID(self.uniqueID, self.sex, self.birthdate, self.signature,
                                                        self.physician_contact_permitted, self.medical_record_abstraction,
                                                        self.data_exchange_cohort))
     
+    def test_setRelativeConsentByUniqueID(self):
+        u = User()
+        u.createIfNotExistsByUniqueID(self.uniqueID)
+        self.assertTrue(u.setRelativeConsentByUniqueID(self.uniqueID, self.sex, self.birthdate, self.signature))
+        
     def test_getConsentByUniqueID(self):
         u = User()
         u.createIfNotExistsByUniqueID(self.uniqueID)
-        self.assertTrue(u.setConsentByUniqueIDAndRoles(self.uniqueID, self.roles, self.sex, self.birthdate, self.signature,
-                                                       self.physician_contact_permitted, self.medical_record_abstraction,
-                                                       self.data_exchange_cohort))
+        self.assertTrue(u.setPatientConsentByUniqueID(self.uniqueID, self.sex, self.birthdate, self.signature,
+                                                      self.physician_contact_permitted, self.medical_record_abstraction,
+                                                      self.data_exchange_cohort))
         self.assertNotEqual(u.getByUniqueID(self.uniqueID).date_signed, None)
     
     def test_timestamps(self):
