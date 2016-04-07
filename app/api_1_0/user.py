@@ -69,6 +69,11 @@ def set_user_consent():
     consent = request.get_json(silent=True, force=True)
     
     try:
+        validate(consent, user_consent_patient)
+    except ValidationError as error:
+        raise MethodNotAllowed(error.message)
+    
+    try:
         return jsonify(success=bool(user.setConsentByUniqueIDAndRoles(uniqueID=_request_ctx_stack.top.uniqueID,
                                                                   roles=_request_ctx_stack.top.roles,
                                                                   sex=consent['sex'], birthdate=consent['birthdate'], signature=consent['signature'],
