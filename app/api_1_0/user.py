@@ -33,6 +33,9 @@ from app.auth.decorators import requires_auth, requires_roles
 
 from app.errors import UserNotFound, MethodNotAllowed
 
+from jsonschema import validate, ValidationError
+from app.inputs import user_consent_patient, user_consent_relative
+
 
 @api.route('/user')
 @requires_auth
@@ -64,6 +67,7 @@ def get_user_consent():
 def set_user_consent():
     user = User()
     consent = request.get_json(silent=True, force=True)
+    
     try:
         return jsonify(success=bool(user.setConsentByUniqueIDAndRoles(uniqueID=_request_ctx_stack.top.uniqueID,
                                                                   roles=_request_ctx_stack.top.roles,
