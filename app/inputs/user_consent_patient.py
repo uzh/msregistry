@@ -29,13 +29,25 @@ user_consent_patient = {
         "sex": {
             "type":"string",
             "required": True
-            },
+        },
         "birthdate": {
             "type":"string",
             "required": False
-            },
+        },
         "signature": {
             "type":"string",
+            "required": True
+        },
+        "physician_contact_permitted": {
+            "type":"boolean",
+            "required": True
+        },
+        "data_exchange_cohort": {
+            "type":"boolean",
+            "required": False
+        },
+        "medical_record_abstraction": {
+            "type":"boolean",
             "required": True
         }
     }

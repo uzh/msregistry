@@ -29,14 +29,15 @@ user_consent_relative = {
         "sex": {
             "type":"string",
             "required": True
-            },
+        },
         "birthdate": {
             "type":"string",
             "required": False
-            },
+        },
         "signature": {
             "type":"string",
             "required": True
         }
     }
 }
+

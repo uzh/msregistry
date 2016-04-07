@@ -36,7 +36,7 @@ class User(db.Document):
     physician_contact_permitted = db.BoolField(default=False, required=True)
     medical_record_abstraction = db.BoolField(default=False, required=True)
     data_exchange_cohort = db.BoolField(default=False, required=True)
-    signature = db.StringField(max_length=2, default=None)
+    signature = db.StringField(max_length=3, default=None)
     date_signed = db.DateTimeField(default=None)
 
     def _DatetimeToMDY(self, birthdate):
@@ -58,11 +58,8 @@ class User(db.Document):
     def getDateSignedByUniqueID(self, uniqueID):
         return self.getByUniqueID(uniqueID).date_signed
     
-    def setConsentByUniqueIDAndRoles(self, uniqueID, roles, sex, birthdate, signature,
-                                     physician_contact_permitted=None, 
-                                     medical_record_abstraction=None,
-                                     data_exchange_cohort=None):
-    
+    def setRelativeConsentByUniqueID(self, uniqueID, sex, birthdate, signature):
+        
         if sex is None:
             raise ValueError('Bad value for field of type "sex". Reason: "Value cannot be null"')
         if birthdate is None:
@@ -70,33 +67,36 @@ class User(db.Document):
         if signature is None:
             raise ValueError('Bad value for field of type "signature". Reason: "Value cannot be null"')
         
-        if Role.patient in roles:
-            if physician_contact_permitted is None:
-                raise ValueError('Bad value for field of type "physician_contact_permitted". Reason: "Value cannot be null"')
-            if medical_record_abstraction is None:
-                raise ValueError('Bad value for field of type "medical_record_abstraction". Reason: "Value cannot be null"')
-            if data_exchange_cohort is None:
-                raise ValueError('Bad value for field of type "data_exchange_cohort". Reason: "Value cannot be null"')
-            
-            User.query.filter(User.uniqueID == uniqueID).set(sex=sex, 
-                                                             birthdate=self._MDYToDatetime(birthdate), 
-                                                             signature=signature, 
-                                                             physician_contact_permitted=physician_contact_permitted,
-                                                             medical_record_abstraction=medical_record_abstraction,
-                                                             data_exchange_cohort=data_exchange_cohort,
-                                                             date_signed=datetime.utcnow()
-                                                             ).execute()
-            return True
+        User.query.filter(User.uniqueID == uniqueID).set(
+                                                         sex=sex,birthdate=self._MDYToDatetime(birthdate),
+                                                         signature=signature,
+                                                         date_signed=datetime.utcnow()
+                                                         ).execute()
+        return True
+    
+    def setPatientConsentByUniqueID(self, uniqueID, sex, birthdate, signature,
+                                     physician_contact_permitted=None, 
+                                     medical_record_abstraction=None,
+                                     data_exchange_cohort=None):
+    
+        self.setRelativeConsentByUniqueID(uniqueID, sex, birthdate, signature)
         
-        elif Role.relative in roles:
-            User.query.filter(User.uniqueID == uniqueID).set(sex=sex,
-                                                             birthdate=self._MDYToDatetime(birthdate),
-                                                             signature=signature,
-                                                             date_signed=datetime.utcnow()
-                                                             ).execute()
-            return True
+        if physician_contact_permitted is None:
+            raise ValueError('Bad value for field of type "physician_contact_permitted". Reason: "Value cannot be null"')
+        if medical_record_abstraction is None:
+            raise ValueError('Bad value for field of type "medical_record_abstraction". Reason: "Value cannot be null"')
+        if data_exchange_cohort is None:
+            raise ValueError('Bad value for field of type "data_exchange_cohort". Reason: "Value cannot be null"')
         
-        raise ValueError('Bad value for field of type "roles". Reason: "Value cannot be null"')
+        User.query.filter(User.uniqueID == uniqueID).set(sex=sex, 
+                                                         birthdate=self._MDYToDatetime(birthdate), 
+                                                         signature=signature, 
+                                                         physician_contact_permitted=physician_contact_permitted,
+                                                         medical_record_abstraction=medical_record_abstraction,
+                                                         data_exchange_cohort=data_exchange_cohort,
+                                                         date_signed=datetime.utcnow()
+                                                         ).execute()
+        return True
     
     def setLastSeenByUniqueID(self, uniqueID):
         User.query.filter(User.uniqueID == uniqueID).set(last_seen=datetime.utcnow()).execute()
