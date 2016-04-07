@@ -40,10 +40,10 @@ class User(db.Document):
     date_signed = db.DateTimeField(default=None)
 
     def _DatetimeToMDY(self, birthdate):
-        return datetime.strptime(birthdate.isoformat(), "%Y-%m-%dT%H:%M:%S").strftime("%m-%d-%Y")
+        return datetime.strptime(birthdate.isoformat(), "%Y-%m-%dT%H:%M:%S").strftime("%d.%m.%Y")
     
     def _MDYToDatetime(self, birthdate):
-        return datetime.strptime(birthdate, "%d.%m.%Y" )
+        return datetime.strptime(birthdate, "%d.%m.%Y")
     
     def createIfNotExistsByUniqueID(self, uniqueID):
         if self.getByUniqueID(uniqueID) is None:
