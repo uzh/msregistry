@@ -39,10 +39,10 @@ class User(db.Document):
     signature = db.StringField(max_length=3, default=None)
     date_signed = db.DateTimeField(default=None)
 
-    def _DatetimeToMDY(self, birthdate):
+    def _DatetimeToDMY(self, birthdate):
         return datetime.strptime(birthdate.isoformat(), "%Y-%m-%dT%H:%M:%S").strftime("%d.%m.%Y")
     
-    def _MDYToDatetime(self, birthdate):
+    def _DMYToDatetime(self, birthdate):
         return datetime.strptime(birthdate, "%d.%m.%Y")
     
     def createIfNotExistsByUniqueID(self, uniqueID):
@@ -71,7 +71,7 @@ class User(db.Document):
             raise ValueError('Bad value for field of type "signature". Reason: "Value cannot be null"')
         
         User.query.filter(User.uniqueID == uniqueID).set(
-                                                         sex=sex,birthdate=self._MDYToDatetime(birthdate),
+                                                         sex=sex,birthdate=self._DMYToDatetime(birthdate),
                                                          signature=signature,
                                                          date_signed=datetime.utcnow()
                                                          ).execute()
@@ -92,7 +92,7 @@ class User(db.Document):
             raise ValueError('Bad value for field of type "data_exchange_cohort". Reason: "Value cannot be null"')
         
         User.query.filter(User.uniqueID == uniqueID).set(sex=sex, 
-                                                         birthdate=self._MDYToDatetime(birthdate), 
+                                                         birthdate=self._DMYToDatetime(birthdate), 
                                                          signature=signature, 
                                                          physician_contact_permitted=physician_contact_permitted,
                                                          medical_record_abstraction=medical_record_abstraction,
@@ -111,11 +111,11 @@ class User(db.Document):
                 "member_since": self.member_since.isoformat(),
                 "last_seen": self.last_seen.isoformat()
             }
-    
+        
         if Role.patient in roles or Role.relative in roles:
             d = {
                     "sex": self.sex,
-                    "birthdate": self._DatetimeToMDY(self.birthdate) if self.birthdate is not None else None,
+                    "birthdate": self._DatetimeToDMY(self.birthdate) if self.birthdate is not None else None,
                     "signature": self.signature
                 }
             
