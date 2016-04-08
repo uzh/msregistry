@@ -6,9 +6,9 @@ Document Version
 ----------------
 
 :Date:
-    2016-03-23
+    2016-04-08
 :Version:
-    v0.3.0
+    v0.3.2
 :Authors: 
     Filippo Panessa <filippo.panessa@gmail.com>
 :Copyright:
@@ -23,7 +23,7 @@ will accept, what the JSON object’s parameters will be in the response, and an
 example query/response.
 
 This documentation is for most recent version of the MS Registry REST API, 
-version **v0.3.0**.
+version **v0.3.2**.
 
 GET /auth/test
 --------------
@@ -46,7 +46,7 @@ Resource Errors
 These are the possible errors returned by this endpoint.
 
 +---------------+----------------------+---------------------------------------+
-| **HTTP Code** | **Error Identifier** | **Error Message**                     |
+| **status**    | **code**             | **message**                           |
 +===============+======================+=======================================+
 | 403           |authorization_required| Authorization header is expected      |
 |               |                      |                                       |
@@ -58,10 +58,6 @@ These are the possible errors returned by this endpoint.
 | 401           |invalid_header        | Token not found                       |
 |               |                      |                                       |
 +---------------+----------------------+---------------------------------------+
-| 401           |invalid_header        | Authorization header must be Bearer + |
-|               |                      | token                                 |
-|               |                      |                                       |
-+---------------+----------------------+---------------------------------------+
 | 400           |token_expired         | Token is expired                      |
 |               |                      |                                       |
 +---------------+----------------------+---------------------------------------+
@@ -69,10 +65,6 @@ These are the possible errors returned by this endpoint.
 |               |                      |                                       |
 +---------------+----------------------+---------------------------------------+
 | 400           |invalid_signature     | Token signature is invalid            |
-|               |                      |                                       |
-+---------------+----------------------+---------------------------------------+
-| 500           |internal_server_error | An error occurred while adding this   |
-|               |                      | user                                  |
 |               |                      |                                       |
 +---------------+----------------------+---------------------------------------+
 
@@ -92,6 +84,7 @@ Response
 .. code:: json
 
     {
+      "status": 200,
       "code": "authorization_success", 
       "description": "All good. You only get this message if you're authenticated."
     }
@@ -120,10 +113,6 @@ Response Parameters
 |                     |                 | received from OAuth server           |
 |                     |                 |                                      |
 +---------------------+-----------------+--------------------------------------+
-| **consent**         | `(bool)`        | Has the Informed Consent been        |
-|                     |                 | accepted?                            |
-|                     |                 |                                      |
-+---------------------+-----------------+--------------------------------------+
 | **member\_since**   | `(iso 8601`     | Datetime the user joined             |
 |                     | `datetime)`     |                                      |
 |                     |                 |                                      |
@@ -139,7 +128,7 @@ Resource Errors
 These are the possible errors returned by this endpoint.
 
 +---------------+----------------------+---------------------------------------+
-| **HTTP Code** | **Error Identifier** | **Error Message**                     |
+| **status**    | **code**             | **message**                           |
 +===============+======================+=======================================+
 | 403           |authorization_required| Authorization header is expected      |
 |               |                      |                                       |
@@ -151,10 +140,6 @@ These are the possible errors returned by this endpoint.
 | 401           |invalid_header        | Token not found                       |
 |               |                      |                                       |
 +---------------+----------------------+---------------------------------------+
-| 401           |invalid_header        | Authorization header must be Bearer + |
-|               |                      | token                                 |
-|               |                      |                                       |
-+---------------+----------------------+---------------------------------------+
 | 400           |token_expired         | Token is expired                      |
 |               |                      |                                       |
 +---------------+----------------------+---------------------------------------+
@@ -164,11 +149,7 @@ These are the possible errors returned by this endpoint.
 | 400           |invalid_signature     | Token signature is invalid            |
 |               |                      |                                       |
 +---------------+----------------------+---------------------------------------+
-| 500           |internal_server_error | An error occurred while adding this   |
-|               |                      | user                                  |
-|               |                      |                                       |
-+---------------+----------------------+---------------------------------------+
-| 404           |not_found             | User not found                        |
+| 404           |not_found             | Couldn't found a User with UniqueID={}|
 |               |                      |                                       |
 +---------------+----------------------+---------------------------------------+
 
@@ -188,12 +169,11 @@ Response
 
     {
       "uniqueID": "auth0|569cf82bfc02d8a0339beef4",
-      "consent": true,
       "member_since": "2016-03-04T17:03:37",
       "last_seen": "2016-03-04T17:05:12"
     }
 
-GET /user/consent
+GET /user/consent/info
 -----------------
 
 Get information about user acceptance of Informed Consent. 
@@ -211,23 +191,46 @@ Resource Information
 Response Parameters
 ```````````````````
 
-+---------------------+-----------------+--------------------------------------+
-| **Parameter**       | **Type**        | **Description**                      |
-+=====================+=================+======================================+
-| **birthdate**       | `(string)`      | Birthdate. Date must be sent in this |
-|                     |                 | form: %MM-%DD-%YYYY                  |
-|                     |                 |                                      |
-+---------------------+-----------------+--------------------------------------+
-| **sex**             | `(string)`      | Sex. Accepted values are 'Male' and  |
-|                     |                 | 'Female'                             |
-|                     |                 |                                      |
-+---------------------+-----------------+--------------------------------------+
-| **signature**       | `(string)`      | Signature by Initials                |
-|                     |                 |                                      |
-+---------------------+-----------------+--------------------------------------+
-| **physician_contact_permitted**       | `(bool)`      | Signature by Initials                |
-|                     |                 |                                      |
-+---------------------+-----------------+--------------------------------------+
+Relative Role
+
++---------------------------------+-----------------+--------------------------------------+
+| **Parameter**                   | **Type**        | **Description**                      |
++=================================+=================+======================================+
+| **birthdate**                   | `(string)`      | Birthdate in this form %DD.%MM.%YYYY |
+|                                 |                 |                                      |
++---------------------------------+-----------------+--------------------------------------+
+| **sex**                         | `(string)`      | Sex. Possibly values are 'male' and  |
+|                                 |                 | 'female'                             |
+|                                 |                 |                                      |
++---------------------------------+-----------------+--------------------------------------+
+| **signature**                   | `(string)`      | Signature by Initials, max 3 digits  |
+|                                 |                 |                                      |
++---------------------------------+-----------------+--------------------------------------+
+
+Patient Role
+
++---------------------------------+-----------------+--------------------------------------+
+| **Parameter**                   | **Type**        | **Description**                      |
++=================================+=================+======================================+
+| **birthdate**                   | `(string)`      | Birthdate in this form %DD.%MM.%YYYY |
+|                                 |                 |                                      |
++---------------------------------+-----------------+--------------------------------------+
+| **sex**                         | `(string)`      | Sex. Possibly values are 'male' and  |
+|                                 |                 | 'female'                             |
+|                                 |                 |                                      |
++---------------------------------+-----------------+--------------------------------------+
+| **signature**                   | `(string)`      | Signature by Initials, max 3 digits  |
+|                                 |                 |                                      |
++---------------------------------+-----------------+--------------------------------------+
+| **physician_contact_permitted** | `(bool)`        | Physician contact permitted          |
+|                                 |                 |                                      |
++---------------------------------+-----------------+--------------------------------------+
+| **data_exchange_cohort**        | `(bool)`        | Data exchange cohort                 |
+|                                 |                 |                                      |
++---------------------------------+-----------------+--------------------------------------+
+| **medical_record_abstraction**  | `(bool)`        | Medical record abstraction           |
+|                                 |                 |                                      |
++---------------------------------+-----------------+--------------------------------------+
 
 Resource Errors
 ```````````````
@@ -235,7 +238,7 @@ Resource Errors
 These are the possible errors returned by this endpoint.
 
 +---------------+----------------------+---------------------------------------+
-| **HTTP Code** | **Error Identifier** | **Error Message**                     |
+| **status**    | **code**             | **message**                           |
 +===============+======================+=======================================+
 | 403           |authorization_required| Authorization header is expected      |
 |               |                      |                                       |
@@ -247,10 +250,6 @@ These are the possible errors returned by this endpoint.
 | 401           |invalid_header        | Token not found                       |
 |               |                      |                                       |
 +---------------+----------------------+---------------------------------------+
-| 401           |invalid_header        | Authorization header must be Bearer + |
-|               |                      | token                                 |
-|               |                      |                                       |
-+---------------+----------------------+---------------------------------------+
 | 400           |token_expired         | Token is expired                      |
 |               |                      |                                       |
 +---------------+----------------------+---------------------------------------+
@@ -260,11 +259,10 @@ These are the possible errors returned by this endpoint.
 | 400           |invalid_signature     | Token signature is invalid            |
 |               |                      |                                       |
 +---------------+----------------------+---------------------------------------+
-| 500           |internal_server_error | An error occurred while adding this   |
-|               |                      | user                                  |
+| 401           |unauthorized          | Insufficient Roles                    |
 |               |                      |                                       |
 +---------------+----------------------+---------------------------------------+
-| 401           |unauthorized          | Insufficient Roles                    |
+| 404           |not_found             | Couldn't found a User with UniqueID={}|
 |               |                      |                                       |
 +---------------+----------------------+---------------------------------------+
 
@@ -283,13 +281,14 @@ Response
 .. code:: json
 
     {
-        "birthdate": "12-25-1975", 
+        "birthdate": "18.09.1974",
+        "sex": "M", 
+        "signature": "FP", 
         "data_exchange_cohort": true, 
         "date_signed": "2016-03-30T14:33:48.011000", 
-        "medical_record_abstraction": true, 
-        "physician_contact_permitted": true, 
-        "sex": "M", 
-        "signature": "FP"
+        "medical_record_abstraction": true,
+        "data_exchange_cohort": true,
+        "physician_contact_permitted": true 
     }
 
 POST /user/consent
@@ -335,7 +334,7 @@ Resource Errors
 These are the possible errors returned by this endpoint.
 
 +---------------+----------------------+---------------------------------------+
-| **HTTP Code** | **Error Identifier** | **Error Message**                     |
+| **status**    | **code**             | **message**                           |
 +===============+======================+=======================================+
 | 403           |authorization_required| Authorization header is expected      |
 |               |                      |                                       |
@@ -360,10 +359,6 @@ These are the possible errors returned by this endpoint.
 | 400           |invalid_signature     | Token signature is invalid            |
 |               |                      |                                       |
 +---------------+----------------------+---------------------------------------+
-| 500           |internal_server_error | An error occurred while adding this   |
-|               |                      | user                                  |
-|               |                      |                                       |
-+---------------+----------------------+---------------------------------------+
 | 401           |unauthorized          | Insufficient Roles                    |
 |               |                      |                                       |
 +---------------+----------------------+---------------------------------------+
@@ -374,10 +369,8 @@ Example
 .. code:: bash
 
     curl \
-     -i -H "Accept: application/json" \
-     -H "Content-Type: application/json" \
-     -X POST -d "{'consent': true}" \
      -H 'authorization: Bearer YOUR_API_TOKEN' \
+     -X POST -d "{'consent': true}" \
      'https://ws.msregistry.s3it.uzh.ch/api/v1.0/user/consent'
 
 Response
@@ -387,184 +380,6 @@ Response
 
     {
       "success": true
-    }
-
-
-GET /user/roles
----------------
-
-Get User's Roles. 
-
-Resource Information
-````````````````````
-
-   ::
-
-      Method                      GET
-      URL                         /api/v1.0/user/roles
-      Requires authentication?    YES
-      Requires Role?              Every Role can access
-
-Response Parameters
-```````````````````
-
-+---------------------+-----------------+--------------------------------------+
-| **Parameter**       | **Type**        | **Description**                      |
-+=====================+=================+======================================+
-| **roles**           | `(array)`       | Return user's roles stored on OAuth  |
-|                     |                 | Server. Returned values are:         |
-|                     |                 | 'doctor', 'guest', 'patient',        |
-|                     |                 | 'relative', 'researcher'.            |
-|                     |                 | If no roles are stored on OAuth      |
-|                     |                 | Server, return empty array.          |
-|                     |                 |                                      |
-+---------------------+-----------------+--------------------------------------+
-
-Resource Errors
-```````````````
-
-These are the possible errors returned by this endpoint.
-
-+---------------+----------------------+---------------------------------------+
-| **HTTP Code** | **Error Identifier** | **Error Message**                     |
-+===============+======================+=======================================+
-| 403           |authorization_required| Authorization header is expected      |
-|               |                      |                                       |
-+---------------+----------------------+---------------------------------------+
-| 401           |invalid_header        | Authorization header must start with  |
-|               |                      | Bearer                                |
-|               |                      |                                       |
-+---------------+----------------------+---------------------------------------+
-| 401           |invalid_header        | Token not found                       |
-|               |                      |                                       |
-+---------------+----------------------+---------------------------------------+
-| 401           |invalid_header        | Authorization header must be Bearer + |
-|               |                      | token                                 |
-|               |                      |                                       |
-+---------------+----------------------+---------------------------------------+
-| 400           |token_expired         | Token is expired                      |
-|               |                      |                                       |
-+---------------+----------------------+---------------------------------------+
-| 400           |invalid_audience      | Incorrect audience                    |
-|               |                      |                                       |
-+---------------+----------------------+---------------------------------------+
-| 400           |invalid_signature     | Token signature is invalid            |
-|               |                      |                                       |
-+---------------+----------------------+---------------------------------------+
-| 500           |internal_server_error | An error occurred while adding this   |
-|               |                      | user                                  |
-|               |                      |                                       |
-+---------------+----------------------+---------------------------------------+
-| 401           |unauthorized          | Insufficient Roles                    |
-|               |                      |                                       |
-+---------------+----------------------+---------------------------------------+
-
-Example
-```````
-
-.. code:: bash
-
-    curl \
-     -H 'authorization: Bearer YOUR_API_TOKEN' \
-     'https://ws.msregistry.s3it.uzh.ch/api/v1.0/user/roles'
-
-Response
-::::::::
-
-.. code:: json
-
-    {
-      "roles": [
-        "doctor", 
-        "patient"
-      ]
-    }
-
-GET /user/lang
---------------
-
-Get User's Language. 
-
-Resource Information
-````````````````````
-
-   ::
-
-      Method                      GET
-      URL                         /api/v1.0/user/lang
-      Requires authentication?    YES
-      Requires Role?              Every Role can access
-
-Response Parameters
-```````````````````
-
-+---------------------+-----------------+--------------------------------------+
-| **Parameter**       | **Type**        | **Description**                      |
-+=====================+=================+======================================+
-| **lang**            | `(string)`      | Return user's language setting       |
-|                     |                 | stored on OAuth Server. Returned     |
-|                     |                 | values are: 'de', 'fr', 'it'.        |
-|                     |                 | If no language setting is stored on  |
-|                     |                 | OAuth Server, return default         |
-|                     |                 | language 'de'.                       |
-|                     |                 |                                      |
-+---------------------+-----------------+--------------------------------------+
-
-Resource Errors
-```````````````
-
-These are the possible errors returned by this endpoint.
-
-+---------------+----------------------+---------------------------------------+
-| **HTTP Code** | **Error Identifier** | **Error Message**                     |
-+===============+======================+=======================================+
-| 403           |authorization_required| Authorization header is expected      |
-|               |                      |                                       |
-+---------------+----------------------+---------------------------------------+
-| 401           |invalid_header        | Authorization header must start with  |
-|               |                      | Bearer                                |
-|               |                      |                                       |
-+---------------+----------------------+---------------------------------------+
-| 401           |invalid_header        | Token not found                       |
-|               |                      |                                       |
-+---------------+----------------------+---------------------------------------+
-| 401           |invalid_header        | Authorization header must be Bearer + |
-|               |                      | token                                 |
-|               |                      |                                       |
-+---------------+----------------------+---------------------------------------+
-| 400           |token_expired         | Token is expired                      |
-|               |                      |                                       |
-+---------------+----------------------+---------------------------------------+
-| 400           |invalid_audience      | Incorrect audience                    |
-|               |                      |                                       |
-+---------------+----------------------+---------------------------------------+
-| 400           |invalid_signature     | Token signature is invalid            |
-|               |                      |                                       |
-+---------------+----------------------+---------------------------------------+
-| 500           |internal_server_error | An error occurred while adding this   |
-|               |                      | user                                  |
-|               |                      |                                       |
-+---------------+----------------------+---------------------------------------+
-| 401           |unauthorized          | Insufficient Roles                    |
-|               |                      |                                       |
-+---------------+----------------------+---------------------------------------+
-
-Example
-```````
-
-.. code:: bash
-
-    curl \
-     -H 'authorization: Bearer YOUR_API_TOKEN' \
-     'https://ws.msregistry.s3it.uzh.ch/api/v1.0/user/lang'
-
-Response
-::::::::
-
-.. code:: json
-
-    {
-      "lang": "de"
     }
 
 GET /diary
@@ -603,7 +418,7 @@ Resource Errors
 These are the possible errors returned by this endpoint.
 
 +---------------+----------------------+---------------------------------------+
-| **HTTP Code** | **Error Identifier** | **Error Message**                     |
+| **status**    | **code**             | **message**                           |
 +===============+======================+=======================================+
 | 403           |authorization_required| Authorization header is expected      |
 |               |                      |                                       |
@@ -626,10 +441,6 @@ These are the possible errors returned by this endpoint.
 |               |                      |                                       |
 +---------------+----------------------+---------------------------------------+
 | 400           |invalid_signature     | Token signature is invalid            |
-|               |                      |                                       |
-+---------------+----------------------+---------------------------------------+
-| 500           |internal_server_error | An error occurred while adding this   |
-|               |                      | user                                  |
 |               |                      |                                       |
 +---------------+----------------------+---------------------------------------+
 | 401           |unauthorized          | Insufficient Roles                    |
@@ -702,7 +513,7 @@ Resource Errors
 These are the possible errors returned by this endpoint.
 
 +---------------+----------------------+---------------------------------------+
-| **HTTP Code** | **Error Identifier** | **Error Message**                     |
+| **status**    | **code**             | **message**                           |
 +===============+======================+=======================================+
 | 403           |authorization_required| Authorization header is expected      |
 |               |                      |                                       |
@@ -727,10 +538,6 @@ These are the possible errors returned by this endpoint.
 | 400           |invalid_signature     | Token signature is invalid            |
 |               |                      |                                       |
 +---------------+----------------------+---------------------------------------+
-| 500           |internal_server_error | An error occurred while adding this   |
-|               |                      | user                                  |
-|               |                      |                                       |
-+---------------+----------------------+---------------------------------------+
 | 401           |unauthorized          | Insufficient Roles                    |
 |               |                      |                                       |
 +---------------+----------------------+---------------------------------------+
@@ -744,10 +551,8 @@ Example
 .. code:: bash
 
     curl \
-     -i -H "Accept: application/json" \
-     -H "Content-Type: application/json" \
-     -X POST -d "{'value': 'any'}" \
      -H 'authorization: Bearer YOUR_API_TOKEN' \
+     -X POST -d "{'value': 'any'}" \
      'https://ws.msregistry.s3it.uzh.ch/api/v1.0/diary'
 
 Response
@@ -802,7 +607,7 @@ Resource Errors
 These are the possible errors returned by this endpoint.
 
 +---------------+----------------------+---------------------------------------+
-| **HTTP Code** | **Error Identifier** | **Error Message**                     |
+| **status**    | **code**             | **message**                           |
 +===============+======================+=======================================+
 | 403           |authorization_required| Authorization header is expected      |
 |               |                      |                                       |
@@ -825,10 +630,6 @@ These are the possible errors returned by this endpoint.
 |               |                      |                                       |
 +---------------+----------------------+---------------------------------------+
 | 400           |invalid_signature     | Token signature is invalid            |
-|               |                      |                                       |
-+---------------+----------------------+---------------------------------------+
-| 500           |internal_server_error | An error occurred while adding this   |
-|               |                      | user                                  |
 |               |                      |                                       |
 +---------------+----------------------+---------------------------------------+
 | 401           |unauthorized          | Insufficient Roles                    |
@@ -917,7 +718,7 @@ Resource Errors
 These are the possible errors returned by this endpoint.
 
 +---------------+----------------------+---------------------------------------+
-| **HTTP Code** | **Error Identifier** | **Error Message**                     |
+| **status**    | **code**             | **message**                           |
 +===============+======================+=======================================+
 | 403           |authorization_required| Authorization header is expected      |
 |               |                      |                                       |
@@ -940,10 +741,6 @@ These are the possible errors returned by this endpoint.
 |               |                      |                                       |
 +---------------+----------------------+---------------------------------------+
 | 400           |invalid_signature     | Token signature is invalid            |
-|               |                      |                                       |
-+---------------+----------------------+---------------------------------------+
-| 500           |internal_server_error | An error occurred while adding this   |
-|               |                      | user                                  |
 |               |                      |                                       |
 +---------------+----------------------+---------------------------------------+
 | 401           |unauthorized          | Insufficient Roles                    |
@@ -1016,7 +813,7 @@ Resource Errors
 These are the possible errors returned by this endpoint.
 
 +---------------+----------------------+---------------------------------------+
-| **HTTP Code** | **Error Identifier** | **Error Message**                     |
+| **status**    | **code**             | **message**                           |
 +===============+======================+=======================================+
 | 403           |authorization_required| Authorization header is expected      |
 |               |                      |                                       |
@@ -1041,10 +838,6 @@ These are the possible errors returned by this endpoint.
 | 400           |invalid_signature     | Token signature is invalid            |
 |               |                      |                                       |
 +---------------+----------------------+---------------------------------------+
-| 500           |internal_server_error | An error occurred while adding this   |
-|               |                      | user                                  |
-|               |                      |                                       |
-+---------------+----------------------+---------------------------------------+
 | 401           |unauthorized          | Insufficient Roles                    |
 |               |                      |                                       |
 +---------------+----------------------+---------------------------------------+
@@ -1058,10 +851,8 @@ Example
 .. code:: bash
 
     curl \
-     -i -H "Accept: application/json" \
-     -H "Content-Type: application/json" \
-     -X POST -d "{'value': 'any'}" \
      -H 'authorization: Bearer YOUR_API_TOKEN' \
+     -X POST -d "{'value': 'any'}" \
      'https://ws.msregistry.s3it.uzh.ch/api/v1.0/survey'
 
 Response
