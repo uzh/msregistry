@@ -9,7 +9,7 @@ Document Version
     2016-04-08
 :Version:
     v0.3.2
-:Authors: 
+:Authors:
     Filippo Panessa <filippo.panessa@gmail.com>
 :Copyright:
     Copyright (c) 2016 S3IT, Zentrale Informatik, University of Zurich
@@ -85,7 +85,7 @@ Response
 
     {
       "status": 200,
-      "code": "authorization_success", 
+      "code": "authorization_success",
       "description": "All good. You only get this message if you're authenticated."
     }
 
@@ -174,9 +174,9 @@ Response
     }
 
 GET /user/consent/info
------------------
+----------------------
 
-Get information about user acceptance of Informed Consent. 
+Get detailed informations about user acceptance of Informed Consent. 
 
 Resource Information
 ````````````````````
@@ -184,7 +184,7 @@ Resource Information
    ::
 
       Method                      GET
-      URL                         /api/v1.0/user/consent
+      URL                         /api/v1.0/user/consent/info
       Requires authentication?    Yes
       Requires Role?              Patient, Relative
 
@@ -273,7 +273,7 @@ Example
 
     curl \
      -H 'authorization: Bearer YOUR_API_TOKEN' \
-     'https://ws.msregistry.s3it.uzh.ch/api/v1.0/user/consent'
+     'https://ws.msregistry.s3it.uzh.ch/api/v1.0/user/consent/info'
 
 Response
 ::::::::
@@ -282,19 +282,97 @@ Response
 
     {
         "birthdate": "18.09.1974",
-        "sex": "M", 
-        "signature": "FP", 
-        "data_exchange_cohort": true, 
-        "date_signed": "2016-03-30T14:33:48.011000", 
+        "sex": "M",
+        "signature": "FP",
+        "data_exchange_cohort": true,
+        "date_signed": "2016-03-30T14:33:48.011000",
         "medical_record_abstraction": true,
         "data_exchange_cohort": true,
-        "physician_contact_permitted": true 
+        "physician_contact_permitted": true
+    }
+
+GET /user/consent
+-----------------
+
+Get brief information about user acceptance of Informed Consent. 
+
+Resource Information
+````````````````````
+
+   ::
+
+      Method                      GET
+      URL                         /api/v1.0/user/consent
+      Requires authentication?    Yes
+      Requires Role?              Patient, Relative
+
+Response Parameters
+```````````````````
+
++---------------------------------+-----------------+--------------------------------------+
+| **Parameter**                   | **Type**        | **Description**                      |
++=================================+=================+======================================+
+| **accepted**                    | `(bool)`        | Return True if Consent Information   |
+|                                 |                 | was accepted, False otherwise        |
+|                                 |                 |                                      |
++---------------------------------+-----------------+--------------------------------------+
+
+Resource Errors
+```````````````
+
+These are the possible errors returned by this endpoint.
+
++---------------+----------------------+---------------------------------------+
+| **status**    | **code**             | **message**                           |
++===============+======================+=======================================+
+| 403           |authorization_required| Authorization header is expected      |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |invalid_header        | Authorization header must start with  |
+|               |                      | Bearer                                |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |invalid_header        | Token not found                       |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 400           |token_expired         | Token is expired                      |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 400           |invalid_audience      | Incorrect audience                    |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 400           |invalid_signature     | Token signature is invalid            |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |unauthorized          | Insufficient Roles                    |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 404           |not_found             | Couldn't found a User with UniqueID={}|
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+
+Example
+```````
+
+.. code:: bash
+
+    curl \
+     -H 'authorization: Bearer YOUR_API_TOKEN' \
+     'https://ws.msregistry.s3it.uzh.ch/api/v1.0/user/consent'
+
+Response
+::::::::
+
+.. code:: json
+
+    {
+        "accepted": true
     }
 
 POST /user/consent
 ------------------
 
-Set user acceptance of Informed Consent. 
+Set user acceptance of Informed Consent.
 
 Resource Information
 ````````````````````
@@ -309,13 +387,46 @@ Resource Information
 Request Parameters
 ``````````````````
 
-+---------------------+-----------------+--------------------------------------+
-| **Parameter**       | **Type**        | **Description**                      |
-+=====================+=================+======================================+
-| **consent**         | `(bool)`        | Set True is Informed Consent has     |
-|                     |                 | been accepted, False otherwise       |
-|                     |                 |                                      |
-+---------------------+-----------------+--------------------------------------+
+Relative Role
+
++---------------------------------+-----------------+--------------------------------------+
+| **Parameter**                   | **Type**        | **Description**                      |
++=================================+=================+======================================+
+| **birthdate**                   | `(string)`      | Birthdate in this form %DD.%MM.%YYYY |
+|                                 |                 |                                      |
++---------------------------------+-----------------+--------------------------------------+
+| **sex**                         | `(string)`      | Sex. Possibly values are 'male' and  |
+|                                 |                 | 'female'                             |
+|                                 |                 |                                      |
++---------------------------------+-----------------+--------------------------------------+
+| **signature**                   | `(string)`      | Signature by Initials, max 3 digits  |
+|                                 |                 |                                      |
++---------------------------------+-----------------+--------------------------------------+
+
+Patient Role
+
++---------------------------------+-----------------+--------------------------------------+
+| **Parameter**                   | **Type**        | **Description**                      |
++=================================+=================+======================================+
+| **birthdate**                   | `(string)`      | Birthdate in this form %DD.%MM.%YYYY |
+|                                 |                 |                                      |
++---------------------------------+-----------------+--------------------------------------+
+| **sex**                         | `(string)`      | Sex. Possibly values are 'male' and  |
+|                                 |                 | 'female'                             |
+|                                 |                 |                                      |
++---------------------------------+-----------------+--------------------------------------+
+| **signature**                   | `(string)`      | Signature by Initials, max 3 digits  |
+|                                 |                 |                                      |
++---------------------------------+-----------------+--------------------------------------+
+| **physician_contact_permitted** | `(bool)`        | Physician contact permitted          |
+|                                 |                 |                                      |
++---------------------------------+-----------------+--------------------------------------+
+| **data_exchange_cohort**        | `(bool)`        | Data exchange cohort                 |
+|                                 |                 |                                      |
++---------------------------------+-----------------+--------------------------------------+
+| **medical_record_abstraction**  | `(bool)`        | Medical record abstraction           |
+|                                 |                 |                                      |
++---------------------------------+-----------------+--------------------------------------+
 
 Response Parameters
 ```````````````````
@@ -362,6 +473,9 @@ These are the possible errors returned by this endpoint.
 | 401           |unauthorized          | Insufficient Roles                    |
 |               |                      |                                       |
 +---------------+----------------------+---------------------------------------+
+| 405           |method_not_allowed    |                                       |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
 
 Example
 ```````
@@ -370,7 +484,12 @@ Example
 
     curl \
      -H 'authorization: Bearer YOUR_API_TOKEN' \
-     -X POST -d "{'consent': true}" \
+     -X POST -d '{"physician_contact_permitted": true, \
+                  "data_exchange_cohort": true, \
+                  "medical_record_abstraction": true, \
+                  "sex": "male", \
+                  "signature": "FP", \
+                  "birthdate": "09.18.1974"}' \
      'https://ws.msregistry.s3it.uzh.ch/api/v1.0/user/consent'
 
 Response
@@ -382,10 +501,10 @@ Response
       "success": true
     }
 
-GET /diary
-----------
+GET /user/diary
+---------------
 
-Get User's Diary. 
+Get All Diary entries compiled by User.
 
 Resource Information
 ````````````````````
@@ -393,7 +512,7 @@ Resource Information
    ::
 
       Method                      GET
-      URL                         /api/v1.0/diary
+      URL                         /api/v1.0/user/diary
       Requires authentication?    YES
       Requires Role?              Patient, Relative
 
@@ -403,12 +522,19 @@ Response Parameters
 +---------------------+-----------------+--------------------------------------+
 | **Parameter**       | **Type**        | **Description**                      |
 +=====================+=================+======================================+
-| **diary**           | `(json file)`   | Return user's Diary. Returned value  |
+| **diaries**         | `(array)`       | Return list of all Diaries compiled  |
+|                     |                 | by User as JSON array                |
+|                     |                 |                                      |
++---------------------+-----------------+--------------------------------------+
+| **id**              | `(string)`      | Return Diary ID                      |
+|                     |                 |                                      |
++---------------------+-----------------+--------------------------------------+
+| **diary**           | `(json file)`   | Return User's Diary. Returned value  |
 |                     |                 | is a RAW JSON file                   |
 |                     |                 |                                      |
 +---------------------+-----------------+--------------------------------------+
-| **timestamp**       | `(iso 8601`     | Datetime the diary was updated       |
-|                     | `datetime)`     |                                      |
+| **timestamp**       | `(iso 8601`     | Datetime the diary was inserted or   |
+|                     | `datetime)`     | updated                              |
 |                     |                 |                                      |
 +---------------------+-----------------+--------------------------------------+
 
@@ -454,7 +580,7 @@ Example
 
     curl \
      -H 'authorization: Bearer YOUR_API_TOKEN' \
-     'https://ws.msregistry.s3it.uzh.ch/api/v1.0/diary'
+     'https://ws.msregistry.s3it.uzh.ch/api/v1.0/user/diary'
 
 Response
 ::::::::
@@ -462,17 +588,124 @@ Response
 .. code:: json
 
     {
-        "diary": {
-            "value": "any"
-        }, 
-        "timestamp": "2016-03-23T15:03:41.643000"
+        "diaries": [
+            {
+                "diary": {
+                    "value": "any"
+                },
+                "id": "5707ba42ec71bc038226c84b",
+                "timestamp": "2016-04-08T11:36:37.177000"
+            }
+        ]
     }
 
-POST /diary
------------
+GET /user/diary/<id>
+--------------------
 
-Write User's Diary or Update it. In case of Update, Backend keeps track of
-previous Diary versions.
+Get User's Diary by Diary ID.
+
+Resource Information
+````````````````````
+
+   ::
+
+      Method                      GET
+      URL                         /api/v1.0/user/diary/<id>
+      Requires authentication?    YES
+      Requires Role?              Patient, Relative
+
+Request Parameters
+``````````````````
+
++---------------------+-----------------+--------------------------------------+
+| **Parameter**       | **Type**        | **Description**                      |
++=====================+=================+======================================+
+| **id**              | `(string)`      | Diary ID                             |
+|                     |                 |                                      |
++---------------------+-----------------+--------------------------------------+
+
+Response Parameters
+```````````````````
+
++---------------------+-----------------+--------------------------------------+
+| **Parameter**       | **Type**        | **Description**                      |
++=====================+=================+======================================+
+| **id**              | `(string)`      | Return Diary ID                      |
+|                     |                 |                                      |
++---------------------+-----------------+--------------------------------------+
+| **diary**           | `(json file)`   | Return user's Diary. Returned value  |
+|                     |                 | is a RAW JSON file                   |
+|                     |                 |                                      |
++---------------------+-----------------+--------------------------------------+
+| **timestamp**       | `(iso 8601`     | Datetime the diary was inserted or   |
+|                     | `datetime)`     | updated                              |
+|                     |                 |                                      |
++---------------------+-----------------+--------------------------------------+
+
+Resource Errors
+```````````````
+
+These are the possible errors returned by this endpoint.
+
++---------------+----------------------+---------------------------------------+
+| **status**    | **code**             | **message**                           |
++===============+======================+=======================================+
+| 403           |authorization_required| Authorization header is expected      |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |invalid_header        | Authorization header must start with  |
+|               |                      | Bearer                                |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |invalid_header        | Token not found                       |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |invalid_header        | Authorization header must be Bearer + |
+|               |                      | token                                 |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 400           |token_expired         | Token is expired                      |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 400           |invalid_audience      | Incorrect audience                    |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 400           |invalid_signature     | Token signature is invalid            |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |unauthorized          | Insufficient Roles                    |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 404           |not_found             | Couldn't found a Diary with id={}     |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+
+Example
+```````
+
+.. code:: bash
+
+    curl \
+     -H 'authorization: Bearer YOUR_API_TOKEN' \
+     'https://ws.msregistry.s3it.uzh.ch/api/v1.0/user/diary/56f2c662ec71bc2c6b001040'
+
+Response
+::::::::
+
+.. code:: json
+
+    {
+        "id": "5707ba42ec71bc038226c84b",
+        "diary": {
+            "value": "any"
+        },
+        "timestamp": "2016-04-08T11:36:37.177000"
+    }
+
+POST /user/diary
+----------------
+
+Insert new User's Diary entry.
 
 Resource Information
 ````````````````````
@@ -480,7 +713,7 @@ Resource Information
    ::
 
       Method                      POST
-      URL                         /api/v1.0/diary
+      URL                         /api/v1.0/user/diary
       Requires authentication?    Yes
       Requires Role?              Patient, Relative
       Requires IC Accepted?       Yes
@@ -544,6 +777,9 @@ These are the possible errors returned by this endpoint.
 | 401           |unauthorized          | Consent Information not accepted      |
 |               |                      |                                       |
 +---------------+----------------------+---------------------------------------+
+| 405           |method_not_allowed    |                                       |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
 
 Example
 ```````
@@ -553,7 +789,7 @@ Example
     curl \
      -H 'authorization: Bearer YOUR_API_TOKEN' \
      -X POST -d "{'value': 'any'}" \
-     'https://ws.msregistry.s3it.uzh.ch/api/v1.0/diary'
+     'https://ws.msregistry.s3it.uzh.ch/api/v1.0/user/diary'
 
 Response
 ::::::::
@@ -564,10 +800,10 @@ Response
       "success": true
     }
 
-GET /survey
------------
+GET /user/survey
+----------------
 
-Get All Surveys compiled by User. 
+Get All Survey entries compiled by User.
 
 Resource Information
 ````````````````````
@@ -575,7 +811,7 @@ Resource Information
    ::
 
       Method                      GET
-      URL                         /api/v1.0/survey
+      URL                         /api/v1.0/user/survey
       Requires authentication?    YES
       Requires Role?              Patient, Relative
 
@@ -643,7 +879,7 @@ Example
 
     curl \
      -H 'authorization: Bearer YOUR_API_TOKEN' \
-     'https://ws.msregistry.s3it.uzh.ch/api/v1.0/survey'
+     'https://ws.msregistry.s3it.uzh.ch/api/v1.0/user/survey'
 
 Response
 ::::::::
@@ -653,26 +889,26 @@ Response
     {
         "surveys": [
             {
-                "id": "56f2c662ec71bc2c6b001040", 
+                "id": "56f2c662ec71bc2c6b001040",
                 "survey": {
                     "value": "any"
-                }, 
+                },
                 "timestamp": "2016-03-23T16:37:54.765000"
-            }, 
+            },
             {
-                "id": "56f2c7cdec71bc2c6b001041", 
+                "id": "56f2c7cdec71bc2c6b001041",
                 "survey": {
                     "value": "any"
-                }, 
+                },
                 "timestamp": "2016-03-23T16:43:57.800000"
             }
         ]
     }
 
-GET /survey/get/<id>
---------------------
+GET /user/survey/<id>
+---------------------
 
-Get All Surveys compiled by User. 
+Get User's Survey by Survey ID.
 
 Resource Information
 ````````````````````
@@ -680,7 +916,7 @@ Resource Information
    ::
 
       Method                      GET
-      URL                         /api/v1.0/survey/get/<id>
+      URL                         /api/v1.0/user/survey/<id>
       Requires authentication?    YES
       Requires Role?              Patient, Relative
 
@@ -707,8 +943,8 @@ Response Parameters
 |                     |                 | is a RAW JSON file                   |
 |                     |                 |                                      |
 +---------------------+-----------------+--------------------------------------+
-| **timestamp**       | `(iso 8601`     | Datetime the survey was inserted     |
-|                     | `datetime)`     |                                      |
+| **timestamp**       | `(iso 8601`     | Datetime the survey was inserted or  |
+|                     | `datetime)`     | updated                              |
 |                     |                 |                                      |
 +---------------------+-----------------+--------------------------------------+
 
@@ -746,6 +982,9 @@ These are the possible errors returned by this endpoint.
 | 401           |unauthorized          | Insufficient Roles                    |
 |               |                      |                                       |
 +---------------+----------------------+---------------------------------------+
+| 404           |not_found             | Couldn't found a Survey with id={}    |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
 
 Example
 ```````
@@ -754,7 +993,7 @@ Example
 
     curl \
      -H 'authorization: Bearer YOUR_API_TOKEN' \
-     'https://ws.msregistry.s3it.uzh.ch/api/v1.0/survey/get/56f2c662ec71bc2c6b001040'
+     'https://ws.msregistry.s3it.uzh.ch/api/v1.0/user/survey/56f2c662ec71bc2c6b001040'
 
 Response
 ::::::::
@@ -762,15 +1001,15 @@ Response
 .. code:: json
 
     {
-        "id": "56f2c662ec71bc2c6b001040", 
+        "id": "56f2c662ec71bc2c6b001040",
         "survey": {
             "value": "any"
-        }, 
+        },
         "timestamp": "2016-03-23T16:37:54.765000"
     }
 
-POST /survey
-------------
+POST /user/survey
+-----------------
 
 Insert a new User's Survey.
 
@@ -780,7 +1019,7 @@ Resource Information
    ::
 
       Method                      POST
-      URL                         /api/v1.0/survey
+      URL                         /api/v1.0/user/survey
       Requires authentication?    Yes
       Requires Role?              Patient, Relative
       Requires IC Accepted?       Yes
@@ -844,6 +1083,9 @@ These are the possible errors returned by this endpoint.
 | 401           |unauthorized          | Consent Information not accepted      |
 |               |                      |                                       |
 +---------------+----------------------+---------------------------------------+
+| 405           |method_not_allowed    |                                       |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
 
 Example
 ```````
@@ -853,7 +1095,7 @@ Example
     curl \
      -H 'authorization: Bearer YOUR_API_TOKEN' \
      -X POST -d "{'value': 'any'}" \
-     'https://ws.msregistry.s3it.uzh.ch/api/v1.0/survey'
+     'https://ws.msregistry.s3it.uzh.ch/api/v1.0/user/survey'
 
 Response
 ::::::::
