@@ -48,7 +48,7 @@ def get_user():
     raise UserNotFound(_request_ctx_stack.top.uniqueID)
 
 
-@api.route('/user/consent/info', methods=['GET'])
+@api.route('/user/consent', methods=['GET'])
 @requires_auth
 @requires_roles(roles=[Role.patient, Role.relative])
 def get_user_consent_info():
@@ -61,7 +61,7 @@ def get_user_consent_info():
     raise UserNotFound(_request_ctx_stack.top.uniqueID)
 
 
-@api.route('/user/consent', methods=['GET'])
+@api.route('/user/consent/info', methods=['GET'])
 @requires_auth
 @requires_roles(roles=[Role.patient, Role.relative])
 def get_user_consent():

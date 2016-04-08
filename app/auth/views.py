@@ -28,6 +28,8 @@ from app.auth.decorators import requires_auth
 @auth.route('/test')
 @requires_auth
 def authTest():
-    return jsonify({'code': 'authorization_success',
-        'description': "All good. You only get this message if you're authenticated."})
+    return jsonify({'status': 200, 
+                    'code': 'authorization_success',
+                    'description': "All good. You only get this message if you're authenticated."
+                    })
 
