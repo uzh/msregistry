@@ -103,7 +103,7 @@ def requires_consent(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         user = User()
-        if user.getDateSignedByUniqueID(_request_ctx_stack.top.uniqueID) is None:
+        if user.getUserConsentByUniqueID(_request_ctx_stack.top.uniqueID) is False:
             raise ConsentInformationNotAccepted()
         
         return f(*args, **kwargs)

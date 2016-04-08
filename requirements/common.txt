@@ -10,6 +10,7 @@ Flask-Script==2.0.5
 Flask-MongoAlchemy==0.7.2
 itsdangerous==0.24
 Jinja2==2.8
+jsonschema==2.5.1
 Mako==1.0.3
 MarkupSafe==0.23
 pip==1.5.4

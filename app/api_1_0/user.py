@@ -33,6 +33,9 @@ from app.auth.decorators import requires_auth, requires_roles
 
 from app.errors import UserNotFound, MethodNotAllowed
 
+from jsonschema import validate, ValidationError
+from app.inputs import user_consent_patient, user_consent_relative
+
 
 @api.route('/user')
 @requires_auth
@@ -46,6 +49,19 @@ def get_user():
 
 
 @api.route('/user/consent', methods=['GET'])
+@requires_auth
+@requires_roles(roles=[Role.patient, Role.relative])
+def get_user_consent_info():
+    user = User()
+    result = user.getUserConsentByUniqueID(_request_ctx_stack.top.uniqueID)
+    
+    if result is not None:
+        return jsonify(accepted=bool(result))
+    
+    raise UserNotFound(_request_ctx_stack.top.uniqueID)
+
+
+@api.route('/user/consent/info', methods=['GET'])
 @requires_auth
 @requires_roles(roles=[Role.patient, Role.relative])
 def get_user_consent():
@@ -64,16 +80,40 @@ def get_user_consent():
 def set_user_consent():
     user = User()
     consent = request.get_json(silent=True, force=True)
-    try:
-        return jsonify(success=bool(user.setConsentByUniqueIDAndRoles(uniqueID=_request_ctx_stack.top.uniqueID,
-                                                                  roles=_request_ctx_stack.top.roles,
-                                                                  sex=consent['sex'], birthdate=consent['birthdate'], signature=consent['signature'],
-                                                                  physician_contact_permitted=consent['physician_contact_permitted'], 
-                                                                  medical_record_abstraction=consent['medical_record_abstraction'],
-                                                                  data_exchange_cohort=consent['data_exchange_cohort'])))
-    except ValueError as error:
-        raise MethodNotAllowed(error.message)
-    except db.BadValueException as error:
-        raise MethodNotAllowed(error.message)
+    
+    if Role.relative in _request_ctx_stack.top.roles:
+        try:
+            validate(consent, user_consent_relative)
+        except ValidationError as error:
+            raise MethodNotAllowed(error.message)
+        
+        try:
+            return jsonify(success=bool(user.setRelativeConsentByUniqueID(uniqueID=_request_ctx_stack.top.uniqueID,
+                                                                          sex=consent['sex'], 
+                                                                          birthdate=consent['birthdate'],
+                                                                          signature=consent['signature'])))
+        except ValueError as error:
+            raise MethodNotAllowed(error.message)
+        except db.BadValueException as error:
+            raise MethodNotAllowed(error.message)
+    if Role.patient in _request_ctx_stack.top.roles:
+        try:
+            validate(consent, user_consent_patient)
+        except ValidationError as error:
+            raise MethodNotAllowed(error.message)
+        
+        try:
+            return jsonify(success=bool(user.setPatientConsentByUniqueID(uniqueID=_request_ctx_stack.top.uniqueID,
+                                                                         sex=consent['sex'], birthdate=consent['birthdate'], 
+                                                                         signature=consent['signature'],
+                                                                         physician_contact_permitted=consent['physician_contact_permitted'], 
+                                                                         medical_record_abstraction=consent['medical_record_abstraction'],
+                                                                         data_exchange_cohort=consent['data_exchange_cohort'])))
+        except ValueError as error:
+            raise MethodNotAllowed(error.message)
+        except db.BadValueException as error:
+            raise MethodNotAllowed(error.message)
+    else:
+        raise MethodNotAllowed('Bad value for field of type "roles". Reason: "Value cannot be null"')
 
 

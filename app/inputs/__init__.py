@@ -20,16 +20,7 @@ __author__ = "Filippo Panessa <filippo.panessa@uzh.ch>"
 __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 " University of Zurich")
 
-from flask import jsonify
 
-from . import auth
-from app.auth.decorators import requires_auth
-
-@auth.route('/test')
-@requires_auth
-def authTest():
-    return jsonify({'status': 200, 
-                    'code': 'authorization_success',
-                    'description': "All good. You only get this message if you're authenticated."
-                    })
+from user_consent_patient import user_consent_patient
+from user_consent_relative import user_consent_relative 
 
