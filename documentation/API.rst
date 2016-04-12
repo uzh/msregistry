@@ -6,9 +6,9 @@ Document Version
 ----------------
 
 :Date:
-    2016-04-08
+    2016-04-12
 :Version:
-    v0.3.2
+    v0.3.3
 :Authors:
     Filippo Panessa <filippo.panessa@gmail.com>
 :Copyright:
@@ -23,7 +23,7 @@ will accept, what the JSON object’s parameters will be in the response, and an
 example query/response.
 
 This documentation is for most recent version of the MS Registry REST API, 
-version **v0.3.2**.
+version **v0.3.3**.
 
 GET /auth/test
 --------------
@@ -176,7 +176,7 @@ Response
 GET /user/consent/info
 ----------------------
 
-Get detailed informations about user acceptance of Informed Consent. 
+Get detailed informations about user acceptance of Informed Consent.
 
 Resource Information
 ````````````````````
@@ -294,7 +294,7 @@ Response
 GET /user/consent
 -----------------
 
-Get brief information about user acceptance of Informed Consent. 
+Get brief information about user acceptance of Informed Consent.
 
 Resource Information
 ````````````````````
@@ -516,6 +516,25 @@ Resource Information
       Requires authentication?    YES
       Requires Role?              Patient, Relative
 
+Request Parameters
+``````````````````
+
++---------------------------------+-----------------+--------------------------------------+
+| **Parameter**                   | **Type**        | **Description**                      |
++=================================+=================+======================================+
+| **from**                        | `(iso 8601`     | If used, query returns Diary entries |
+|                                 | `datetime)`     | starting from this datetime. It      |
+|                                 |                 | could be used in combination with    |
+|                                 |                 | *until* parameter                    |
+|                                 |                 |                                      |
++---------------------------------+-----------------+--------------------------------------+
+| **until**                       | `(iso 8601`     | If used, query returns Diary entries |
+|                                 | `datetime)`     | starting from this datetime. It      |
+|                                 |                 | could be used in combination with    |
+|                                 |                 | *from* parameter                     |
+|                                 |                 |                                      |
++---------------------------------+-----------------+--------------------------------------+
+
 Response Parameters
 ```````````````````
 
@@ -580,7 +599,7 @@ Example
 
     curl \
      -H 'authorization: Bearer YOUR_API_TOKEN' \
-     'https://ws.msregistry.s3it.uzh.ch/api/v1.0/user/diary'
+     'https://ws.msregistry.s3it.uzh.ch/api/v1.0/user/diary?from=2016-04-01T00:00:00.000000&until=2016-04-09T00:00:00.000000'
 
 Response
 ::::::::
@@ -790,6 +809,103 @@ Example
      -H 'authorization: Bearer YOUR_API_TOKEN' \
      -X POST -d "{'value': 'any'}" \
      'https://ws.msregistry.s3it.uzh.ch/api/v1.0/user/diary'
+
+Response
+::::::::
+
+.. code:: json
+
+    {
+      "success": true
+    }
+
+POST /user/diary/<id>
+---------------------
+
+Update User's Diary by Diary ID.
+
+Resource Information
+````````````````````
+
+   ::
+
+      Method                      POST
+      URL                         /api/v1.0/user/diary/<id>
+      Requires authentication?    YES
+      Requires Role?              Patient, Relative
+
+Request Parameters
+``````````````````
+
++---------------------+-----------------+--------------------------------------+
+| **Parameter**       | **Type**        | **Description**                      |
++=====================+=================+======================================+
+| **id**              | `(string)`      | Diary ID                             |
+|                     |                 |                                      |
++---------------------+-----------------+--------------------------------------+
+| **diary**           | `(json file)`   | RAW JSON file                        |
+|                     |                 |                                      |
++---------------------+-----------------+--------------------------------------+
+
+Response Parameters
+```````````````````
+
++---------------------+-----------------+--------------------------------------+
+| **Parameter**       | **Type**        | **Description**                      |
++=====================+=================+======================================+
+| **success**         | `(bool)`        | Return True if diary was accepted,   |
+|                     |                 | False if JSON File is not well       |
+|                     |                 | formatted                            |
+|                     |                 |                                      |
++---------------------+-----------------+--------------------------------------+
+
+Resource Errors
+```````````````
+
+These are the possible errors returned by this endpoint.
+
++---------------+----------------------+---------------------------------------+
+| **status**    | **code**             | **message**                           |
++===============+======================+=======================================+
+| 403           |authorization_required| Authorization header is expected      |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |invalid_header        | Authorization header must start with  |
+|               |                      | Bearer                                |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |invalid_header        | Token not found                       |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |invalid_header        | Authorization header must be Bearer + |
+|               |                      | token                                 |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 400           |token_expired         | Token is expired                      |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 400           |invalid_audience      | Incorrect audience                    |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 400           |invalid_signature     | Token signature is invalid            |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |unauthorized          | Insufficient Roles                    |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 404           |not_found             | Couldn't found a Diary with id={}     |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+
+Example
+```````
+
+.. code:: bash
+
+    curl \
+     -H 'authorization: Bearer YOUR_API_TOKEN' \
+     -X POST -d "{'value': 'any'}" \
+     'https://ws.msregistry.s3it.uzh.ch/api/v1.0/user/diary/56f2c662ec71bc2c6b001040'
 
 Response
 ::::::::
