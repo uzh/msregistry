@@ -57,6 +57,10 @@ class Diary(db.Document):
         self.save()
         return True
     
+    def updateByUniqueIDAndID(self, uniqueID, _id, diary):
+        Diary.query.filter(Diary.user == User().query.filter(User.uniqueID == uniqueID).first().mongo_id, Diary.mongo_id == _id).set(diary=diary).execute()
+        return True
+    
     def serialize(self):
         d = {
                 "id": str(self.mongo_id),
