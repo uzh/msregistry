@@ -26,6 +26,8 @@ from app import db
 
 from role import Role
 
+from app import utils
+
 
 class User(db.Document):
     uniqueID = db.StringField(required=True)
@@ -38,12 +40,6 @@ class User(db.Document):
     data_exchange_cohort = db.BoolField(default=False, required=True)
     signature = db.StringField(max_length=3, default=None)
     date_signed = db.DateTimeField(default=None)
-
-    def _DatetimeToDMY(self, birthdate):
-        return datetime.strptime(birthdate.isoformat(), "%Y-%m-%dT%H:%M:%S").strftime("%d.%m.%Y")
-    
-    def _DMYToDatetime(self, birthdate):
-        return datetime.strptime(birthdate, "%d.%m.%Y")
     
     def createIfNotExistsByUniqueID(self, uniqueID):
         if self.getByUniqueID(uniqueID) is None:
@@ -71,7 +67,7 @@ class User(db.Document):
             raise ValueError('Bad value for field of type "signature". Reason: "Value cannot be null"')
         
         User.query.filter(User.uniqueID == uniqueID).set(
-                                                         sex=sex,birthdate=self._DMYToDatetime(birthdate),
+                                                         sex=sex,birthdate=utils.Time.DMYToDatetime(birthdate),
                                                          signature=signature,
                                                          date_signed=datetime.utcnow()
                                                          ).execute()
@@ -92,7 +88,7 @@ class User(db.Document):
             raise ValueError('Bad value for field of type "data_exchange_cohort". Reason: "Value cannot be null"')
         
         User.query.filter(User.uniqueID == uniqueID).set(sex=sex, 
-                                                         birthdate=self._DMYToDatetime(birthdate), 
+                                                         birthdate=utils.Time.DMYToDatetime(birthdate), 
                                                          signature=signature, 
                                                          physician_contact_permitted=physician_contact_permitted,
                                                          medical_record_abstraction=medical_record_abstraction,
@@ -115,7 +111,7 @@ class User(db.Document):
         if Role.patient in roles or Role.relative in roles:
             d = {
                     "sex": self.sex,
-                    "birthdate": self._DatetimeToDMY(self.birthdate) if self.birthdate is not None else None,
+                    "birthdate": utils.Time.DatetimeToDMY(self.birthdate) if self.birthdate is not None else None,
                     "signature": self.signature
                 }
             
