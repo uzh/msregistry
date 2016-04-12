@@ -32,8 +32,28 @@ class Diary(db.Document):
     timestamp = db.DateTimeField(default=datetime.utcnow())
     diary = db.DictField(db.AnythingField(), required=True)
     
-    def getAllByUniqueID(self, uniqueID):
-        return Diary.query.filter(Diary.user == User().query.filter(User.uniqueID == uniqueID).first().mongo_id).all()
+    def _DatetimeToDMY(self, date):
+        return datetime.strptime(date.isoformat(), "%Y-%m-%dT%H:%M:%S").strftime("%d.%m.%Y")
+    
+    def _DMYToDatetime(self, date):
+        return datetime.strptime(date, "%d.%m.%Y")
+    
+    def _Iso8601ToDatetime(self, date):
+        return datetime.strptime(date, "%Y-%m-%dT%H:%M:%S.%f")
+    
+    def getAllByUniqueID(self, uniqueID, from_datetime_iso8601=None, until_datetime_iso8601=None):
+        if from_datetime_iso8601 is not None:
+            from_datetime = self._Iso8601ToDatetime(from_datetime_iso8601)
+        else:
+            from_datetime = datetime.min
+        
+        if until_datetime_iso8601 is not None:
+            until_datetime = self._Iso8601ToDatetime(until_datetime_iso8601)
+        else:
+            until_datetime = datetime.max
+        
+        return Diary.query.filter(Diary.user == User().query.filter(User.uniqueID == uniqueID, ).first().mongo_id,
+                                  ({'timestamp': {'$gte': from_datetime, '$lte': until_datetime}})).all()
     
     def getByUniqueIDAndID(self, uniqueID, _id):
         return Diary.query.filter(Diary.user == User().query.filter(User.uniqueID == uniqueID).first().mongo_id, Diary.mongo_id == _id).first()
@@ -52,4 +72,6 @@ class Diary(db.Document):
             }
         
         return d
+
+
 

@@ -39,8 +39,10 @@ from app.errors import DiaryNotFound, MethodNotAllowed
 @requires_roles(roles=[Role.patient, Role.relative])
 def get_user_diary():
     diary = Diary()
-    return jsonify(diaries=[ob.serialize() for ob in diary.getAllByUniqueID(_request_ctx_stack.top.uniqueID)])
-    
+    return jsonify(diaries=[ob.serialize() for ob in diary.getAllByUniqueID(_request_ctx_stack.top.uniqueID,
+                                                                            request.args.get('from', None),
+                                                                            request.args.get('until', None))])
+
 
 @api.route('/user/diary/<string:_id>', methods=['GET'])
 @requires_auth
