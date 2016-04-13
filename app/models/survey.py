@@ -49,11 +49,11 @@ class Survey(db.Document):
         if until_datetime is not None:
             query.filter(Survey.timestamp <= utils.Time.Iso8601ToDatetime(until_datetime))
         
-#         if tags is not None:
-#             query.filter(Survey.tags in tags)
-#         
-#         if ongoing is not None:
-#             query.filter(Survey.ongoing == bool(ongoing))
+        if tags is not None:
+            query.filter(Survey.tags in tags)
+
+        if ongoing is not None:
+            query.filter(Survey.ongoing == ongoing)
         
         return query.all()
     
