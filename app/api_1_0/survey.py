@@ -38,7 +38,6 @@ from app.errors import SurveyNotFound, MethodNotAllowed
 @requires_auth
 def get_survey():
     survey = Survey()
-    # TODO: check tags input is a list
     try:
         return jsonify(surveys=[ob.serialize() for ob in survey.getAllByUniqueID(uniqueID=_request_ctx_stack.top.uniqueID,
                                                                                  from_datetime=request.args.get('from', None),
