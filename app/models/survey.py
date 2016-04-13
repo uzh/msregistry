@@ -22,18 +22,40 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 
 
 from datetime import datetime
+
 from app import db
 
 from user import User
+
+from app import utils
 
 
 class Survey(db.Document):
     user = db.ObjectIdField(User)
     timestamp = db.DateTimeField(default=datetime.utcnow())
     survey = db.DictField(db.AnythingField(), required=True)
+    tags = db.ListField(db.StringField(), required=True, default=[])
+    ongoing = db.BoolField(default=True, required=True)
     
-    def getAllByUniqueID(self, uniqueID):
-        return Survey.query.filter(Survey.user == User().query.filter(User.uniqueID == uniqueID).first().mongo_id).all()
+    def getAllByUniqueID(self, uniqueID, from_datetime=None, until_datetime=None,
+                         tags=None, ongoing=None):
+        query = db.session.query(Survey)
+        
+        query.filter(Survey.user == User().query.filter(User.uniqueID == uniqueID).first().mongo_id)
+        
+        if from_datetime is not None:
+            query.filter(Survey.timestamp >= utils.Time.Iso8601ToDatetime(from_datetime))
+        
+        if until_datetime is not None:
+            query.filter(Survey.timestamp <= utils.Time.Iso8601ToDatetime(until_datetime))
+        
+#         if tags is not None:
+#             query.filter(Survey.tags in tags)
+#         
+#         if ongoing is not None:
+#             query.filter(Survey.ongoing == bool(ongoing))
+        
+        return query.all()
     
     def getByUniqueIDAndID(self, uniqueID, _id):
         return Survey.query.filter(Survey.user == User().query.filter(User.uniqueID == uniqueID).first().mongo_id, Survey.mongo_id == _id).first()
@@ -48,8 +70,11 @@ class Survey(db.Document):
         d = {
                 "id": str(self.mongo_id),
                 "timestamp": self.timestamp.isoformat(),
-                "survey": self.survey
+                "survey": self.survey,
+                "tags": self.tags,
+                "ongoing": bool(self.ongoing)
             }
         
         return d
+
 

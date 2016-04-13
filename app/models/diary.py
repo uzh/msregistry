@@ -34,19 +34,18 @@ class Diary(db.Document):
     timestamp = db.DateTimeField(default=datetime.utcnow())
     diary = db.DictField(db.AnythingField(), required=True)
     
-    def getAllByUniqueID(self, uniqueID, from_datetime_iso8601=None, until_datetime_iso8601=None):
-        if from_datetime_iso8601 is not None:
-            from_datetime = utils.Time.Iso8601ToDatetime(from_datetime_iso8601)
-        else:
-            from_datetime = datetime.min
+    def getAllByUniqueID(self, uniqueID, from_datetime=None, until_datetime=None):
+        query = db.session.query(Diary)
         
-        if until_datetime_iso8601 is not None:
-            until_datetime = utils.Time.Iso8601ToDatetime(until_datetime_iso8601)
-        else:
-            until_datetime = datetime.max
+        query.filter(Diary.user == User().query.filter(User.uniqueID == uniqueID).first().mongo_id)
         
-        return Diary.query.filter(Diary.user == User().query.filter(User.uniqueID == uniqueID, ).first().mongo_id,
-                                  ({'timestamp': {'$gte': from_datetime, '$lte': until_datetime}})).all()
+        if from_datetime is not None:
+            query.filter(Diary.timestamp >= utils.Time.Iso8601ToDatetime(from_datetime))
+        
+        if until_datetime is not None:
+            query.filter(Diary.timestamp <= utils.Time.Iso8601ToDatetime(until_datetime))
+        
+        return query.all()
     
     def getByUniqueIDAndID(self, uniqueID, _id):
         return Diary.query.filter(Diary.user == User().query.filter(User.uniqueID == uniqueID).first().mongo_id, Diary.mongo_id == _id).first()

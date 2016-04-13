@@ -15,7 +15,6 @@
 # You should have received a copy of the version 3 of the GNU Affero
 # General Public License along with MSRegistry Backend.  If not, see 
 # <http://www.gnu.org/licenses/>.
-from pprint import _id
 
 __author__ = "Filippo Panessa <filippo.panessa@uzh.ch>"
 __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
@@ -40,9 +39,14 @@ from app.errors import DiaryNotFound, MethodNotAllowed
 @requires_roles(roles=[Role.patient, Role.relative])
 def get_user_diary():
     diary = Diary()
-    return jsonify(diaries=[ob.serialize() for ob in diary.getAllByUniqueID(_request_ctx_stack.top.uniqueID,
-                                                                            request.args.get('from', None),
-                                                                            request.args.get('until', None))])
+    try:
+        return jsonify(diaries=[ob.serialize() for ob in diary.getAllByUniqueID(_request_ctx_stack.top.uniqueID,
+                                                                                request.args.get('from', None),
+                                                                                request.args.get('until', None))])
+    except ValueError as error:
+        raise MethodNotAllowed(error.message)
+    except db.BadValueException as error:
+        raise MethodNotAllowed(error.message)    
 
 
 @api.route('/user/diary/<string:_id>', methods=['GET'])
