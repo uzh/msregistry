@@ -26,14 +26,26 @@ from app import db
 
 from user import User
 
+from app import utils
+
 
 class Diary(db.Document):
     user = db.ObjectIdField(User)
     timestamp = db.DateTimeField(default=datetime.utcnow())
     diary = db.DictField(db.AnythingField(), required=True)
     
-    def getAllByUniqueID(self, uniqueID):
-        return Diary.query.filter(Diary.user == User().query.filter(User.uniqueID == uniqueID).first().mongo_id).all()
+    def getAllByUniqueID(self, uniqueID, from_datetime=None, until_datetime=None):
+        query = db.session.query(Diary)
+        
+        query.filter(Diary.user == User().query.filter(User.uniqueID == uniqueID).first().mongo_id)
+        
+        if from_datetime is not None:
+            query.filter(Diary.timestamp >= utils.Time.Iso8601ToDatetime(from_datetime))
+        
+        if until_datetime is not None:
+            query.filter(Diary.timestamp <= utils.Time.Iso8601ToDatetime(until_datetime))
+        
+        return query.all()
     
     def getByUniqueIDAndID(self, uniqueID, _id):
         return Diary.query.filter(Diary.user == User().query.filter(User.uniqueID == uniqueID).first().mongo_id, Diary.mongo_id == _id).first()
@@ -44,6 +56,10 @@ class Diary(db.Document):
         self.save()
         return True
     
+    def updateByUniqueIDAndID(self, uniqueID, _id, diary):
+        Diary.query.filter(Diary.user == User().query.filter(User.uniqueID == uniqueID).first().mongo_id, Diary.mongo_id == _id).set(diary=diary).execute()
+        return True
+    
     def serialize(self):
         d = {
                 "id": str(self.mongo_id),
@@ -52,4 +68,5 @@ class Diary(db.Document):
             }
         
         return d
+
 

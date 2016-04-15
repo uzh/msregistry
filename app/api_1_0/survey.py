@@ -38,7 +38,16 @@ from app.errors import SurveyNotFound, MethodNotAllowed
 @requires_auth
 def get_survey():
     survey = Survey()
-    return jsonify(surveys=[ob.serialize() for ob in survey.getAllByUniqueID(_request_ctx_stack.top.uniqueID)])
+    try:
+        return jsonify(surveys=[ob.serialize() for ob in survey.getAllByUniqueID(_request_ctx_stack.top.uniqueID,
+                                                                                 request.args.get('from', None),
+                                                                                 request.args.get('until', None),
+                                                                                 request.args.get('tags', None),
+                                                                                 request.args.get('ongoing', None))])
+    except ValueError as error:
+        raise MethodNotAllowed(error.message)
+    except db.BadValueException as error:
+        raise MethodNotAllowed(error.message)    
 
 
 @api.route('/user/survey/<string:_id>', methods=['GET'])

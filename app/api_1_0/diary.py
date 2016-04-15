@@ -39,8 +39,15 @@ from app.errors import DiaryNotFound, MethodNotAllowed
 @requires_roles(roles=[Role.patient, Role.relative])
 def get_user_diary():
     diary = Diary()
-    return jsonify(diaries=[ob.serialize() for ob in diary.getAllByUniqueID(_request_ctx_stack.top.uniqueID)])
-    
+    try:
+        return jsonify(diaries=[ob.serialize() for ob in diary.getAllByUniqueID(_request_ctx_stack.top.uniqueID,
+                                                                                request.args.get('from', None),
+                                                                                request.args.get('until', None))])
+    except ValueError as error:
+        raise MethodNotAllowed(error.message)
+    except db.BadValueException as error:
+        raise MethodNotAllowed(error.message)    
+
 
 @api.route('/user/diary/<string:_id>', methods=['GET'])
 @requires_auth
@@ -65,4 +72,23 @@ def add_diary():
         raise MethodNotAllowed(error.message)
     except db.BadValueException as error:
         raise MethodNotAllowed(error.message)
+
+
+@api.route('/user/diary/<string:_id>', methods=['POST'])
+@requires_auth
+@requires_roles(roles=[Role.patient, Role.relative])
+def post_user_diary_by_id(_id):
+    diary = Diary()
+    try:
+        diary.getByUniqueIDAndID(_request_ctx_stack.top.uniqueID, _id).serialize()
+    except:
+        raise DiaryNotFound(_id)
+    
+    try:
+        return jsonify(success=bool(diary.updateByUniqueIDAndID(_request_ctx_stack.top.uniqueID, _id, request.get_json(silent=True, force=True))))
+    except ValueError as error:
+        raise MethodNotAllowed(error.message)
+    except db.BadValueException as error:
+        raise MethodNotAllowed(error.message)
+
 
