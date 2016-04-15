@@ -77,7 +77,8 @@ def add_diary():
 @api.route('/user/diary/<string:_id>', methods=['POST'])
 @requires_auth
 @requires_roles(roles=[Role.patient, Role.relative])
-def post_user_diary_by_id(_id):
+@requires_consent
+def update_user_diary_by_id(_id):
     diary = Diary()
     try:
         diary.getByUniqueIDAndID(_request_ctx_stack.top.uniqueID, _id).serialize()

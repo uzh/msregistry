@@ -68,6 +68,11 @@ class Survey(db.Document):
         self.save()
         return True
     
+    def updateByUniqueIDAndID(self, uniqueID, _id, survey, tags, ongoing):
+        Survey.query.filter(Survey.user == User().query.filter(User.uniqueID == uniqueID).first().mongo_id, 
+                            Survey.mongo_id == _id).set(survey=survey, tags=tags, ongoing=ongoing, timestamp=datetime.utcnow()).execute()
+        return True
+    
     def serialize(self):
         d = {
                 "id": str(self.mongo_id),

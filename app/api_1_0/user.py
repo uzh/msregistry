@@ -34,7 +34,7 @@ from app.auth.decorators import requires_auth, requires_roles
 from app.errors import UserNotFound, MethodNotAllowed
 
 from jsonschema import validate, ValidationError
-from app.inputs import user_consent_patient, user_consent_relative
+from app import inputs
 
 
 @api.route('/user')
@@ -83,7 +83,7 @@ def set_user_consent():
     
     if Role.relative in _request_ctx_stack.top.roles:
         try:
-            validate(consent, user_consent_relative)
+            validate(consent, inputs.user_consent_relative)
         except ValidationError as error:
             raise MethodNotAllowed(error.message)
         
@@ -98,7 +98,7 @@ def set_user_consent():
             raise MethodNotAllowed(error.message)
     if Role.patient in _request_ctx_stack.top.roles:
         try:
-            validate(consent, user_consent_patient)
+            validate(consent, inputs.user_consent_patient)
         except ValidationError as error:
             raise MethodNotAllowed(error.message)
         
