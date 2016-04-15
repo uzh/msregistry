@@ -70,9 +70,19 @@ def get_survey_by_id(_id):
 @requires_roles(roles=[Role.patient, Role.relative])
 @requires_consent
 def add_survey():
-    survey = Survey()    
+    survey = Survey()
+    consent = request.get_json(silent=True, force=True)
+    
     try:
-        return jsonify(success=bool(survey.addByUniqueID(_request_ctx_stack.top.uniqueID, request.get_json(silent=True, force=True))))
+        validate(consent, inputs.survey)
+    except ValidationError as error:
+        raise MethodNotAllowed(error.message)
+    
+    try:
+        return jsonify(success=bool(survey.addByUniqueID(_request_ctx_stack.top.uniqueID, 
+                                                         consent['survey'],
+                                                         consent['tags'],
+                                                         consent['ongoing'])))
     except ValueError as error:
         raise MethodNotAllowed(error.message)
     except db.BadValueException as error:
