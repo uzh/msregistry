@@ -31,8 +31,8 @@ from app import utils
 
 class User(db.Document):
     uniqueID = db.StringField(required=True)
-    member_since = db.DateTimeField(default=datetime.utcnow(), required=True)
-    last_seen = db.DateTimeField(default=datetime.utcnow(), required=True)
+    member_since = db.DateTimeField(required=True)
+    last_seen = db.DateTimeField(required=True)
     birthdate = db.DateTimeField(default=None)
     sex = db.EnumField(db.StringField(), 'male', 'female', default=None)
     physician_contact_permitted = db.BoolField(default=False, required=True)
@@ -44,6 +44,8 @@ class User(db.Document):
     def createIfNotExistsByUniqueID(self, uniqueID):
         if self.getByUniqueID(uniqueID) is None:
             self.uniqueID = uniqueID
+            self.member_since = datetime.utcnow()
+            self.last_seen = datetime.utcnow()
             self.save()
         
         return True

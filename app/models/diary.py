@@ -31,7 +31,7 @@ from app import utils
 
 class Diary(db.Document):
     user = db.ObjectIdField(User)
-    timestamp = db.DateTimeField(default=datetime.utcnow())
+    timestamp = db.DateTimeField(required=True)
     diary = db.DictField(db.AnythingField(), required=True)
     
     def getAllByUniqueID(self, uniqueID, from_datetime=None, until_datetime=None):
@@ -52,12 +52,14 @@ class Diary(db.Document):
     
     def addByUniqueID(self, uniqueID, diary):
         self.user = User().query.filter(User.uniqueID == uniqueID).first().mongo_id
+        self.timestamp = datetime.utcnow()
         self.diary = diary
         self.save()
         return True
     
     def updateByUniqueIDAndID(self, uniqueID, _id, diary):
-        Diary.query.filter(Diary.user == User().query.filter(User.uniqueID == uniqueID).first().mongo_id, Diary.mongo_id == _id).set(diary=diary).execute()
+        Diary.query.filter(Diary.user == User().query.filter(User.uniqueID == uniqueID).first().mongo_id,
+                           Diary.mongo_id == _id).set(diary=diary, timestamp=datetime.utcnow()).execute()
         return True
     
     def serialize(self):

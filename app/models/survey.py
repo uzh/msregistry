@@ -32,7 +32,7 @@ from app import utils
 
 class Survey(db.Document):
     user = db.ObjectIdField(User)
-    timestamp = db.DateTimeField(default=datetime.utcnow())
+    timestamp = db.DateTimeField(required=True)
     survey = db.DictField(db.AnythingField(), required=True)
     tags = db.ListField(db.StringField(), required=True, default=[])
     ongoing = db.BoolField(default=True, required=True)
@@ -62,6 +62,7 @@ class Survey(db.Document):
     
     def addByUniqueID(self, uniqueID, survey, tags=[], ongoing=True):
         self.user = User().query.filter(User.uniqueID == uniqueID).first().mongo_id
+        self.timestamp = datetime.utcnow()
         self.survey = survey
         self.tags = tags
         self.ongoing = ongoing
