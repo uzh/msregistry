@@ -60,9 +60,11 @@ class Survey(db.Document):
     def getByUniqueIDAndID(self, uniqueID, _id):
         return Survey.query.filter(Survey.user == User().query.filter(User.uniqueID == uniqueID).first().mongo_id, Survey.mongo_id == _id).first()
     
-    def addByUniqueID(self, uniqueID, survey):
+    def addByUniqueID(self, uniqueID, survey, tags=[], ongoing=True):
         self.user = User().query.filter(User.uniqueID == uniqueID).first().mongo_id
         self.survey = survey
+        self.tags = tags
+        self.ongoing = ongoing
         self.save()
         return True
     

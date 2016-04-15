@@ -32,18 +32,18 @@ from app import db
 from app.auth.decorators import requires_auth, requires_roles, requires_consent
 
 from app.errors import SurveyNotFound, MethodNotAllowed
-
+from app import utils
 
 @api.route('/user/survey', methods=['GET'])
 @requires_auth
 def get_survey():
     survey = Survey()
     try:
-        return jsonify(surveys=[ob.serialize() for ob in survey.getAllByUniqueID(uniqueID=_request_ctx_stack.top.uniqueID,
-                                                                                 from_datetime=request.args.get('from', None),
-                                                                                 until_datetime=request.args.get('until', None),
-                                                                                 tags=request.args.get('tags', None),
-                                                                                 ongoing=request.args.get('ongoing', None) == 'true'
+        return jsonify(surveys=[ob.serialize() for ob in survey.getAllByUniqueID(_request_ctx_stack.top.uniqueID,
+                                                                                 request.args.get('from', None),
+                                                                                 request.args.get('until', None),
+                                                                                 request.args.get('tags', None),
+                                                                                 utils.json.Json._getJSONBool(request.args.get('ongoing', None)),
                                                                                  )])
     except ValueError as error:
         raise MethodNotAllowed(error.message)
@@ -67,11 +67,12 @@ def get_survey_by_id(_id):
 @requires_roles(roles=[Role.patient, Role.relative])
 @requires_consent
 def add_survey():
-    survey = Survey()
+    survey = Survey()    
     try:
         return jsonify(success=bool(survey.addByUniqueID(_request_ctx_stack.top.uniqueID, request.get_json(silent=True, force=True))))
     except ValueError as error:
         raise MethodNotAllowed(error.message)
     except db.BadValueException as error:
         raise MethodNotAllowed(error.message)
+
 
