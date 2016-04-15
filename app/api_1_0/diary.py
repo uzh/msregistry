@@ -68,8 +68,15 @@ def get_user_diary_by_id(_id):
 @requires_consent
 def add_diary():
     diary = Diary()
+    consent = request.get_json(silent=True, force=True)
+    
     try:
-        return jsonify(success=bool(diary.addByUniqueID(_request_ctx_stack.top.uniqueID, request.get_json(silent=True, force=True))))
+        validate(consent, inputs.diary)
+    except ValidationError as error:
+        raise MethodNotAllowed(error.message)
+        
+    try:
+        return jsonify(success=bool(diary.addByUniqueID(_request_ctx_stack.top.uniqueID, consent['diary'])))
     except ValueError as error:
         raise MethodNotAllowed(error.message)
     except db.BadValueException as error:
