@@ -22,4 +22,5 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 
 
 from time import Time
+from json import Json
 

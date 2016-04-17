@@ -33,6 +33,8 @@ from app.auth.decorators import requires_auth, requires_roles, requires_consent
 
 from app.errors import DiaryNotFound, MethodNotAllowed
 
+from jsonschema import validate, ValidationError
+from app import inputs
 
 @api.route('/user/diary', methods=['GET'])
 @requires_auth
@@ -66,8 +68,15 @@ def get_user_diary_by_id(_id):
 @requires_consent
 def add_diary():
     diary = Diary()
+    consent = request.get_json(silent=True, force=True)
+    
     try:
-        return jsonify(success=bool(diary.addByUniqueID(_request_ctx_stack.top.uniqueID, request.get_json(silent=True, force=True))))
+        validate(consent, inputs.diary)
+    except ValidationError as error:
+        raise MethodNotAllowed(error.message)
+        
+    try:
+        return jsonify(success=bool(diary.addByUniqueID(_request_ctx_stack.top.uniqueID, consent['diary'])))
     except ValueError as error:
         raise MethodNotAllowed(error.message)
     except db.BadValueException as error:
@@ -77,15 +86,23 @@ def add_diary():
 @api.route('/user/diary/<string:_id>', methods=['POST'])
 @requires_auth
 @requires_roles(roles=[Role.patient, Role.relative])
-def post_user_diary_by_id(_id):
+@requires_consent
+def update_user_diary_by_id(_id):
     diary = Diary()
+    consent = request.get_json(silent=True, force=True)
+    
     try:
         diary.getByUniqueIDAndID(_request_ctx_stack.top.uniqueID, _id).serialize()
     except:
         raise DiaryNotFound(_id)
     
     try:
-        return jsonify(success=bool(diary.updateByUniqueIDAndID(_request_ctx_stack.top.uniqueID, _id, request.get_json(silent=True, force=True))))
+        validate(consent, inputs.diary)
+    except ValidationError as error:
+        raise MethodNotAllowed(error.message)
+    
+    try:
+        return jsonify(success=bool(diary.updateByUniqueIDAndID(_request_ctx_stack.top.uniqueID, _id, consent['diary'])))
     except ValueError as error:
         raise MethodNotAllowed(error.message)
     except db.BadValueException as error:

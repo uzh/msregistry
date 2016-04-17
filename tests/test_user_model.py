@@ -28,6 +28,7 @@ from datetime import datetime
 from app import create_app
 from app.models import User
 
+from time import sleep
 
 class UserModelTestCase(unittest.TestCase):
     uniqueID = 'd4c74594d841139328695756648b6bd6'
@@ -80,9 +81,11 @@ class UserModelTestCase(unittest.TestCase):
     def test_timestamps(self):
         u = User()
         u.createIfNotExistsByUniqueID(self.uniqueID)
+        u1 = u.getByUniqueID(self.uniqueID)
+        sleep(2)
         self.assertTrue(
-            (datetime.utcnow() - u.member_since).total_seconds() < 3)
+            (datetime.utcnow() - u1.member_since).total_seconds() > 2)
         self.assertTrue(
-            (datetime.utcnow() - u.last_seen).total_seconds() < 3)
+            (datetime.utcnow() - u1.last_seen).total_seconds() > 2)
     
 

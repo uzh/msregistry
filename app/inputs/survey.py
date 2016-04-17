@@ -21,8 +21,24 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 " University of Zurich")
 
 
-from user_consent_patient import user_consent_patient
-from user_consent_relative import user_consent_relative
-from diary import diary
-from survey import survey
+survey = {
+    "type":"object",
+    "$schema": "http://json-schema.org/draft-03/schema",
+    "required": False,
+    "properties":{
+        "survey": {
+            "type":"object",
+            "required": True
+        },
+        "tags": {
+            "type":"array",
+            "items": {"type": "string"},
+            "required": False
+        },
+        "ongoing": {
+            "type":"boolean",
+            "required": False
+        }
+    }
+}
 

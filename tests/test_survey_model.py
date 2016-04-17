@@ -41,5 +41,5 @@ class SurveyModelTestCase(unittest.TestCase):
         u = User()
         self.assertTrue(u.createIfNotExistsByUniqueID(self.uniqueID))
         s = Survey()
-        self.assertTrue(s.addByUniqueID(self.uniqueID, {'value': 'any'}))
+        self.assertTrue(s.addByUniqueID(self.uniqueID, {'survey': {'value': 'any'}, 'tags': ['tag'], 'ongoing': True}))
 

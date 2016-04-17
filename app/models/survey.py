@@ -32,7 +32,7 @@ from app import utils
 
 class Survey(db.Document):
     user = db.ObjectIdField(User)
-    timestamp = db.DateTimeField(default=datetime.utcnow())
+    timestamp = db.DateTimeField(required=True)
     survey = db.DictField(db.AnythingField(), required=True)
     tags = db.ListField(db.StringField(), required=True, default=[])
     ongoing = db.BoolField(default=True, required=True)
@@ -49,21 +49,29 @@ class Survey(db.Document):
         if until_datetime is not None:
             query.filter(Survey.timestamp <= utils.Time.Iso8601ToDatetime(until_datetime))
         
-#         if tags is not None:
-#             query.filter(Survey.tags in tags)
-#         
-#         if ongoing is not None:
-#             query.filter(Survey.ongoing == bool(ongoing))
+        if tags is not None:
+            query.filter(Survey.tags.in_(tags.split(',')))
+
+        if ongoing is not None:
+            query.filter(Survey.ongoing == ongoing)
         
         return query.all()
     
     def getByUniqueIDAndID(self, uniqueID, _id):
         return Survey.query.filter(Survey.user == User().query.filter(User.uniqueID == uniqueID).first().mongo_id, Survey.mongo_id == _id).first()
     
-    def addByUniqueID(self, uniqueID, survey):
+    def addByUniqueID(self, uniqueID, survey, tags=[], ongoing=True):
         self.user = User().query.filter(User.uniqueID == uniqueID).first().mongo_id
+        self.timestamp = datetime.utcnow()
         self.survey = survey
+        self.tags = tags
+        self.ongoing = ongoing
         self.save()
+        return True
+    
+    def updateByUniqueIDAndID(self, uniqueID, _id, survey, tags, ongoing):
+        Survey.query.filter(Survey.user == User().query.filter(User.uniqueID == uniqueID).first().mongo_id, 
+                            Survey.mongo_id == _id).set(survey=survey, tags=tags, ongoing=ongoing, timestamp=datetime.utcnow()).execute()
         return True
     
     def serialize(self):
