@@ -6,9 +6,9 @@ Document Version
 ----------------
 
 :Date:
-    2016-04-12
+    2016-04-18
 :Version:
-    v0.3.3
+    v0.3.4
 :Authors:
     Filippo Panessa <filippo.panessa@gmail.com>
 :Copyright:
@@ -23,7 +23,7 @@ will accept, what the JSON object’s parameters will be in the response, and an
 example query/response.
 
 This documentation is for most recent version of the MS Registry REST API, 
-version **v0.3.3**.
+version **v0.3.4**.
 
 GET /auth/test
 --------------
@@ -548,8 +548,8 @@ Response Parameters
 | **id**              | `(string)`      | Return Diary ID                      |
 |                     |                 |                                      |
 +---------------------+-----------------+--------------------------------------+
-| **diary**           | `(json file)`   | Return User's Diary. Returned value  |
-|                     |                 | is a RAW JSON file                   |
+| **diary**           | `(json object)` | Return User's Diary. Returned value  |
+|                     |                 | is a JSON object                     |
 |                     |                 |                                      |
 +---------------------+-----------------+--------------------------------------+
 | **timestamp**       | `(iso 8601`     | Datetime the diary was inserted or   |
@@ -652,8 +652,8 @@ Response Parameters
 | **id**              | `(string)`      | Return Diary ID                      |
 |                     |                 |                                      |
 +---------------------+-----------------+--------------------------------------+
-| **diary**           | `(json file)`   | Return user's Diary. Returned value  |
-|                     |                 | is a RAW JSON file                   |
+| **diary**           | `(json object)` | Return user's Diary. Returned value  |
+|                     |                 | is a JSON object                     |
 |                     |                 |                                      |
 +---------------------+-----------------+--------------------------------------+
 | **timestamp**       | `(iso 8601`     | Datetime the diary was inserted or   |
@@ -743,7 +743,7 @@ Request Parameters
 +---------------------+-----------------+--------------------------------------+
 | **Parameter**       | **Type**        | **Description**                      |
 +=====================+=================+======================================+
-| **diary**           | `(json file)`   | RAW JSON file                        |
+| **diary**           | `(json object)` | Any JSON object                      |
 |                     |                 |                                      |
 +---------------------+-----------------+--------------------------------------+
 
@@ -753,9 +753,7 @@ Response Parameters
 +---------------------+-----------------+--------------------------------------+
 | **Parameter**       | **Type**        | **Description**                      |
 +=====================+=================+======================================+
-| **success**         | `(bool)`        | Return True if diary was accepted,   |
-|                     |                 | False if JSON File is not well       |
-|                     |                 | formatted                            |
+| **success**         | `(bool)`        | Return True if diary is accepted     |
 |                     |                 |                                      |
 +---------------------+-----------------+--------------------------------------+
 
@@ -807,7 +805,7 @@ Example
 
     curl \
      -H 'authorization: Bearer YOUR_API_TOKEN' \
-     -X POST -d "{'value': 'any'}" \
+     -X POST -d '{"diary": {"any": "value"}}' \
      'https://ws.msregistry.s3it.uzh.ch/api/v1.0/user/diary'
 
 Response
@@ -843,7 +841,7 @@ Request Parameters
 | **id**              | `(string)`      | Diary ID                             |
 |                     |                 |                                      |
 +---------------------+-----------------+--------------------------------------+
-| **diary**           | `(json file)`   | RAW JSON file                        |
+| **diary**           | `(json object)` | Any JSON object                      |
 |                     |                 |                                      |
 +---------------------+-----------------+--------------------------------------+
 
@@ -853,9 +851,7 @@ Response Parameters
 +---------------------+-----------------+--------------------------------------+
 | **Parameter**       | **Type**        | **Description**                      |
 +=====================+=================+======================================+
-| **success**         | `(bool)`        | Return True if diary was accepted,   |
-|                     |                 | False if JSON File is not well       |
-|                     |                 | formatted                            |
+| **success**         | `(bool)`        | Return True if diary is accepted     |
 |                     |                 |                                      |
 +---------------------+-----------------+--------------------------------------+
 
@@ -904,7 +900,7 @@ Example
 
     curl \
      -H 'authorization: Bearer YOUR_API_TOKEN' \
-     -X POST -d "{'value': 'any'}" \
+     -X POST -d '{"diary": {"any": "value"}}' \
      'https://ws.msregistry.s3it.uzh.ch/api/v1.0/user/diary/56f2c662ec71bc2c6b001040'
 
 Response
@@ -931,6 +927,40 @@ Resource Information
       Requires authentication?    YES
       Requires Role?              Patient, Relative
 
+Request Parameters
+``````````````````
+
++---------------------------------+-----------------+--------------------------------------+
+| **Parameter**                   | **Type**        | **Description**                      |
++=================================+=================+======================================+
+| **from**                        | `(iso 8601`     | If used, query returns Survey entries|
+|                                 | `datetime)`     | starting from this datetime. It      |
+|                                 |                 | could be used in combination with    |
+|                                 |                 | *until*, *tags* and *ongoing*        |
+|                                 |                 | parameters                           |
+|                                 |                 |                                      |
++---------------------------------+-----------------+--------------------------------------+
+| **until**                       | `(iso 8601`     | If used, query returns Survey entries|
+|                                 | `datetime)`     | starting from this datetime. It      |
+|                                 |                 | could be used in combination with    |
+|                                 |                 | *from*, *tags* and *ongoing*         |
+|                                 |                 | parameters                           |
+|                                 |                 |                                      |
++---------------------------------+-----------------+--------------------------------------+
+| **tags**                        | `(array)`       | If used, query returns all entries   |
+|                                 |                 | with declared TAGs. It could be used |
+|                                 |                 | in combination with *from*, *until*  |
+|                                 |                 | and *ongoing* parameters             |
+|                                 |                 |                                      |
++---------------------------------+-----------------+--------------------------------------+
+| **ongoing**                     | `(bool)`        | If used, query returns all entries   |
+|                                 |                 | with ongoing value requested. It     |
+|                                 |                 | could be used in combination with    |
+|                                 |                 | *from*, *until* and *tags*           |
+|                                 |                 | parameters                           |
+|                                 |                 |                                      |
++---------------------------------+-----------------+--------------------------------------+
+
 Response Parameters
 ```````````````````
 
@@ -944,12 +974,20 @@ Response Parameters
 | **id**              | `(string)`      | Return Survey ID                     |
 |                     |                 |                                      |
 +---------------------+-----------------+--------------------------------------+
-| **survey**          | `(json file)`   | Return User's Survey. Returned value |
-|                     |                 | is a RAW JSON file                   |
+| **survey**          | `(json object)` | Return User's Survey. Returned value |
+|                     |                 | is a JSON object                     |
 |                     |                 |                                      |
 +---------------------+-----------------+--------------------------------------+
 | **timestamp**       | `(iso 8601`     | Datetime the survey was inserted     |
 |                     | `datetime)`     |                                      |
+|                     |                 |                                      |
++---------------------+-----------------+--------------------------------------+
+| **tags**            | `(array)`       | Return list of all TAGs assigned to  |
+|                     |                 | a Survey entry                       |
+|                     |                 |                                      |
++---------------------+-----------------+--------------------------------------+
+| **ongoing**         | `(bool)`        | Ongoing value is a boolean flag that |
+|                     |                 | refer to completed Surveys           |
 |                     |                 |                                      |
 +---------------------+-----------------+--------------------------------------+
 
@@ -995,7 +1033,7 @@ Example
 
     curl \
      -H 'authorization: Bearer YOUR_API_TOKEN' \
-     'https://ws.msregistry.s3it.uzh.ch/api/v1.0/user/survey'
+     'https://ws.msregistry.s3it.uzh.ch/api/v1.0/user/survey?from=2016-03-01T00:00:00.000000&until=2016-03-14T00:00:00.000000'
 
 Response
 ::::::::
@@ -1009,14 +1047,18 @@ Response
                 "survey": {
                     "value": "any"
                 },
-                "timestamp": "2016-03-23T16:37:54.765000"
+                "tags": ["layer2", "other_tag"],
+                "ongoing": true,
+                "timestamp": "2016-03-03T16:37:54.765000"
             },
             {
                 "id": "56f2c7cdec71bc2c6b001041",
                 "survey": {
                     "value": "any"
                 },
-                "timestamp": "2016-03-23T16:43:57.800000"
+                "tags": ["layer3"],
+                "ongoing": false,
+                "timestamp": "2016-03-12T17:01:57.800000"
             }
         ]
     }
@@ -1039,12 +1081,12 @@ Resource Information
 Request Parameters
 ``````````````````
 
-+---------------------+-----------------+--------------------------------------+
-| **Parameter**       | **Type**        | **Description**                      |
-+=====================+=================+======================================+
-| **id**              | `(string)`      | Survey ID                            |
-|                     |                 |                                      |
-+---------------------+-----------------+--------------------------------------+
++---------------------------------+-----------------+--------------------------------------+
+| **Parameter**                   | **Type**        | **Description**                      |
++=================================+=================+======================================+
+| **id**                          | `(string)`      | Survey ID                            |
+|                                 |                 |                                      |
++---------------------------------+-----------------+--------------------------------------+
 
 Response Parameters
 ```````````````````
@@ -1055,12 +1097,20 @@ Response Parameters
 | **id**              | `(string)`      | Return Survey ID                     |
 |                     |                 |                                      |
 +---------------------+-----------------+--------------------------------------+
-| **survey**          | `(json file)`   | Return user's Survey. Returned value |
-|                     |                 | is a RAW JSON file                   |
+| **survey**          | `(json object)` | Return user's Survey. Returned value |
+|                     |                 | is a JSON object                     |
 |                     |                 |                                      |
 +---------------------+-----------------+--------------------------------------+
 | **timestamp**       | `(iso 8601`     | Datetime the survey was inserted or  |
 |                     | `datetime)`     | updated                              |
+|                     |                 |                                      |
++---------------------+-----------------+--------------------------------------+
+| **tags**            | `(array)`       | Return list of all TAGs assigned to  |
+|                     |                 | a Survey entry                       |
+|                     |                 |                                      |
++---------------------+-----------------+--------------------------------------+
+| **ongoing**         | `(bool)`        | Ongoing value is a boolean flag that |
+|                     |                 | refer to completed Surveys           |
 |                     |                 |                                      |
 +---------------------+-----------------+--------------------------------------+
 
@@ -1121,6 +1171,8 @@ Response
         "survey": {
             "value": "any"
         },
+        "tags": ["layer2", "other_tag"],
+        "ongoing": false,
         "timestamp": "2016-03-23T16:37:54.765000"
     }
 
@@ -1146,7 +1198,16 @@ Request Parameters
 +---------------------+-----------------+--------------------------------------+
 | **Parameter**       | **Type**        | **Description**                      |
 +=====================+=================+======================================+
-| **survey**          | `(json file)`   | RAW JSON file                        |
+| **survey**          | `(json object)` | Any JSON object                      |
+|                     |                 |                                      |
++---------------------+-----------------+--------------------------------------+
+| **tags**            | `(array)`       | List of all TAGs assigned to this    |
+|                     |                 | Survey entry. It cannot be null      |
+|                     |                 |                                      |
++---------------------+-----------------+--------------------------------------+
+| **ongoing**         | `(bool)`        | Ongoing value is a boolean flag that |
+|                     |                 | refer to completed Surveys. It       |
+|                     |                 | cannot be null                       |
 |                     |                 |                                      |
 +---------------------+-----------------+--------------------------------------+
 
@@ -1156,9 +1217,7 @@ Response Parameters
 +---------------------+-----------------+--------------------------------------+
 | **Parameter**       | **Type**        | **Description**                      |
 +=====================+=================+======================================+
-| **success**         | `(bool)`        | Return True if survey was accepted,  |
-|                     |                 | False if JSON File is not well       |
-|                     |                 | formatted                            |
+| **success**         | `(bool)`        | Return True if Survey is accepted    |
 |                     |                 |                                      |
 +---------------------+-----------------+--------------------------------------+
 
@@ -1210,7 +1269,7 @@ Example
 
     curl \
      -H 'authorization: Bearer YOUR_API_TOKEN' \
-     -X POST -d "{'value': 'any'}" \
+     -X POST -d '{"survey": {"value": "any"}, "tags": ["layer2"], "ongoing": true}' \
      'https://ws.msregistry.s3it.uzh.ch/api/v1.0/user/survey'
 
 Response
@@ -1222,3 +1281,107 @@ Response
       "success": true
     }
 
+POST /user/survey/<id>
+----------------------
+
+Update User's Survey by Survey ID.
+
+Resource Information
+````````````````````
+
+   ::
+
+      Method                      POST
+      URL                         /api/v1.0/user/survey/<id>
+      Requires authentication?    YES
+      Requires Role?              Patient, Relative
+
+Request Parameters
+``````````````````
+
++---------------------+-----------------+--------------------------------------+
+| **Parameter**       | **Type**        | **Description**                      |
++=====================+=================+======================================+
+| **id**              | `(string)`      | Survey ID                            |
+|                     |                 |                                      |
++---------------------+-----------------+--------------------------------------+
+| **survey**          | `(json object)` | Any JSON object                      |
+|                     |                 |                                      |
++---------------------+-----------------+--------------------------------------+
+| **tags**            | `(array)`       | List of all TAGs assigned to this    |
+|                     |                 | Survey entry. If null, TAGs are not  |
+|                     |                 | updated                              |
+|                     |                 |                                      |
++---------------------+-----------------+--------------------------------------+
+| **ongoing**         | `(bool)`        | Ongoing value is a boolean flag that |
+|                     |                 | refer to completed Surveys. It       |
+|                     |                 | cannot be null                       |
+|                     |                 |                                      |
++---------------------+-----------------+--------------------------------------+
+
+Response Parameters
+```````````````````
+
++---------------------+-----------------+--------------------------------------+
+| **Parameter**       | **Type**        | **Description**                      |
++=====================+=================+======================================+
+| **success**         | `(bool)`        | Return True if Survey is accepted    |
+|                     |                 |                                      |
++---------------------+-----------------+--------------------------------------+
+
+Resource Errors
+```````````````
+
+These are the possible errors returned by this endpoint.
+
++---------------+----------------------+---------------------------------------+
+| **status**    | **code**             | **message**                           |
++===============+======================+=======================================+
+| 403           |authorization_required| Authorization header is expected      |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |invalid_header        | Authorization header must start with  |
+|               |                      | Bearer                                |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |invalid_header        | Token not found                       |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |invalid_header        | Authorization header must be Bearer + |
+|               |                      | token                                 |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 400           |token_expired         | Token is expired                      |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 400           |invalid_audience      | Incorrect audience                    |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 400           |invalid_signature     | Token signature is invalid            |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 401           |unauthorized          | Insufficient Roles                    |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+| 404           |not_found             | Couldn't found a Survey with id={}    |
+|               |                      |                                       |
++---------------+----------------------+---------------------------------------+
+
+Example
+```````
+
+.. code:: bash
+
+    curl \
+     -H 'authorization: Bearer YOUR_API_TOKEN' \
+     -X POST -d '{"survey": {"value": "any"}, "tags": ["layer2", "othertag"], "ongoing": true}' \
+     'https://ws.msregistry.s3it.uzh.ch/api/v1.0/user/survey/56f2c662ec71bc2c6b001040'
+
+Response
+::::::::
+
+.. code:: json
+
+    {
+      "success": true
+    }
