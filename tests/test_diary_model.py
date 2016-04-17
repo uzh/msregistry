@@ -41,5 +41,5 @@ class DiaryModelTestCase(unittest.TestCase):
         u = User()
         self.assertTrue(u.createIfNotExistsByUniqueID(self.uniqueID))
         d = Diary()
-        self.assertTrue(d.addByUniqueID(self.uniqueID, {'value': 'any'}))
+        self.assertTrue(d.addByUniqueID(self.uniqueID, {'diary': {'value': 'any'}}))
 
