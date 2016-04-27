@@ -5,7 +5,6 @@ COMMON: &common
   SSL_DISABLE: False
   OAUTH_CERTIFICATE: '/full/path/pubkey.pem'
   OAUTH_ALGORITHM: 'RS256'
-  DEFAULT_LANG: 'de'
 
 DEVELOPMENT: &development
   <<: *common
