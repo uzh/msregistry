@@ -4,7 +4,6 @@ COMMON: &common
   SECRET_KEY: 't0p s3cr3t'
   SSL_DISABLE: False
   OAUTH_CERTIFICATE: '/full/path/pubkey.pem'
-  OAUTH_ALGORITHM: 'RS256'
 
 DEVELOPMENT: &development
   <<: *common
