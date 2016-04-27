@@ -22,7 +22,6 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 
 
 import jwt
-import base64
 
 from functools import wraps
 from flask import request, _request_ctx_stack
@@ -33,9 +32,9 @@ from app.models.role import Role
 from app.models.user import User
 
 from app.errors import AuthorizationHeaderIsExpected, AuthorizationHeaderMustStartWithBearer, ConsentInformationNotAccepted
-from app.errors import IncorrectAudience, InsufficientRoles, TokenIsExpired, TokenIsInvalid, TokenNotFound
+from app.errors import IncorrectAudience, InsufficientRoles, InvalidAlgorithm, OAuthReturnsIncorrectPayload
+from app.errors import TokenIsExpired, TokenIsInvalid, TokenNotFound
 
-from app.auth.api import get_tokeninfo
 
 
 def requires_auth(f):
@@ -56,13 +55,11 @@ def requires_auth(f):
         elif len(parts) > 2:
             raise AuthorizationHeaderMustStartWithBearer()
         token = parts[1]
-        _request_ctx_stack.top.token = token
-         
+        
         try:
             payload = jwt.decode(
-                                 token,
-                                 base64.b64decode(app.config['OAUTH_CLIENT_SECRET'].replace("_","/").replace("-","+")),
-                                 audience=app.config['OAUTH_CLIENT_ID']
+                                 token, 
+                                 open(app.config['OAUTH_CERTIFICATE'], 'r').read()
                                  )
         except jwt.ExpiredSignature:
             raise TokenIsExpired()
@@ -70,8 +67,23 @@ def requires_auth(f):
             raise IncorrectAudience()
         except jwt.DecodeError:
             raise TokenIsInvalid()
+        except jwt.exceptions.InvalidAlgorithmError:
+            raise InvalidAlgorithm()
         
-        _request_ctx_stack.top.uniqueID = payload['sub']
+        try:
+            _request_ctx_stack.top.uniqueID = payload['sub']
+        except KeyError:
+            raise OAuthReturnsIncorrectPayload()
+        
+        try:
+            _request_ctx_stack.top.roles = payload['context']['role']
+        except KeyError:
+            raise OAuthReturnsIncorrectPayload()
+        
+        try:
+            _request_ctx_stack.top.lang = payload['context']['lang']
+        except KeyError:
+            raise OAuthReturnsIncorrectPayload()
         
         user = User()
         user.createIfNotExistsByUniqueID(_request_ctx_stack.top.uniqueID)
@@ -86,9 +98,6 @@ def requires_roles(roles=None):
     def decorated(method):
         @wraps(method)
         def f(*args, **kwargs):
-
-            _request_ctx_stack.top.roles, _request_ctx_stack.top.lang = get_tokeninfo(_request_ctx_stack.top.token)
-            
             if Role.authorizedRoles(roles, _request_ctx_stack.top.roles) is False:
                 raise InsufficientRoles()
             

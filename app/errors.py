@@ -45,6 +45,13 @@ class IncorrectAudience(HTTPException):
         self.message = 'Incorrect audience'
         self.error = 'invalid_audience'
 
+class InvalidAlgorithm(HTTPException):
+    code = 400
+    
+    def __init__(self):
+        self.message = 'Invalid Algorithm'
+        self.error = 'invalid_algorithm'
+   
 class InsufficientRoles(HTTPException):
     code = 401
     
@@ -115,5 +122,12 @@ class MethodNotAllowed(HTTPException):
         super(MethodNotAllowed, self).__init__()
         self.message = message
         self.error = 'method_not_allowed'
+
+class OAuthReturnsIncorrectPayload(HTTPException):
+    code = 500
+    
+    def __init__(self,):
+        self.message = 'OAuth Server returns incorrect payload'
+        self.error = 'oauth_server_error'
 
 
