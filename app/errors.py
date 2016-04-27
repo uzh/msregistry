@@ -45,6 +45,13 @@ class IncorrectAudience(HTTPException):
         self.message = 'Incorrect audience'
         self.error = 'invalid_audience'
 
+class InvalidAlgorithm(HTTPException):
+    code = 400
+    
+    def __init__(self):
+        self.message = 'Invalid Algorithm'
+        self.error = 'invalid_algorithm'
+   
 class InsufficientRoles(HTTPException):
     code = 401
     

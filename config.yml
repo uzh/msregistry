@@ -3,8 +3,7 @@ COMMON: &common
   TESTING: False
   SECRET_KEY: 't0p s3cr3t'
   SSL_DISABLE: False
-  OAUTH_CLIENT_ID: 'CLIENT_ID'
-  OAUTH_CLIENT_SECRET: 'CLIENT_SECRET'
+  OAUTH_CERTIFICATE: '/full/path/pubkey.pem'
   DEFAULT_LANG: 'de'
   URL_TOKENINFO: 'https://example.com/tokeninfo'
 

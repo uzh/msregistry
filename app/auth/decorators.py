@@ -22,7 +22,6 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 
 
 import jwt
-import base64
 
 from functools import wraps
 from flask import request, _request_ctx_stack
@@ -33,7 +32,7 @@ from app.models.role import Role
 from app.models.user import User
 
 from app.errors import AuthorizationHeaderIsExpected, AuthorizationHeaderMustStartWithBearer, ConsentInformationNotAccepted
-from app.errors import IncorrectAudience, InsufficientRoles, TokenIsExpired, TokenIsInvalid, TokenNotFound
+from app.errors import IncorrectAudience, InsufficientRoles, InvalidAlgorithm, TokenIsExpired, TokenIsInvalid, TokenNotFound
 
 from app.auth.api import get_tokeninfo
 
@@ -56,13 +55,12 @@ def requires_auth(f):
         elif len(parts) > 2:
             raise AuthorizationHeaderMustStartWithBearer()
         token = parts[1]
-        _request_ctx_stack.top.token = token
-         
+        
         try:
             payload = jwt.decode(
                                  token,
-                                 base64.b64decode(app.config['OAUTH_CLIENT_SECRET'].replace("_","/").replace("-","+")),
-                                 audience=app.config['OAUTH_CLIENT_ID']
+                                 open(app.config['OAUTH_CERTIFICATE'], 'r').read(),
+                                 algorithm='RS256'
                                  )
         except jwt.ExpiredSignature:
             raise TokenIsExpired()
@@ -70,6 +68,8 @@ def requires_auth(f):
             raise IncorrectAudience()
         except jwt.DecodeError:
             raise TokenIsInvalid()
+        except jwt.exceptions.InvalidAlgorithmError:
+            raise InvalidAlgorithm()
         
         _request_ctx_stack.top.uniqueID = payload['sub']
         
