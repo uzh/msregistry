@@ -6,7 +6,6 @@ COMMON: &common
   OAUTH_CERTIFICATE: '/full/path/pubkey.pem'
   OAUTH_ALGORITHM: 'RS256'
   DEFAULT_LANG: 'de'
-  URL_TOKENINFO: 'https://example.com/tokeninfo'
 
 DEVELOPMENT: &development
   <<: *common

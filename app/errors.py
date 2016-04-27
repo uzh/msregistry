@@ -123,4 +123,11 @@ class MethodNotAllowed(HTTPException):
         self.message = message
         self.error = 'method_not_allowed'
 
+class OAuthReturnsIncorrectPayload(HTTPException):
+    code = 500
+    
+    def __init__(self,):
+        self.message = 'OAuth Server returns incorrect payload'
+        self.error = 'oauth_server_error'
+
 
