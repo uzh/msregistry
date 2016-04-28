@@ -44,6 +44,8 @@ def create_app(config_name):
     db.init_app(app)
     JSONExceptionHandler(app)
     
+    app.config['OAUTH_CERTIFICATE'] = open(app.config['OAUTH_CERTIFICATE'], 'r').read()
+    
     if not app.debug and not app.testing and not app.config['SSL_DISABLE']:
         from flask.ext.sslify import SSLify
         sslify = SSLify(app)

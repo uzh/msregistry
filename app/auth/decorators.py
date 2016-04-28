@@ -59,7 +59,7 @@ def requires_auth(f):
         try:
             payload = jwt.decode(
                                  token, 
-                                 open(app.config['OAUTH_CERTIFICATE'], 'r').read()
+                                 app.config['OAUTH_CERTIFICATE']
                                  )
         except jwt.ExpiredSignature:
             raise TokenIsExpired()
