@@ -36,7 +36,6 @@ from app.errors import IncorrectAudience, InsufficientRoles, InvalidAlgorithm, O
 from app.errors import TokenIsExpired, TokenIsInvalid, TokenNotFound
 
 
-
 def requires_auth(f):
     @cross_origin(headers=['Content-Type', 'Authorization'])
     @wraps(f)
@@ -59,7 +58,7 @@ def requires_auth(f):
         try:
             payload = jwt.decode(
                                  token, 
-                                 open(app.config['OAUTH_CERTIFICATE'], 'r').read()
+                                 app.config['OAUTH_CERTIFICATE']
                                  )
         except jwt.ExpiredSignature:
             raise TokenIsExpired()
