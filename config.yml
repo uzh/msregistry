@@ -21,4 +21,4 @@ TESTING: &testing
   MONGOALCHEMY_DATABASE: 'msdevelopment'
 
 DEFAULT: &default
-  <<: *production
+  <<: *development
