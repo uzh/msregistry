@@ -3,7 +3,9 @@ COMMON: &common
   TESTING: False
   SECRET_KEY: 't0p s3cr3t'
   SSL_DISABLE: False
-  OAUTH_CERTIFICATE: '/full/path/pubkey.pem'
+  OAUTH_CERTIFICATE: |
+    -----BEGIN PUBLIC KEY-----
+    -----END PUBLIC KEY-----
 
 DEVELOPMENT: &development
   <<: *common
@@ -19,4 +21,4 @@ TESTING: &testing
   MONGOALCHEMY_DATABASE: 'msdevelopment'
 
 DEFAULT: &default
-  <<: *development
+  <<: *production
