@@ -33,8 +33,9 @@ class Role():
             return True
         else:
             for role in roles:
-                if role in user_roles:
-                    return True
+                for user_role in user_roles:
+                    if role == user_role.lower():
+                        return True
             
         return False
 

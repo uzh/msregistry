@@ -6,9 +6,9 @@ Document Version
 ----------------
 
 :Date:
-    2016-04-18
+    2016-05-19
 :Version:
-    v0.3.4
+    v0.4.2
 :Authors:
     Filippo Panessa <filippo.panessa@gmail.com>
 :Copyright:
@@ -23,7 +23,7 @@ will accept, what the JSON object’s parameters will be in the response, and an
 example query/response.
 
 This documentation is for most recent version of the MS Registry REST API, 
-version **v0.3.4**.
+version **v0.4.2**.
 
 GET /auth/test
 --------------
@@ -489,7 +489,7 @@ Example
                   "medical_record_abstraction": true, \
                   "sex": "male", \
                   "signature": "FP", \
-                  "birthdate": "09.18.1974"}' \
+                  "birthdate": "18.09.1974"}' \
      'https://ws.msregistry.s3it.uzh.ch/api/v1.0/user/consent'
 
 Response

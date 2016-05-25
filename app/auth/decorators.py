@@ -36,7 +36,6 @@ from app.errors import IncorrectAudience, InsufficientRoles, InvalidAlgorithm, O
 from app.errors import TokenIsExpired, TokenIsInvalid, TokenNotFound
 
 
-
 def requires_auth(f):
     @cross_origin(headers=['Content-Type', 'Authorization'])
     @wraps(f)
