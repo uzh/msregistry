@@ -97,8 +97,7 @@ def requires_roles(roles=None):
     def decorated(method):
         @wraps(method)
         def f(*args, **kwargs):
-            #TODO
-            if Role.authorizedRoles(roles, _request_ctx_stack.top.roles) is False:
+            if not Role.authorizedRoles(roles, _request_ctx_stack.top.roles):
                 raise InsufficientRoles()
             
             return method(*args, **kwargs)
@@ -112,7 +111,6 @@ def requires_consent(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         user = User()
-        #TODO
         if user.getUserConsentByUniqueID(_request_ctx_stack.top.uniqueID) is False:
             raise ConsentInformationNotAccepted()
         

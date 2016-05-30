@@ -34,8 +34,9 @@ from app.auth.decorators import requires_auth, requires_roles
 from app.errors import UserNotFound, MethodNotAllowed
 
 from jsonschema import validate, ValidationError
-from app import inputs
 
+from app import inputs
+from app import utils
 
 @api.route('/user')
 @requires_auth
@@ -90,7 +91,7 @@ def set_user_consent():
         try:
             return jsonify(success=bool(user.setRelativeConsentByUniqueID(uniqueID=_request_ctx_stack.top.uniqueID,
                                                                           sex=consent['sex'], 
-                                                                          birthdate=consent['birthdate'],
+                                                                          birthdate=utils.Time.DMYToDatetime(consent['birthdate']),
                                                                           signature=consent['signature'])))
         except ValueError as error:
             raise MethodNotAllowed(error.message)
@@ -104,7 +105,7 @@ def set_user_consent():
         
         try:
             return jsonify(success=bool(user.setPatientConsentByUniqueID(uniqueID=_request_ctx_stack.top.uniqueID,
-                                                                         sex=consent['sex'], birthdate=consent['birthdate'], 
+                                                                         sex=consent['sex'], birthdate=utils.Time.DMYToDatetime(consent['birthdate']), 
                                                                          signature=consent['signature'],
                                                                          physician_contact_permitted=consent['physician_contact_permitted'], 
                                                                          medical_record_abstraction=consent['medical_record_abstraction'],
