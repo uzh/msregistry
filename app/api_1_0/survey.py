@@ -47,7 +47,7 @@ def get_survey():
         return jsonify(surveys=[ob.serialize() for ob in survey.getAllByUniqueID(_request_ctx_stack.top.uniqueID,
                                                                                  utils.Time.Iso8601ToDatetime(request.args.get('from', None)),
                                                                                  utils.Time.Iso8601ToDatetime(request.args.get('until', None)),
-                                                                                 request.args.get('tags', None),
+                                                                                 request.args.get('tags').split(',') if request.args.get('tags', None) is not None else None,
                                                                                  utils.json.Json._getJSONBool(request.args.get('ongoing', None)),
                                                                                  )])
     except ValueError as error:

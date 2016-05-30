@@ -48,7 +48,7 @@ class Survey(db.Document):
             query.filter(Survey.timestamp <= until_datetime)
         
         if tags is not None:
-            query.filter(Survey.tags.in_(tags.split(',')))
+            query.filter(Survey.tags.in_(tags))
 
         if ongoing is not None:
             query.filter(Survey.ongoing == ongoing)
