@@ -32,10 +32,12 @@ from app import db
 from app.auth.decorators import requires_auth, requires_roles, requires_consent
 
 from app.errors import SurveyNotFound, MethodNotAllowed
-from app import utils
 
 from jsonschema import validate, ValidationError
+
 from app import inputs
+from app import utils
+
 
 @api.route('/user/survey', methods=['GET'])
 @requires_auth
@@ -43,8 +45,8 @@ def get_survey():
     survey = Survey()
     try:
         return jsonify(surveys=[ob.serialize() for ob in survey.getAllByUniqueID(_request_ctx_stack.top.uniqueID,
-                                                                                 request.args.get('from', None),
-                                                                                 request.args.get('until', None),
+                                                                                 utils.Time.Iso8601ToDatetime(request.args.get('from', None)),
+                                                                                 utils.Time.Iso8601ToDatetime(request.args.get('until', None)),
                                                                                  request.args.get('tags', None),
                                                                                  utils.json.Json._getJSONBool(request.args.get('ongoing', None)),
                                                                                  )])
