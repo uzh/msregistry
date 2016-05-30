@@ -34,7 +34,10 @@ from app.auth.decorators import requires_auth, requires_roles, requires_consent
 from app.errors import DiaryNotFound, MethodNotAllowed
 
 from jsonschema import validate, ValidationError
+
 from app import inputs
+from app import utils
+
 
 @api.route('/user/diary', methods=['GET'])
 @requires_auth
@@ -43,8 +46,8 @@ def get_user_diary():
     diary = Diary()
     try:
         return jsonify(diaries=[ob.serialize() for ob in diary.getAllByUniqueID(_request_ctx_stack.top.uniqueID,
-                                                                                request.args.get('from', None),
-                                                                                request.args.get('until', None))])
+                                                                                utils.Time.Iso8601ToDatetime(request.args.get('from', None)),
+                                                                                utils.Time.Iso8601ToDatetime(request.args.get('until', None)))])
     except ValueError as error:
         raise MethodNotAllowed(error.message)
     except db.BadValueException as error:

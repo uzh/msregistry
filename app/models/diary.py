@@ -26,8 +26,6 @@ from app import db
 
 from user import User
 
-from app import utils
-
 
 class Diary(db.Document):
     user = db.ObjectIdField(User)
@@ -40,10 +38,10 @@ class Diary(db.Document):
         query.filter(Diary.user == User().query.filter(User.uniqueID == uniqueID).first().mongo_id)
         
         if from_datetime is not None:
-            query.filter(Diary.timestamp >= utils.Time.Iso8601ToDatetime(from_datetime))
+            query.filter(Diary.timestamp >= from_datetime)
         
         if until_datetime is not None:
-            query.filter(Diary.timestamp <= utils.Time.Iso8601ToDatetime(until_datetime))
+            query.filter(Diary.timestamp <= until_datetime)
         
         return query.all()
     
