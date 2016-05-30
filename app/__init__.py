@@ -26,6 +26,8 @@ from flask.ext.bootstrap import Bootstrap
 from flask.ext.moment import Moment
 from flask.ext.mongoalchemy import MongoAlchemy
 from flask_environments import Environments
+from flask.ext.mail import Mail, Message
+from celery import Celery
 
 from app.exceptions import JSONExceptionHandler
 
@@ -43,8 +45,6 @@ def create_app(config_name):
     moment.init_app(app)
     db.init_app(app)
     JSONExceptionHandler(app)
-    
-    app.config['OAUTH_CERTIFICATE'] = open(app.config['OAUTH_CERTIFICATE'], 'r').read()
     
     if not app.debug and not app.testing and not app.config['SSL_DISABLE']:
         from flask.ext.sslify import SSLify

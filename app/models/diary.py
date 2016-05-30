@@ -48,7 +48,8 @@ class Diary(db.Document):
         return query.all()
     
     def getByUniqueIDAndID(self, uniqueID, _id):
-        return Diary.query.filter(Diary.user == User().query.filter(User.uniqueID == uniqueID).first().mongo_id, Diary.mongo_id == _id).first()
+        return Diary.query.filter(Diary.user == User().query.filter(User.uniqueID == uniqueID)
+                                  .first().mongo_id, Diary.mongo_id == _id).first()
     
     def addByUniqueID(self, uniqueID, diary):
         self.user = User().query.filter(User.uniqueID == uniqueID).first().mongo_id

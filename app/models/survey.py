@@ -58,7 +58,8 @@ class Survey(db.Document):
         return query.all()
     
     def getByUniqueIDAndID(self, uniqueID, _id):
-        return Survey.query.filter(Survey.user == User().query.filter(User.uniqueID == uniqueID).first().mongo_id, Survey.mongo_id == _id).first()
+        return Survey.query.filter(Survey.user == User().query.filter(User.uniqueID == uniqueID)
+                                   .first().mongo_id, Survey.mongo_id == _id).first()
     
     def addByUniqueID(self, uniqueID, survey, tags=[], ongoing=True):
         self.user = User().query.filter(User.uniqueID == uniqueID).first().mongo_id
@@ -70,8 +71,13 @@ class Survey(db.Document):
         return True
     
     def updateByUniqueIDAndID(self, uniqueID, _id, survey, tags, ongoing):
+        #TODO: raise exception for _id not found?
         Survey.query.filter(Survey.user == User().query.filter(User.uniqueID == uniqueID).first().mongo_id, 
-                            Survey.mongo_id == _id).set(survey=survey, tags=tags, ongoing=ongoing, timestamp=datetime.utcnow()).execute()
+                            Survey.mongo_id == _id).set(
+                                                        survey=survey, 
+                                                        tags=tags, 
+                                                        ongoing=ongoing, 
+                                                        timestamp=datetime.utcnow()).execute()
         return True
     
     def serialize(self):
