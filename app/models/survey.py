@@ -69,7 +69,6 @@ class Survey(db.Document):
         return True
     
     def updateByUniqueIDAndID(self, uniqueID, _id, survey, tags, ongoing):
-        #TODO: raise exception for _id not found?
         Survey.query.filter(Survey.user == User().query.filter(User.uniqueID == uniqueID).first().mongo_id, 
                             Survey.mongo_id == _id).set(
                                                         survey=survey, 
