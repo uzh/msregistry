@@ -27,7 +27,6 @@ from flask.ext.moment import Moment
 from flask.ext.mongoalchemy import MongoAlchemy
 from flask_environments import Environments
 from flask.ext.mail import Mail, Message
-from celery import Celery
 
 from app.exceptions import JSONExceptionHandler
 
