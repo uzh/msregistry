@@ -33,11 +33,11 @@ survey = {
         "tags": {
             "type":"array",
             "items": {"type": "string"},
-            "required": False
+            "required": True
         },
         "ongoing": {
             "type":"boolean",
-            "required": False
+            "required": True
         }
     }
 }
