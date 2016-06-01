@@ -32,7 +32,7 @@ Now you can easily install Python dependencies:
 Deploy Database and run Web Application
 =======================================
 
-Use ``manage.py`` to run Web application
+Use ``flask`` to run Web application
 
    ::
 
