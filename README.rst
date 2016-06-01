@@ -56,5 +56,4 @@ MSRegistry is ready for Docker, running as *UWSGI* application.
 .. References
 
 .. _`Flask`: http://flask.pocoo.org/
-.. _`SQLAlchemy`: http://www.sqlalchemy.org/
-.. _`Alembic`: https://alembic.readthedocs.org/
+.. _`MongoAlchemy`: http://www.mongoalchemy.org/
