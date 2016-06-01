@@ -21,7 +21,7 @@ using `virtualenv`:
       $ virtualenv env
       $ source env/bin/active
 
-Now you can easily install Python dependencies: 
+Now you can easily install Python dependencies:
 
    ::
 
@@ -36,7 +36,8 @@ Use ``manage.py`` to run Web application
 
    ::
 
-      $ python manage.py runserver
+      $ export FLASK_APP=commands.py
+      $ flask run
 
 Config
 ======

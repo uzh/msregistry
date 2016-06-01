@@ -25,7 +25,7 @@ import jwt
 
 from functools import wraps
 from flask import request, _request_ctx_stack
-from flask.ext.cors import cross_origin
+from flask_cors import cross_origin
 from flask import current_app
 
 from app.models.role import Role

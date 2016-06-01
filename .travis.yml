@@ -3,6 +3,9 @@ language: python
 python:
   - "2.7"
 
+env:
+    - FLASK_APP=commands.py
+
 install:
     - pip install -r requirements/common.txt
 
@@ -14,4 +17,4 @@ notifications:
 services: mongodb
 
 script:
-    - python manage.py test
+    - flask test

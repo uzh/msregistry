@@ -22,16 +22,14 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 
 
 from flask import Flask
-from flask.ext.bootstrap import Bootstrap
-from flask.ext.moment import Moment
-from flask.ext.mongoalchemy import MongoAlchemy
+from flask_bootstrap import Bootstrap
+from flask_mongoalchemy import MongoAlchemy
 from flask_environments import Environments
-from flask.ext.mail import Mail, Message
+from flask_mail import Mail, Message
 
 from app.exceptions import JSONExceptionHandler
 
 bootstrap = Bootstrap()
-moment = Moment()
 db = MongoAlchemy()
 
 
@@ -41,12 +39,11 @@ def create_app(config_name):
     app.config.from_object(env.from_yaml('config.yml'))
     
     bootstrap.init_app(app)
-    moment.init_app(app)
     db.init_app(app)
     JSONExceptionHandler(app)
     
     if not app.debug and not app.testing and not app.config['SSL_DISABLE']:
-        from flask.ext.sslify import SSLify
+        from flask_sslify import SSLify
         sslify = SSLify(app)
     
     from .main import main as main_blueprint
