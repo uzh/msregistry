@@ -1,1 +1,2 @@
 locustio==0.7.5
+PyYAML==3.11

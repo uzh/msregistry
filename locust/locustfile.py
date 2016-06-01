@@ -27,15 +27,20 @@ import requests
 import json
 import random
 
+import yaml
+    
 authorization_headers = {}
 informed_consent = False
 
 def login():
     global authorization_headers
     
-    url = 'http://some.authentication.domain/some/auth/api'
+    with open("locust.yml", 'r') as ymlfile:
+        config = yaml.load(ymlfile)
+    
+    url = config['AUTH_API_URL']
     headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
-    data = {'username': 'anyuser', 'password': 'anypassword'}
+    data = {'username': config['USERNAME'], 'password': config['PASSWORD']}
     
     response = requests.post(url, headers=headers, data=json.dumps(data))
     if response.status_code == 200:
