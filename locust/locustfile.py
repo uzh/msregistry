@@ -56,14 +56,15 @@ class Diary(TaskSet):
     def get_user_diary(self):
         response = self.client.get("/api/v1.0/user/diary", headers=authorization_headers)
         diaries = [survey for survey in response.json()['diaries']]
-        self.diary_id  = random.choice(diaries)['id']
+        if diaries:
+            self.diary_id  = random.choice(diaries)['id']
     
     @task(1)
     def get_user_diary_by_id(self):
         if self.diary_id is not None:
             self.client.get("/api/v1.0/user/diary/%s" % (self.diary_id), headers=authorization_headers)
     
-    @task(1)
+    @task(10)
     def add_user_diary(self):
         if informed_consent is True:
             data = {"diary": {"any": "value"}}
@@ -89,17 +90,18 @@ class Survey(TaskSet):
     def get_user_survey(self):
         response = self.client.get("/api/v1.0/user/survey", headers=authorization_headers)
         surveys = [survey for survey in response.json()['surveys']]
-        self.survey_id  = random.choice(surveys)['id']
+        if surveys:
+            self.survey_id  = random.choice(surveys)['id']
     
     @task(1)
     def get_user_survey_by_id(self):
         if self.survey_id is not None:
             self.client.get("/api/v1.0/user/survey/%s" % (self.survey_id), headers=authorization_headers)
     
-    @task(1)
+    @task(10)
     def add_user_survey(self):
         if informed_consent is True:
-            data = {"survey": {"value": "any"}, "tags": ["layer2"], "ongoing": True}
+            data = {"survey": {"value": "any"}, "tags": ["layer2", "layer3"], "ongoing": True}
             self.client.post("/api/v1.0/user/survey", headers=authorization_headers, data=json.dumps(data))
     
     @task(20)
@@ -155,7 +157,7 @@ class UserBehavior(TaskSet):
 
 class WebsiteUser(HttpLocust):
     task_set = UserBehavior
-    min_wait=400
-    max_wait=900
+    min_wait=40
+    max_wait=90
 
 
