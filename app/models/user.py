@@ -21,12 +21,16 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 " University of Zurich")
 
 
+from flask import current_app
+
 from datetime import datetime
-from app import db
+from app import db, utils
 
 from role import Role
 
-from app import utils
+import csv
+import os
+import uuid
 
 
 class User(db.Document):
@@ -49,6 +53,9 @@ class User(db.Document):
             self.save()
         
         return True
+    
+    def getAll(self):
+        return User.query.all()
     
     def getByUniqueID(self, uniqueID):
         return User.query.filter_by(uniqueID=uniqueID).first()
@@ -104,6 +111,18 @@ class User(db.Document):
         User.query.filter(User.uniqueID == uniqueID).set(last_seen=datetime.utcnow()).execute()
         return True
     
+    def getCSVReportInformedConsent(self):
+        data = [ob.serializeInformedConsent() for ob in self.getAll()]
+        
+        filename = str(uuid.uuid4()) + '.csv'
+        csv_file = csv.writer(open(os.path.join(current_app.config['REPORTS_DIR'], filename), "w"))
+        
+        csv_file.writerow(['User ID', 'Informed Consent'])
+        for item in data:
+            csv_file.writerow([item['uniqueID'], item['date_signed']])
+        
+        return filename
+    
     def serialize(self, roles=[]):
         d = {
                 "uniqueID": str(self.uniqueID),
@@ -128,6 +147,18 @@ class User(db.Document):
             d["medical_record_abstraction"] = bool(self.medical_record_abstraction)
             d["data_exchange_cohort"] = bool(self.data_exchange_cohort)
         
+        return d
+
+    def serializeInformedConsent(self):
+        d = {
+                "uniqueID": str(self.uniqueID)
+            }
+
+        if self.date_signed is not None:
+            d["date_signed"] = self.date_signed.isoformat()
+        else:
+            d["date_signed"] = None
+                
         return d
 
 

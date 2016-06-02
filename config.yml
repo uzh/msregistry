@@ -3,6 +3,13 @@ COMMON: &common
   TESTING: False
   SECRET_KEY: 't0p s3cr3t'
   SSL_DISABLE: False
+  MAIL_SERVER : 'smtp.yourdomain'
+  MAIL_PORT : 25
+  MAIL_USE_TLS : False
+  MAIL_USE_SSL : False
+  MAIL_DEFAULT_SENDER : 'sender@yourdomain'
+  MAIL_RECIPIENTS : ['recipients@yourdomain']
+  REPORTS_DIR : '/report/full/path/dir'
   OAUTH_CERTIFICATE: |
     -----BEGIN PUBLIC KEY-----
     -----END PUBLIC KEY-----

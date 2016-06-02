@@ -31,7 +31,7 @@ from app.exceptions import JSONExceptionHandler
 
 bootstrap = Bootstrap()
 db = MongoAlchemy()
-
+mail = Mail()
 
 def create_app(config_name):
     app = Flask(__name__)
@@ -40,6 +40,7 @@ def create_app(config_name):
     
     bootstrap.init_app(app)
     db.init_app(app)
+    mail.init_app(app)
     JSONExceptionHandler(app)
     
     if not app.debug and not app.testing and not app.config['SSL_DISABLE']:

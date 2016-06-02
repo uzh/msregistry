@@ -97,7 +97,7 @@ def requires_roles(roles=None):
     def decorated(method):
         @wraps(method)
         def f(*args, **kwargs):
-            if not Role.authorizedRoles(roles, _request_ctx_stack.top.roles):
+            if Role.authorizedRoles(roles, _request_ctx_stack.top.roles) is False:
                 raise InsufficientRoles()
             
             return method(*args, **kwargs)

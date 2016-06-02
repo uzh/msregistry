@@ -21,11 +21,17 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 " University of Zurich")
 
 
+from flask import current_app
+
 from datetime import datetime
 
 from app import db
 
 from user import User
+
+import csv
+import os
+import uuid
 
 
 class Survey(db.Document):
@@ -34,6 +40,9 @@ class Survey(db.Document):
     survey = db.DictField(db.AnythingField(), required=True)
     tags = db.ListField(db.StringField(), required=True, default=[])
     ongoing = db.BoolField(default=True, required=True)
+    
+    def getAll(self):
+        return Survey.query.all()
     
     def getAllByUniqueID(self, uniqueID, from_datetime=None, until_datetime=None,
                          tags=None, ongoing=None):
@@ -77,12 +86,34 @@ class Survey(db.Document):
                                                         timestamp=datetime.utcnow()).execute()
         return True
     
+    def getCSVReportTagsAndOngoing(self):
+        data = [ob.serializeTagsAndOngoing() for ob in self.getAll()]
+        
+        filename = str(uuid.uuid4()) + '.csv'
+        csv_file = csv.writer(open(os.path.join(current_app.config['REPORTS_DIR'], filename), "w"))
+        
+        csv_file.writerow(['Survey ID', 'timestamp', 'tags', 'ongoing'])
+        for item in data:
+            csv_file.writerow([item['id'], item['timestamp'], item['tags'], item['ongoing']])
+        
+        return filename
+    
     def serialize(self):
         d = {
                 "id": str(self.mongo_id),
                 "timestamp": self.timestamp.isoformat(),
                 "survey": self.survey,
                 "tags": self.tags,
+                "ongoing": bool(self.ongoing)
+            }
+        
+        return d
+
+    def serializeTagsAndOngoing(self):
+        d = {
+                "id": str(self.mongo_id),
+                "timestamp": self.timestamp.isoformat(),
+                "tags": ', '.join(self.tags),
                 "ongoing": bool(self.ongoing)
             }
         

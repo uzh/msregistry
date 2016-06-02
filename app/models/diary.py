@@ -32,6 +32,9 @@ class Diary(db.Document):
     timestamp = db.DateTimeField(required=True)
     diary = db.DictField(db.AnythingField(), required=True)
     
+    def getAll(self):
+        return Diary.query.all()
+    
     def getAllByUniqueID(self, uniqueID, from_datetime=None, until_datetime=None):
         query = db.session.query(Diary)
         

@@ -23,7 +23,6 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 
 import os
 
-import click
 from app import create_app
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'DEFAULT')
@@ -32,7 +31,25 @@ app = create_app(os.getenv('FLASK_CONFIG') or 'DEFAULT')
 @app.cli.command()
 def reports():
     """Generate reports."""
-    click.echo('Generate reports')
+    from app import mail
+    from flask_mail import Message
+    
+    from app.models import User, Survey
+    
+    user = User()
+    survey = Survey()
+    
+    msg = Message("MS-Registry Reports", recipients=app.config['MAIL_RECIPIENTS'])
+    
+    user_report_filename = user.getCSVReportInformedConsent()
+    with app.open_resource(os.path.join(app.config['REPORTS_DIR'] , user_report_filename)) as fp:
+        msg.attach(user_report_filename, "text/csv", fp.read())
+    
+    survey_report_filename = survey.getCSVReportTagsAndOngoing()
+    with app.open_resource(os.path.join(app.config['REPORTS_DIR'] , survey_report_filename)) as fp:
+        msg.attach(survey_report_filename, "text/csv", fp.read())
+    
+    mail.send(msg)
 
 
 @app.cli.command()
