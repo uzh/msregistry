@@ -21,7 +21,7 @@ using `virtualenv`:
       $ virtualenv env
       $ source env/bin/active
 
-Now you can easily install Python dependencies: 
+Now you can easily install Python dependencies:
 
    ::
 
@@ -32,29 +32,20 @@ Now you can easily install Python dependencies:
 Deploy Database and run Web Application
 =======================================
 
-Use ``manage.py`` to run Web application
+Use ``flask`` to run Web application
 
    ::
 
-      $ python manage.py runserver
+      $ export FLASK_APP=commands.py
+      $ flask run
 
 Config
 ======
 
 MSRegistry Backend configuration file is ``config.yml``.
 
-Docker
-======
-
-MSRegistry is ready for Docker, running as *UWSGI* application.
-
-   ::
-
-      $ docker build -t msregistry .
-      $ docker run -d -p 5000:5000 msregistry
 
 .. References
 
 .. _`Flask`: http://flask.pocoo.org/
-.. _`SQLAlchemy`: http://www.sqlalchemy.org/
-.. _`Alembic`: https://alembic.readthedocs.org/
+.. _`MongoAlchemy`: http://www.mongoalchemy.org/

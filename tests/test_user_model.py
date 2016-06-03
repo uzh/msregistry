@@ -28,6 +28,8 @@ from datetime import datetime
 from app import create_app
 from app.models import User
 
+from app import utils
+
 from time import sleep
 
 class UserModelTestCase(unittest.TestCase):
@@ -61,19 +63,19 @@ class UserModelTestCase(unittest.TestCase):
     def test_setPatientConsentByUniqueID(self):
         u = User()
         u.createIfNotExistsByUniqueID(self.uniqueID)
-        self.assertTrue(u.setPatientConsentByUniqueID(self.uniqueID, self.sex, self.birthdate, self.signature,
+        self.assertTrue(u.setPatientConsentByUniqueID(self.uniqueID, self.sex, utils.Time.DMYToDatetime(self.birthdate), self.signature,
                                                        self.physician_contact_permitted, self.medical_record_abstraction,
                                                        self.data_exchange_cohort))
     
     def test_setRelativeConsentByUniqueID(self):
         u = User()
         u.createIfNotExistsByUniqueID(self.uniqueID)
-        self.assertTrue(u.setRelativeConsentByUniqueID(self.uniqueID, self.sex, self.birthdate, self.signature))
+        self.assertTrue(u.setRelativeConsentByUniqueID(self.uniqueID, self.sex, utils.Time.DMYToDatetime(self.birthdate), self.signature))
         
     def test_getConsentByUniqueID(self):
         u = User()
         u.createIfNotExistsByUniqueID(self.uniqueID)
-        self.assertTrue(u.setPatientConsentByUniqueID(self.uniqueID, self.sex, self.birthdate, self.signature,
+        self.assertTrue(u.setPatientConsentByUniqueID(self.uniqueID, self.sex, utils.Time.DMYToDatetime(self.birthdate), self.signature,
                                                       self.physician_contact_permitted, self.medical_record_abstraction,
                                                       self.data_exchange_cohort))
         self.assertNotEqual(u.getByUniqueID(self.uniqueID).date_signed, None)

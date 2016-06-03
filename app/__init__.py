@@ -22,16 +22,17 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 
 
 from flask import Flask
-from flask.ext.bootstrap import Bootstrap
-from flask.ext.moment import Moment
-from flask.ext.mongoalchemy import MongoAlchemy
+from flask_bootstrap import Bootstrap
+from flask_mongoalchemy import MongoAlchemy
 from flask_environments import Environments
+from flask_mail import Mail, Message
+from flask import jsonify
 
-from app.exceptions import JSONExceptionHandler
+from app.exceptions import InvalidUsage
 
 bootstrap = Bootstrap()
-moment = Moment()
 db = MongoAlchemy()
+mail = Mail()
 
 
 def create_app(config_name):
@@ -40,22 +41,27 @@ def create_app(config_name):
     app.config.from_object(env.from_yaml('config.yml'))
     
     bootstrap.init_app(app)
-    moment.init_app(app)
     db.init_app(app)
-    JSONExceptionHandler(app)
+    mail.init_app(app)
     
     if not app.debug and not app.testing and not app.config['SSL_DISABLE']:
-        from flask.ext.sslify import SSLify
+        from flask_sslify import SSLify
         sslify = SSLify(app)
+    
+    @app.errorhandler(InvalidUsage)
+    def handle_invalid_usage(error):
+        response = jsonify(error.to_dict())
+        response.status_code = error.status_code
+        return response
     
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
-
+    
     from .auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint, url_prefix='/auth')
 
     from .api_1_0 import api as api_1_0_blueprint
     app.register_blueprint(api_1_0_blueprint, url_prefix='/api/v1.0')
-
+    
     return app
 

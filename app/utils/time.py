@@ -27,13 +27,16 @@ from datetime import datetime
 class Time():
     @staticmethod
     def DatetimeToDMY(date):
-        return datetime.strptime(date.isoformat(), "%Y-%m-%dT%H:%M:%S").strftime("%d.%m.%Y")
+        if date is not None:
+            return datetime.strptime(date.isoformat(), "%Y-%m-%dT%H:%M:%S").strftime("%d.%m.%Y")
     
     @staticmethod
     def DMYToDatetime(date):
-        return datetime.strptime(date, "%d.%m.%Y")
+        if date is not None:
+            return datetime.strptime(date, "%d.%m.%Y")
     
     @staticmethod
     def Iso8601ToDatetime(date):
-        return datetime.strptime(date, "%Y-%m-%dT%H:%M:%S.%f")
+        if date is not None:
+            return datetime.strptime(date, "%Y-%m-%dT%H:%M:%S.%f")
 

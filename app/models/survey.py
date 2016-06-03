@@ -21,13 +21,17 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 " University of Zurich")
 
 
+from flask import current_app
+
 from datetime import datetime
 
 from app import db
 
 from user import User
 
-from app import utils
+import csv
+import os
+import uuid
 
 
 class Survey(db.Document):
@@ -37,6 +41,9 @@ class Survey(db.Document):
     tags = db.ListField(db.StringField(), required=True, default=[])
     ongoing = db.BoolField(default=True, required=True)
     
+    def getAll(self):
+        return Survey.query.all()
+    
     def getAllByUniqueID(self, uniqueID, from_datetime=None, until_datetime=None,
                          tags=None, ongoing=None):
         query = db.session.query(Survey)
@@ -44,13 +51,13 @@ class Survey(db.Document):
         query.filter(Survey.user == User().query.filter(User.uniqueID == uniqueID).first().mongo_id)
         
         if from_datetime is not None:
-            query.filter(Survey.timestamp >= utils.Time.Iso8601ToDatetime(from_datetime))
+            query.filter(Survey.timestamp >= from_datetime)
         
         if until_datetime is not None:
-            query.filter(Survey.timestamp <= utils.Time.Iso8601ToDatetime(until_datetime))
+            query.filter(Survey.timestamp <= until_datetime)
         
         if tags is not None:
-            query.filter(Survey.tags.in_(tags.split(',')))
+            query.filter(Survey.tags.in_(tags))
 
         if ongoing is not None:
             query.filter(Survey.ongoing == ongoing)
@@ -58,7 +65,8 @@ class Survey(db.Document):
         return query.all()
     
     def getByUniqueIDAndID(self, uniqueID, _id):
-        return Survey.query.filter(Survey.user == User().query.filter(User.uniqueID == uniqueID).first().mongo_id, Survey.mongo_id == _id).first()
+        return Survey.query.filter(Survey.user == User().query.filter(User.uniqueID == uniqueID)
+                                   .first().mongo_id, Survey.mongo_id == _id).first()
     
     def addByUniqueID(self, uniqueID, survey, tags=[], ongoing=True):
         self.user = User().query.filter(User.uniqueID == uniqueID).first().mongo_id
@@ -71,8 +79,24 @@ class Survey(db.Document):
     
     def updateByUniqueIDAndID(self, uniqueID, _id, survey, tags, ongoing):
         Survey.query.filter(Survey.user == User().query.filter(User.uniqueID == uniqueID).first().mongo_id, 
-                            Survey.mongo_id == _id).set(survey=survey, tags=tags, ongoing=ongoing, timestamp=datetime.utcnow()).execute()
+                            Survey.mongo_id == _id).set(
+                                                        survey=survey, 
+                                                        tags=tags, 
+                                                        ongoing=ongoing, 
+                                                        timestamp=datetime.utcnow()).execute()
         return True
+    
+    def getCSVReportTagsAndOngoing(self):
+        data = [ob.serializeTagsAndOngoing() for ob in self.getAll()]
+        
+        filename = str(uuid.uuid4()) + '.csv'
+        csv_file = csv.writer(open(os.path.join(current_app.config['REPORTS_DIR'], filename), "w"))
+        
+        csv_file.writerow(['User ID', 'Survey ID', 'timestamp', 'tags', 'ongoing'])
+        for item in data:
+            csv_file.writerow([item['user_id'], item['id'], item['timestamp'], item['tags'], item['ongoing']])
+        
+        return filename
     
     def serialize(self):
         d = {
@@ -80,6 +104,17 @@ class Survey(db.Document):
                 "timestamp": self.timestamp.isoformat(),
                 "survey": self.survey,
                 "tags": self.tags,
+                "ongoing": bool(self.ongoing)
+            }
+        
+        return d
+
+    def serializeTagsAndOngoing(self):
+        d = {
+                "user_id": User().query.filter(User.mongo_id == self.user).first().uniqueID,
+                "id": str(self.mongo_id),
+                "timestamp": self.timestamp.isoformat(),
+                "tags": ', '.join(self.tags),
                 "ongoing": bool(self.ongoing)
             }
         

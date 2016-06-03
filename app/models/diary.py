@@ -26,13 +26,14 @@ from app import db
 
 from user import User
 
-from app import utils
-
 
 class Diary(db.Document):
     user = db.ObjectIdField(User)
     timestamp = db.DateTimeField(required=True)
     diary = db.DictField(db.AnythingField(), required=True)
+    
+    def getAll(self):
+        return Diary.query.all()
     
     def getAllByUniqueID(self, uniqueID, from_datetime=None, until_datetime=None):
         query = db.session.query(Diary)
@@ -40,15 +41,16 @@ class Diary(db.Document):
         query.filter(Diary.user == User().query.filter(User.uniqueID == uniqueID).first().mongo_id)
         
         if from_datetime is not None:
-            query.filter(Diary.timestamp >= utils.Time.Iso8601ToDatetime(from_datetime))
+            query.filter(Diary.timestamp >= from_datetime)
         
         if until_datetime is not None:
-            query.filter(Diary.timestamp <= utils.Time.Iso8601ToDatetime(until_datetime))
+            query.filter(Diary.timestamp <= until_datetime)
         
         return query.all()
     
     def getByUniqueIDAndID(self, uniqueID, _id):
-        return Diary.query.filter(Diary.user == User().query.filter(User.uniqueID == uniqueID).first().mongo_id, Diary.mongo_id == _id).first()
+        return Diary.query.filter(Diary.user == User().query.filter(User.uniqueID == uniqueID)
+                                  .first().mongo_id, Diary.mongo_id == _id).first()
     
     def addByUniqueID(self, uniqueID, diary):
         self.user = User().query.filter(User.uniqueID == uniqueID).first().mongo_id

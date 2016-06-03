@@ -21,12 +21,16 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 " University of Zurich")
 
 
+from flask import current_app
+
 from datetime import datetime
-from app import db
+from app import db, utils
 
 from role import Role
 
-from app import utils
+import csv
+import os
+import uuid
 
 
 class User(db.Document):
@@ -50,6 +54,9 @@ class User(db.Document):
         
         return True
     
+    def getAll(self):
+        return User.query.all()
+    
     def getByUniqueID(self, uniqueID):
         return User.query.filter_by(uniqueID=uniqueID).first()
     
@@ -69,7 +76,8 @@ class User(db.Document):
             raise ValueError('Bad value for field of type "signature". Reason: "Value cannot be null"')
         
         User.query.filter(User.uniqueID == uniqueID).set(
-                                                         sex=sex,birthdate=utils.Time.DMYToDatetime(birthdate),
+                                                         sex=sex,
+                                                         birthdate=birthdate,
                                                          signature=signature,
                                                          date_signed=datetime.utcnow()
                                                          ).execute()
@@ -90,7 +98,7 @@ class User(db.Document):
             raise ValueError('Bad value for field of type "data_exchange_cohort". Reason: "Value cannot be null"')
         
         User.query.filter(User.uniqueID == uniqueID).set(sex=sex, 
-                                                         birthdate=utils.Time.DMYToDatetime(birthdate), 
+                                                         birthdate=birthdate, 
                                                          signature=signature, 
                                                          physician_contact_permitted=physician_contact_permitted,
                                                          medical_record_abstraction=medical_record_abstraction,
@@ -102,6 +110,32 @@ class User(db.Document):
     def setLastSeenByUniqueID(self, uniqueID):
         User.query.filter(User.uniqueID == uniqueID).set(last_seen=datetime.utcnow()).execute()
         return True
+    
+    def getCSVReportInformedConsent(self):
+        data = [ob.serializeInformedConsent() for ob in self.getAll()]
+        
+        filename = str(uuid.uuid4()) + '.csv'
+        csv_file = csv.writer(open(os.path.join(current_app.config['REPORTS_DIR'], filename), "w"))
+        
+        csv_file.writerow(['User ID', 
+                           'Sex', 
+                           'Birthdate', 
+                           'Signature', 
+                           'Physician Contact Permitted', 
+                           'Medical Record Abstraction', 
+                           'Data Exchange Cohort', 
+                           'Informed Consent'])
+        for item in data:
+            csv_file.writerow([item['uniqueID'], 
+                               item['sex'], 
+                               item['birthdate'], 
+                               item['signature'], 
+                               item['physician_contact_permitted'], 
+                               item['medical_record_abstraction'], 
+                               item['data_exchange_cohort'], 
+                               item['date_signed']])
+        
+        return filename
     
     def serialize(self, roles=[]):
         d = {
@@ -127,6 +161,24 @@ class User(db.Document):
             d["medical_record_abstraction"] = bool(self.medical_record_abstraction)
             d["data_exchange_cohort"] = bool(self.data_exchange_cohort)
         
+        return d
+
+    def serializeInformedConsent(self):
+        d = {
+                "uniqueID": str(self.uniqueID),
+                "sex": self.sex,
+                "birthdate": utils.Time.DatetimeToDMY(self.birthdate) if self.birthdate is not None else None,
+                "signature": self.signature,
+                "physician_contact_permitted": bool(self.physician_contact_permitted),
+                "medical_record_abstraction": bool(self.medical_record_abstraction),
+                "data_exchange_cohort": bool(self.data_exchange_cohort)
+            }
+
+        if self.date_signed is not None:
+            d["date_signed"] = self.date_signed.isoformat()
+        else:
+            d["date_signed"] = None
+                
         return d
 
 
