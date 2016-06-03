@@ -92,9 +92,9 @@ class Survey(db.Document):
         filename = str(uuid.uuid4()) + '.csv'
         csv_file = csv.writer(open(os.path.join(current_app.config['REPORTS_DIR'], filename), "w"))
         
-        csv_file.writerow(['Survey ID', 'timestamp', 'tags', 'ongoing'])
+        csv_file.writerow(['User ID', 'Survey ID', 'timestamp', 'tags', 'ongoing'])
         for item in data:
-            csv_file.writerow([item['id'], item['timestamp'], item['tags'], item['ongoing']])
+            csv_file.writerow([item['user_id'], item['id'], item['timestamp'], item['tags'], item['ongoing']])
         
         return filename
     
@@ -111,6 +111,7 @@ class Survey(db.Document):
 
     def serializeTagsAndOngoing(self):
         d = {
+                "user_id": User().query.filter(User.mongo_id == self.user).first().uniqueID,
                 "id": str(self.mongo_id),
                 "timestamp": self.timestamp.isoformat(),
                 "tags": ', '.join(self.tags),

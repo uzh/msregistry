@@ -117,9 +117,23 @@ class User(db.Document):
         filename = str(uuid.uuid4()) + '.csv'
         csv_file = csv.writer(open(os.path.join(current_app.config['REPORTS_DIR'], filename), "w"))
         
-        csv_file.writerow(['User ID', 'Informed Consent'])
+        csv_file.writerow(['User ID', 
+                           'Sex', 
+                           'Birthdate', 
+                           'Signature', 
+                           'Physician Contact Permitted', 
+                           'Medical Record Abstraction', 
+                           'Data Exchange Cohort', 
+                           'Informed Consent'])
         for item in data:
-            csv_file.writerow([item['uniqueID'], item['date_signed']])
+            csv_file.writerow([item['uniqueID'], 
+                               item['sex'], 
+                               item['birthdate'], 
+                               item['signature'], 
+                               item['physician_contact_permitted'], 
+                               item['medical_record_abstraction'], 
+                               item['data_exchange_cohort'], 
+                               item['date_signed']])
         
         return filename
     
@@ -151,7 +165,13 @@ class User(db.Document):
 
     def serializeInformedConsent(self):
         d = {
-                "uniqueID": str(self.uniqueID)
+                "uniqueID": str(self.uniqueID),
+                "sex": self.sex,
+                "birthdate": utils.Time.DatetimeToDMY(self.birthdate) if self.birthdate is not None else None,
+                "signature": self.signature,
+                "physician_contact_permitted": bool(self.physician_contact_permitted),
+                "medical_record_abstraction": bool(self.medical_record_abstraction),
+                "data_exchange_cohort": bool(self.data_exchange_cohort)
             }
 
         if self.date_signed is not None:
