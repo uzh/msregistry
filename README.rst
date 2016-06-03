@@ -44,15 +44,6 @@ Config
 
 MSRegistry Backend configuration file is ``config.yml``.
 
-Docker
-======
-
-MSRegistry is ready for Docker, running as *UWSGI* application.
-
-   ::
-
-      $ docker build -t msregistry .
-      $ docker run -d -p 5000:5000 msregistry
 
 .. References
 
