@@ -31,7 +31,7 @@ from app import db
 
 from app.auth.decorators import requires_auth, requires_roles
 
-from app.errors import UserNotFound, MethodNotAllowed
+from app.exceptions import UserNotFound, MethodNotAllowed
 
 from jsonschema import validate, ValidationError
 

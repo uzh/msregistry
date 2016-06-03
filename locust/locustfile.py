@@ -40,17 +40,16 @@ def login():
     
     url = config['AUTH_API_URL']
     headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
-    data = {'username': config['USERNAME'], 'password': config['PASSWORD']}
+    data = {'email': config['USERNAME'], 'password': config['PASSWORD']}
     
     response = requests.post(url, headers=headers, data=json.dumps(data))
     if response.status_code == 200:
         authorization_headers = {'authorization': 'Bearer %s' %(response.json()['data']['token'])}
 
-
 class Diary(TaskSet):
     global authorization_headers, informed_consent
     
-    diary_id = None       
+    diary_id = None
     
     @task(10)
     def get_user_diary(self):

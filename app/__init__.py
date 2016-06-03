@@ -26,12 +26,14 @@ from flask_bootstrap import Bootstrap
 from flask_mongoalchemy import MongoAlchemy
 from flask_environments import Environments
 from flask_mail import Mail, Message
+from flask import jsonify
 
-from app.exceptions import JSONExceptionHandler
+from app.exceptions import InvalidUsage
 
 bootstrap = Bootstrap()
 db = MongoAlchemy()
 mail = Mail()
+
 
 def create_app(config_name):
     app = Flask(__name__)
@@ -41,20 +43,25 @@ def create_app(config_name):
     bootstrap.init_app(app)
     db.init_app(app)
     mail.init_app(app)
-    JSONExceptionHandler(app)
     
     if not app.debug and not app.testing and not app.config['SSL_DISABLE']:
         from flask_sslify import SSLify
         sslify = SSLify(app)
     
+    @app.errorhandler(InvalidUsage)
+    def handle_invalid_usage(error):
+        response = jsonify(error.to_dict())
+        response.status_code = error.status_code
+        return response
+    
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
-
+    
     from .auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint, url_prefix='/auth')
 
     from .api_1_0 import api as api_1_0_blueprint
     app.register_blueprint(api_1_0_blueprint, url_prefix='/api/v1.0')
-
+    
     return app
 

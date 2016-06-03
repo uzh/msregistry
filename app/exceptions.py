@@ -21,36 +21,139 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 " University of Zurich")
 
 
-from flask import jsonify
-from werkzeug.exceptions import default_exceptions, NotFound, HTTPException
+class InvalidUsage(Exception):
+    status_code = 400
 
+    def __init__(self, message, status_code=None, payload=None):
+        Exception.__init__(self)
+        self.message = message
+        if status_code is not None:
+            self.status_code = status_code
+        self.payload = payload
 
-class JSONExceptionHandler(object):
+    def to_dict(self):
+        rv = dict(self.payload or ())
+        rv['message'] = self.message
+        return rv
 
-    def __init__(self, app=None):
-        if app:
-            self.init_app(app)
-
-    def std_handler(self, error):
-        try:
-            error.error
-        except AttributeError:
-            error.error = ''
-        response = jsonify({
-                            'status': error.code,
-                            'message': error.message,
-                            'code':  error.error
-                            })
-        response.status_code = error.code if isinstance(error, HTTPException) or isinstance(error, NotFound) else 500
-        return response
-
-
-    def init_app(self, app):
-        self.app = app
-        self.register(HTTPException)
-        for code, v in default_exceptions.iteritems():
-            self.register(code)
-
-    def register(self, exception_or_code, handler=None):
-        self.app.errorhandler(exception_or_code)(handler or self.std_handler)
+class TokenIsExpired(InvalidUsage):
+    status_code = 400
     
+    def __init__(self):
+        InvalidUsage.__init__(self, 
+                              message='Token is expired', 
+                              payload={'code': 'token_expired'})
+
+class TokenIsInvalid(InvalidUsage):
+    status_code = 410
+
+    def __init__(self):
+        InvalidUsage.__init__(self, 
+                              message='Token signature is invalid', 
+                              payload={'code': 'invalid_signature'})
+
+class IncorrectAudience(InvalidUsage):
+    status_code = 400
+    
+    def __init__(self):
+        InvalidUsage.__init__(self, 
+                              message='Incorrect audience', 
+                              payload={'code': 'invalid_audience'})
+
+class InvalidAlgorithm(InvalidUsage):
+    status_code = 400
+    
+    def __init__(self):
+        InvalidUsage.__init__(self, 
+                              message='Invalid Algorithm', 
+                              payload={'code': 'invalid_algorithm'})
+
+class InsufficientRoles(InvalidUsage):
+    status_code = 401
+    
+    def __init__(self):
+        InvalidUsage.__init__(self, 
+                              message='Insufficient Roles', 
+                              payload={'code': 'unauthorized'})
+
+class InvalidHeader(InvalidUsage):
+    status_code = 401
+    
+    def __init__(self):
+        InvalidUsage.__init__(self, 
+                              message='Invalid Header', 
+                              payload={'code': 'invalid_header'})
+
+class TokenNotFound(InvalidUsage):
+    status_code = 401
+    
+    def __init__(self):
+        InvalidUsage.__init__(self, 
+                              message='Token not found', 
+                              payload={'code': 'invalid_header'})
+  
+class AuthorizationHeaderMustStartWithBearer(InvalidUsage):
+    status_code = 401
+    
+    def __init__(self):
+        InvalidUsage.__init__(self, 
+                              message='Authorization header must start with Bearer', 
+                              payload={'code': 'invalid_header'})
+
+class AuthorizationHeaderIsExpected(InvalidUsage):
+    status_code = 403
+    
+    def __init__(self):
+        InvalidUsage.__init__(self, 
+                              message='Authorization header is expected', 
+                              payload={'code': 'authorization_required'})
+
+class ConsentInformationNotAccepted(InvalidUsage):
+    status_code = 403
+    
+    def __init__(self):
+        InvalidUsage.__init__(self, 
+                              message='Consent Information not accepted', 
+                              payload={'code': 'forbidden'})
+
+class UserNotFound(InvalidUsage):
+    status_code = 404
+    
+    def __init__(self, UniqueID):
+        InvalidUsage.__init__(self, 
+                              message='Couldn\'t found a User with UniqueID={}'.format(UniqueID), 
+                              payload={'code': 'not_found'})
+
+class DiaryNotFound(InvalidUsage):
+    status_code = 404
+    
+    def __init__(self, _id):
+        InvalidUsage.__init__(self, 
+                              message='Couldn\'t found a Diary with id={}'.format(_id), 
+                              payload={'code': 'not_found'})
+
+class SurveyNotFound(InvalidUsage):
+    status_code = 404
+    
+    def __init__(self, _id):
+        InvalidUsage.__init__(self, 
+                              message='Couldn\'t found a Survey with id={}'.format(_id), 
+                              payload={'code': 'not_found'})
+
+class MethodNotAllowed(InvalidUsage):
+    status_code = 405
+    
+    def __init__(self, message):
+        InvalidUsage.__init__(self, 
+                              message=message, 
+                              payload={'code': 'method_not_allowed'})
+
+class OAuthReturnsIncorrectPayload(InvalidUsage):
+    status_code = 500
+    
+    def __init__(self):
+        InvalidUsage.__init__(self, 
+                              message='OAuth Server returns incorrect payload', 
+                              payload={'code': 'oauth_server_error'})
+
+

@@ -31,7 +31,7 @@ from app import db
 
 from app.auth.decorators import requires_auth, requires_roles, requires_consent
 
-from app.errors import SurveyNotFound, MethodNotAllowed
+from app.exceptions import SurveyNotFound, MethodNotAllowed
 
 from jsonschema import validate, ValidationError
 

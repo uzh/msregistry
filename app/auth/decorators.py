@@ -31,9 +31,9 @@ from flask import current_app
 from app.models.role import Role
 from app.models.user import User
 
-from app.errors import AuthorizationHeaderIsExpected, AuthorizationHeaderMustStartWithBearer, ConsentInformationNotAccepted
-from app.errors import IncorrectAudience, InsufficientRoles, InvalidAlgorithm, OAuthReturnsIncorrectPayload
-from app.errors import TokenIsExpired, TokenIsInvalid, TokenNotFound
+from app.exceptions import AuthorizationHeaderIsExpected, AuthorizationHeaderMustStartWithBearer, ConsentInformationNotAccepted
+from app.exceptions import IncorrectAudience, InsufficientRoles, InvalidAlgorithm, OAuthReturnsIncorrectPayload
+from app.exceptions import TokenIsExpired, TokenIsInvalid, TokenNotFound
 
 
 def requires_auth(f):
