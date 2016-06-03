@@ -6,9 +6,9 @@ Document Version
 ----------------
 
 :Date:
-    2016-05-19
+    2016-06-03
 :Version:
-    v0.4.2
+    v0.5.0
 :Authors:
     Filippo Panessa <filippo.panessa@gmail.com>
 :Copyright:
@@ -23,7 +23,7 @@ will accept, what the JSON object’s parameters will be in the response, and an
 example query/response.
 
 This documentation is for most recent version of the MS Registry REST API, 
-version **v0.4.2**.
+version **v0.5.0**.
 
 GET /auth/test
 --------------
@@ -84,7 +84,6 @@ Response
 .. code:: json
 
     {
-      "status": 200,
       "code": "authorization_success",
       "description": "All good. You only get this message if you're authenticated."
     }
