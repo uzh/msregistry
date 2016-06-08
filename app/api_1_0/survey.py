@@ -21,7 +21,8 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 " University of Zurich")
 
 
-from flask import jsonify, request, _request_ctx_stack
+from flask import jsonify, request
+from flask import _app_ctx_stack as stack
 
 from . import api
 from app.models.role import Role
@@ -44,7 +45,7 @@ from app import utils
 def get_survey():
     survey = Survey()
     try:
-        return jsonify(surveys=[ob.serialize() for ob in survey.getAllByUniqueID(_request_ctx_stack.top.uniqueID,
+        return jsonify(surveys=[ob.serialize() for ob in survey.getAllByUniqueID(stack.top.uniqueID,
                                                                                  utils.Time.Iso8601ToDatetime(request.args.get('from', None)),
                                                                                  utils.Time.Iso8601ToDatetime(request.args.get('until', None)),
                                                                                  request.args.get('tags').split(',') if request.args.get('tags', None) is not None else None,
@@ -62,7 +63,7 @@ def get_survey():
 def get_survey_by_id(_id):
     survey = Survey()
     try:
-        return jsonify(survey.getByUniqueIDAndID(_request_ctx_stack.top.uniqueID, _id).serialize())
+        return jsonify(survey.getByUniqueIDAndID(stack.top.uniqueID, _id).serialize())
     except:
         raise SurveyNotFound(_id)
 
@@ -81,7 +82,7 @@ def add_survey():
         raise MethodNotAllowed(error.message)
     
     try:
-        return jsonify(success=bool(survey.addByUniqueID(_request_ctx_stack.top.uniqueID, 
+        return jsonify(success=bool(survey.addByUniqueID(stack.top.uniqueID, 
                                                          consent['survey'],
                                                          consent['tags'],
                                                          consent['ongoing'])))
@@ -100,7 +101,7 @@ def update_survey_by_id(_id):
     consent = request.get_json(silent=True, force=True)
     
     try:
-        survey.getByUniqueIDAndID(_request_ctx_stack.top.uniqueID, _id).serialize()
+        survey.getByUniqueIDAndID(stack.top.uniqueID, _id).serialize()
     except:
         raise SurveyNotFound(_id)
     
@@ -110,7 +111,7 @@ def update_survey_by_id(_id):
         raise MethodNotAllowed(error.message)
     
     try:
-        return jsonify(success=bool(survey.updateByUniqueIDAndID(_request_ctx_stack.top.uniqueID, _id, 
+        return jsonify(success=bool(survey.updateByUniqueIDAndID(stack.top.uniqueID, _id, 
                                                                  consent['survey'],
                                                                  consent['tags'],
                                                                  consent['ongoing'])))

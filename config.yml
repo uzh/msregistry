@@ -10,9 +10,7 @@ COMMON: &common
   MAIL_DEFAULT_SENDER : 'sender@yourdomain'
   MAIL_RECIPIENTS : ['recipients@yourdomain']
   REPORTS_DIR : '/report/full/path/dir'
-  OAUTH_CERTIFICATE: |
-    -----BEGIN PUBLIC KEY-----
-    -----END PUBLIC KEY-----
+  OAUTH_CERTIFICATE_PATH: '/full/path/pubkey.pem'
 
 DEVELOPMENT: &development
   <<: *common

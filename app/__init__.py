@@ -27,6 +27,7 @@ from flask_mongoalchemy import MongoAlchemy
 from flask_environments import Environments
 from flask_mail import Mail, Message
 from flask import jsonify
+from flask import _app_ctx_stack as stack
 
 from app.exceptions import InvalidUsage
 

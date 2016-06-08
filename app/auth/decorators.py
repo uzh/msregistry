@@ -22,9 +22,11 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 
 
 import jwt
+from Crypto.PublicKey import RSA
 
 from functools import wraps
-from flask import request, _request_ctx_stack
+from flask import request
+from flask import _app_ctx_stack as stack
 from flask_cors import cross_origin
 from flask import current_app
 
@@ -41,6 +43,10 @@ def requires_auth(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         app = current_app._get_current_object()
+        kt = open(app.config['OAUTH_CERTIFICATE_PATH'], 'r').read()
+        key = RSA.importKey(kt)
+        certificate = key.publickey().exportKey()
+        
         auth = request.headers.get('Authorization', None)
         if not auth:
             raise AuthorizationHeaderIsExpected()
@@ -58,7 +64,7 @@ def requires_auth(f):
         try:
             payload = jwt.decode(
                                  token, 
-                                 app.config['OAUTH_CERTIFICATE']
+                                 certificate
                                  )
         except jwt.ExpiredSignature:
             raise TokenIsExpired()
@@ -70,23 +76,23 @@ def requires_auth(f):
             raise InvalidAlgorithm()
         
         try:
-            _request_ctx_stack.top.uniqueID = payload['sub']
+            stack.top.uniqueID = payload['sub']
         except KeyError:
             raise OAuthReturnsIncorrectPayload()
         
         try:
-            _request_ctx_stack.top.roles = payload['context']['role']
+            stack.top.roles = payload['context']['role']
         except KeyError:
             raise OAuthReturnsIncorrectPayload()
         
         try:
-            _request_ctx_stack.top.lang = payload['context']['lang']
+            stack.top.lang = payload['context']['lang']
         except KeyError:
             raise OAuthReturnsIncorrectPayload()
         
         user = User()
-        user.createIfNotExistsByUniqueID(_request_ctx_stack.top.uniqueID)
-        user.setLastSeenByUniqueID(_request_ctx_stack.top.uniqueID)
+        user.createIfNotExistsByUniqueID(stack.top.uniqueID)
+        user.setLastSeenByUniqueID(stack.top.uniqueID)
         
         return f(*args, **kwargs)
 
@@ -97,7 +103,7 @@ def requires_roles(roles=None):
     def decorated(method):
         @wraps(method)
         def f(*args, **kwargs):
-            if Role.authorizedRoles(roles, _request_ctx_stack.top.roles) is False:
+            if Role.authorizedRoles(roles, stack.top.roles) is False:
                 raise InsufficientRoles()
             
             return method(*args, **kwargs)
@@ -111,7 +117,7 @@ def requires_consent(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         user = User()
-        if user.getUserConsentByUniqueID(_request_ctx_stack.top.uniqueID) is False:
+        if user.getUserConsentByUniqueID(stack.top.uniqueID) is False:
             raise ConsentInformationNotAccepted()
         
         return f(*args, **kwargs)
