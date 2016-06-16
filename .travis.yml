@@ -17,5 +17,5 @@ notifications:
 services: mongodb
 
 script:
-    - cp config.yaml.example config.yaml
+    - cp config.yml.example config.yml
     - flask test
