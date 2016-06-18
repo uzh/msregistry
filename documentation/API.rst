@@ -6,11 +6,12 @@ Document Version
 ----------------
 
 :Date:
-    2016-06-03
+    2016-06-18
 :Version:
-    v0.5.0
+    v0.5.1
 :Authors:
     Filippo Panessa <filippo.panessa@gmail.com>
+    Antonio Messina <antonio.messina@uzh.ch>
 :Copyright:
     Copyright (c) 2016 S3IT, Zentrale Informatik, University of Zurich
 
@@ -23,7 +24,7 @@ will accept, what the JSON object’s parameters will be in the response, and an
 example query/response.
 
 This documentation is for most recent version of the MS Registry REST API, 
-version **v0.5.0**.
+version **v0.5.1**.
 
 GET /auth/test
 --------------
