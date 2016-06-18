@@ -9,8 +9,8 @@ COMMON: &common
   MAIL_USE_SSL : False
   MAIL_DEFAULT_SENDER : 'sender@yourdomain'
   MAIL_RECIPIENTS : ['recipients@yourdomain']
-  REPORTS_DIR : '/report/full/path/dir'
-  OAUTH_CERTIFICATE_PATH: '/full/path/pubkey.pem'
+  REPORTS_DIR : '/tmp'
+  OAUTH_CERTIFICATE_PATH: '/tmp/pubkey.pem'
 
 DEVELOPMENT: &development
   <<: *common

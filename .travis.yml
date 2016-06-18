@@ -18,4 +18,5 @@ services: mongodb
 
 script:
     - cp config.yml.example config.yml
+    - cp tests/fake-pubkey.pem /tmp/pubkey.pem
     - flask test
