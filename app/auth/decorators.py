@@ -13,7 +13,7 @@
 # 3 of the GNU Affero General Public License for more details.
 #
 # You should have received a copy of the version 3 of the GNU Affero
-# General Public License along with MSRegistry Backend.  If not, see 
+# General Public License along with MSRegistry Backend.  If not, see
 # <http://www.gnu.org/licenses/>.
 
 __author__ = "Filippo Panessa <filippo.panessa@uzh.ch>"
@@ -24,7 +24,8 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 import jwt
 
 from functools import wraps
-from flask import request, _request_ctx_stack
+from flask import request
+from flask import _app_ctx_stack as stack
 from flask_cors import cross_origin
 from flask import current_app
 
@@ -41,10 +42,11 @@ def requires_auth(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         app = current_app._get_current_object()
+
         auth = request.headers.get('Authorization', None)
         if not auth:
             raise AuthorizationHeaderIsExpected()
-        
+
         parts = auth.split()
 
         if parts[0].lower() != 'bearer':
@@ -54,11 +56,11 @@ def requires_auth(f):
         elif len(parts) > 2:
             raise AuthorizationHeaderMustStartWithBearer()
         token = parts[1]
-        
+
         try:
             payload = jwt.decode(
-                                 token, 
-                                 app.config['OAUTH_CERTIFICATE']
+                                 token,
+                                 app.oauth_certificate
                                  )
         except jwt.ExpiredSignature:
             raise TokenIsExpired()
@@ -68,26 +70,26 @@ def requires_auth(f):
             raise TokenIsInvalid()
         except jwt.exceptions.InvalidAlgorithmError:
             raise InvalidAlgorithm()
-        
+
         try:
-            _request_ctx_stack.top.uniqueID = payload['sub']
+            stack.top.uniqueID = payload['sub']
         except KeyError:
             raise OAuthReturnsIncorrectPayload()
-        
+
         try:
-            _request_ctx_stack.top.roles = payload['context']['role']
+            stack.top.roles = payload['context']['role']
         except KeyError:
             raise OAuthReturnsIncorrectPayload()
-        
+
         try:
-            _request_ctx_stack.top.lang = payload['context']['lang']
+            stack.top.lang = payload['context']['lang']
         except KeyError:
             raise OAuthReturnsIncorrectPayload()
-        
+
         user = User()
-        user.createIfNotExistsByUniqueID(_request_ctx_stack.top.uniqueID)
-        user.setLastSeenByUniqueID(_request_ctx_stack.top.uniqueID)
-        
+        user.createIfNotExistsByUniqueID(stack.top.uniqueID)
+        user.setLastSeenByUniqueID(stack.top.uniqueID)
+
         return f(*args, **kwargs)
 
     return decorated
@@ -97,11 +99,11 @@ def requires_roles(roles=None):
     def decorated(method):
         @wraps(method)
         def f(*args, **kwargs):
-            if Role.authorizedRoles(roles, _request_ctx_stack.top.roles) is False:
+            if Role.authorizedRoles(roles, stack.top.roles) is False:
                 raise InsufficientRoles()
-            
+
             return method(*args, **kwargs)
-            
+
         return f
 
     return decorated
@@ -111,11 +113,9 @@ def requires_consent(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         user = User()
-        if user.getUserConsentByUniqueID(_request_ctx_stack.top.uniqueID) is False:
+        if user.getUserConsentByUniqueID(stack.top.uniqueID) is False:
             raise ConsentInformationNotAccepted()
-        
+
         return f(*args, **kwargs)
 
     return decorated
-
-

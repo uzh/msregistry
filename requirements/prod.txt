@@ -1,3 +1,2 @@
 -r common.txt
-uWSGI==2.0.12
 Flask-SSLify==0.1.5

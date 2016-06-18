@@ -21,7 +21,8 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 " University of Zurich")
 
 
-from flask import jsonify, request, _request_ctx_stack
+from flask import jsonify, request
+from flask import _app_ctx_stack as stack
 
 from . import api
 from app.models.user import User
@@ -42,11 +43,11 @@ from app import utils
 @requires_auth
 def get_user():
     user = User()
-    result = user.getByUniqueID(_request_ctx_stack.top.uniqueID)
+    result = user.getByUniqueID(stack.top.uniqueID)
     if result is not None:
         return jsonify(result.serialize())
     
-    raise UserNotFound(_request_ctx_stack.top.uniqueID)
+    raise UserNotFound(stack.top.uniqueID)
 
 
 @api.route('/user/consent', methods=['GET'])
@@ -54,12 +55,12 @@ def get_user():
 @requires_roles(roles=[Role.patient, Role.relative])
 def get_user_consent_info():
     user = User()
-    result = user.getUserConsentByUniqueID(_request_ctx_stack.top.uniqueID)
+    result = user.getUserConsentByUniqueID(stack.top.uniqueID)
     
     if result is not None:
         return jsonify(accepted=bool(result))
     
-    raise UserNotFound(_request_ctx_stack.top.uniqueID)
+    raise UserNotFound(stack.top.uniqueID)
 
 
 @api.route('/user/consent/info', methods=['GET'])
@@ -67,12 +68,12 @@ def get_user_consent_info():
 @requires_roles(roles=[Role.patient, Role.relative])
 def get_user_consent():
     user = User()
-    result = user.getByUniqueID(_request_ctx_stack.top.uniqueID)
+    result = user.getByUniqueID(stack.top.uniqueID)
     
     if result is not None:
-        return jsonify(result.serialize(_request_ctx_stack.top.roles))
+        return jsonify(result.serialize(stack.top.roles))
     
-    raise UserNotFound(_request_ctx_stack.top.uniqueID)
+    raise UserNotFound(stack.top.uniqueID)
 
 
 @api.route('/user/consent', methods=['POST'])
@@ -82,14 +83,14 @@ def set_user_consent():
     user = User()
     consent = request.get_json(silent=True, force=True)
     
-    if Role.relative in _request_ctx_stack.top.roles:
+    if Role.relative in stack.top.roles:
         try:
             validate(consent, inputs.user_consent_relative)
         except ValidationError as error:
             raise MethodNotAllowed(error.message)
         
         try:
-            return jsonify(success=bool(user.setRelativeConsentByUniqueID(uniqueID=_request_ctx_stack.top.uniqueID,
+            return jsonify(success=bool(user.setRelativeConsentByUniqueID(uniqueID=stack.top.uniqueID,
                                                                           sex=consent['sex'], 
                                                                           birthdate=utils.Time.DMYToDatetime(consent['birthdate']),
                                                                           signature=consent['signature'])))
@@ -97,14 +98,14 @@ def set_user_consent():
             raise MethodNotAllowed(error.message)
         except db.BadValueException as error:
             raise MethodNotAllowed(error.message)
-    if Role.patient in _request_ctx_stack.top.roles:
+    if Role.patient in stack.top.roles:
         try:
             validate(consent, inputs.user_consent_patient)
         except ValidationError as error:
             raise MethodNotAllowed(error.message)
         
         try:
-            return jsonify(success=bool(user.setPatientConsentByUniqueID(uniqueID=_request_ctx_stack.top.uniqueID,
+            return jsonify(success=bool(user.setPatientConsentByUniqueID(uniqueID=stack.top.uniqueID,
                                                                          sex=consent['sex'], birthdate=utils.Time.DMYToDatetime(consent['birthdate']), 
                                                                          signature=consent['signature'],
                                                                          physician_contact_permitted=consent['physician_contact_permitted'], 

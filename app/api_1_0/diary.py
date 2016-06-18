@@ -21,7 +21,8 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 " University of Zurich")
 
 
-from flask import jsonify, request, _request_ctx_stack
+from flask import jsonify, request
+from flask import _app_ctx_stack as stack
 
 from . import api
 from app.models.role import Role
@@ -45,7 +46,7 @@ from app import utils
 def get_user_diary():
     diary = Diary()
     try:
-        return jsonify(diaries=[ob.serialize() for ob in diary.getAllByUniqueID(_request_ctx_stack.top.uniqueID,
+        return jsonify(diaries=[ob.serialize() for ob in diary.getAllByUniqueID(stack.top.uniqueID,
                                                                                 utils.Time.Iso8601ToDatetime(request.args.get('from', None)),
                                                                                 utils.Time.Iso8601ToDatetime(request.args.get('until', None)))])
     except ValueError as error:
@@ -60,7 +61,7 @@ def get_user_diary():
 def get_user_diary_by_id(_id):
     diary = Diary()
     try:
-        return jsonify(diary.getByUniqueIDAndID(_request_ctx_stack.top.uniqueID, _id).serialize())
+        return jsonify(diary.getByUniqueIDAndID(stack.top.uniqueID, _id).serialize())
     except:
         raise DiaryNotFound(_id)
 
@@ -79,7 +80,7 @@ def add_diary():
         raise MethodNotAllowed(error.message)
         
     try:
-        return jsonify(success=bool(diary.addByUniqueID(_request_ctx_stack.top.uniqueID, consent['diary'])))
+        return jsonify(success=bool(diary.addByUniqueID(stack.top.uniqueID, consent['diary'])))
     except ValueError as error:
         raise MethodNotAllowed(error.message)
     except db.BadValueException as error:
@@ -95,7 +96,7 @@ def update_user_diary_by_id(_id):
     consent = request.get_json(silent=True, force=True)
     
     try:
-        diary.getByUniqueIDAndID(_request_ctx_stack.top.uniqueID, _id).serialize()
+        diary.getByUniqueIDAndID(stack.top.uniqueID, _id).serialize()
     except:
         raise DiaryNotFound(_id)
     
@@ -105,7 +106,7 @@ def update_user_diary_by_id(_id):
         raise MethodNotAllowed(error.message)
     
     try:
-        return jsonify(success=bool(diary.updateByUniqueIDAndID(_request_ctx_stack.top.uniqueID, _id, consent['diary'])))
+        return jsonify(success=bool(diary.updateByUniqueIDAndID(stack.top.uniqueID, _id, consent['diary'])))
     except ValueError as error:
         raise MethodNotAllowed(error.message)
     except db.BadValueException as error:
