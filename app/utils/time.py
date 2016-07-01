@@ -13,7 +13,7 @@
 # 3 of the GNU Affero General Public License for more details.
 #
 # You should have received a copy of the version 3 of the GNU Affero
-# General Public License along with MSRegistry Backend.  If not, see 
+# General Public License along with MSRegistry Backend.  If not, see
 # <http://www.gnu.org/licenses/>.
 
 __author__ = "Filippo Panessa <filippo.panessa@uzh.ch>"
@@ -28,15 +28,17 @@ class Time():
     @staticmethod
     def DatetimeToDMY(date):
         if date is not None:
-            return datetime.strptime(date.isoformat(), "%Y-%m-%dT%H:%M:%S").strftime("%d.%m.%Y")
-    
+            # dates older than year==1000 will not work with strftime
+            strdate = date.isoformat(' ').split()[0]
+            y, m, d = strdate.split('-')
+            return "%s.%s.%s" % (d,m,y)
+
     @staticmethod
     def DMYToDatetime(date):
         if date is not None:
             return datetime.strptime(date, "%d.%m.%Y")
-    
+
     @staticmethod
     def Iso8601ToDatetime(date):
         if date is not None:
             return datetime.strptime(date, "%Y-%m-%dT%H:%M:%S.%f")
-
