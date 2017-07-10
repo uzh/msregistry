@@ -90,11 +90,17 @@ class Survey(db.Document):
         data = [ob.serializeTagsAndOngoing() for ob in self.getAll()]
         
         filename = str(uuid.uuid4()) + '.csv'
-        csv_file = csv.writer(open(os.path.join(current_app.config['REPORTS_DIR'], filename), "w"))
+        path = os.path.join(current_app.config['REPORTS_DIR'], filename)
+        csv_file = csv.writer(open(path, mode="w"))
         
         csv_file.writerow(['User ID', 'Survey ID', 'timestamp', 'tags', 'ongoing'])
         for item in data:
-            csv_file.writerow([item['user_id'], item['id'], item['timestamp'], item['tags'], item['ongoing']])
+            # the `tags` field can apparently contain arbitrary Unicode data (limited to Latin-1, actually, looking
+            # at the samples collected so far) so we need to escape it to UTF-8 in order to save into a CSV file
+            # According to the Python 2.7 `csv` module docs, "The csv module does not directly support reading
+            # and writing Unicode, but it is 8-bit-clean save for some problems with ASCII NUL characters."
+            # so reading and writing UTF-8 is OK.
+            csv_file.writerow([item['user_id'], item['id'], item['timestamp'], item['tags'].encode('utf-8'), item['ongoing']])
         
         return filename
     
