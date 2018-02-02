@@ -39,6 +39,17 @@ from jsonschema import validate, ValidationError
 from app import inputs
 from app import utils
 
+# Admin endpoints
+
+# @api.route('/admin/diary', methods=['GET'])
+# @api.route('/admin//<string:_uid>/diary', methods=['GET'])
+# @api.route('/admin/user/<string:_uid>/diary/<string:_id>', methods=['POST'])
+# @api.route('/admin/user/<string:_uid>/diary/<string:_id>', methods=['DELETE'])
+
+
+
+
+# User endpoints
 
 @api.route('/user/diary', methods=['GET'])
 @requires_auth

@@ -6,14 +6,15 @@ Document Version
 ----------------
 
 :Date:
-    2016-06-18
+    2018-02-09
 :Version:
-    v0.5.1
+    v0.6.0
 :Authors:
     Filippo Panessa <filippo.panessa@gmail.com>
     Antonio Messina <antonio.messina@uzh.ch>
+    Sergio Maffioletti <sergio.maffioletti@uzh.ch>
 :Copyright:
-    Copyright (c) 2016 S3IT, Zentrale Informatik, University of Zurich
+    Copyright (c) 2018 2019 S3IT, Zentrale Informatik, University of Zurich
 
 Welcome to the MS Registry REST API. Below, you’ll find a full listing of all 
 the available  endpoints. As we add more endpoints, they will be automatically 
@@ -24,7 +25,7 @@ will accept, what the JSON object’s parameters will be in the response, and an
 example query/response.
 
 This documentation is for most recent version of the MS Registry REST API, 
-version **v0.5.1**.
+version **v0.6.0**.
 
 GET /auth/test
 --------------
@@ -1381,6 +1382,244 @@ Response
 ::::::::
 
 .. code:: json
+
+    {
+      "success": true
+    }
+
+GET /admin/survey
+--------------
+
+Get all surveys for all users.
+
+Resource Information
+````````````````````
+
+   ::
+
+      Method                      GET
+      URL                         /api/v1.0/admin/survey
+      Requires login?    Yes
+      Requires Role?              Every Role can access
+
+Resource Errors
+```````````````
+
+These are the possible errors returned by this endpoint.
+
++---------------+----------------------+---------------------------------------+
+| **status**    | **code**             | **message**                           |
++===============+======================+=======================================+
+| 401           |authorization_error   | Authorization error                   |
++---------------+----------------------+---------------------------------------+
+
+Example
+```````
+
+.. code:: bash
+
+    curl -i -X GET \
+     -H 'Content-Type: application/json' \
+     -u USERNAME:PASSWORD \
+     'https://ws.msregistry.s3it.uzh.ch/api/v1.0/admin/survey'
+
+
+Response
+::::::::
+
+.. code:: json
+    {
+      "surveys": [
+        {
+	  "id": "57631e93ec71bc7d2337482e", 
+	  "ongoing": true, 
+	  "survey": {
+	     "ongoing": true, 
+	     "tags": [
+	        "layer2", 
+		"othertag", 
+		"s3it"
+	     ], 
+	     "value": "it has been modfied indeed"
+	  }, 
+	  "tags": [
+	     "layer2", 
+	     "othertag", 
+	     "s3it"
+	  ], 
+	  "timestamp": "2018-02-02T21:36:22.273000"
+	}
+      ]
+    }
+
+GET /admin/survey/user/<string:_uid>
+--------------
+
+Get all surveys for a given user.
+
+Resource Information
+````````````````````
+
+   ::
+
+      Method                      GET
+      URL                         /api/v1.0/admin/survey/user/<id>
+      Requires login?             Yes
+      Requires Role?              Every Role can access
+
+Resource Errors
+```````````````
+
+These are the possible errors returned by this endpoint.
+
++---------------+----------------------+------------------------------------------+
+| **status**    | **code**             | **message**                              |
++===============+======================+==========================================+
+| 401           | authorization_error  | Authorization error                      |
++---------------+----------------------+------------------------------------------+
+| 404           | not_found            | Couldn't found a User with UniqueID=<id> |
++---------------+----------------------+------------------------------------------+
+| 405           | method_not_allowed   |                                          |
++---------------+----------------------+------------------------------------------+
+
+Example
+```````
+
+.. code:: bash
+
+    curl -i -X GET \
+     -H 'Content-Type: application/json' \
+     -u USERNAME:PASSWORD \
+     'https://ws.msregistry.s3it.uzh.ch/api/v1.0/admin/survey/user/d4c74594d841139328695756648b6bd6'
+
+
+Response
+::::::::
+
+.. code:: json
+    {
+      "surveys": [
+        {
+	  "id": "57631e93ec71bc7d2337482e", 
+	  "ongoing": true, 
+	  "survey": {
+	     "ongoing": true, 
+	     "tags": [
+	        "layer2", 
+		"othertag", 
+		"s3it"
+	     ], 
+	     "value": "it has been modfied indeed"
+	  }, 
+	  "tags": [
+	     "layer2", 
+	     "othertag", 
+	     "s3it"
+	  ], 
+	  "timestamp": "2018-02-02T21:36:22.273000"
+	}
+      ]
+    }
+
+POST /admin/survey/<string:_id>
+--------------
+
+Update/replace existing survey by _id.
+
+Resource Information
+````````````````````
+
+   ::
+
+      Method                      POST
+      URL                         /api/v1.0/admin/survey/<id>
+      Requires login?             Yes
+      Requires Role?              Every Role can access
+
+Resource Errors
+```````````````
+
+These are the possible errors returned by this endpoint.
+
++---------------+----------------------+---------------------------------------+
+| **status**    | **code**             | **message**                           |
++===============+======================+=======================================+
+| 401           | authorization_error  | Authorization error                   |
++---------------+----------------------+---------------------------------------+
+| 404           | not_found            | Couldn't found a Survey with id=<id>  |
++---------------+----------------------+---------------------------------------+
+| 405           | method_not_allowed   |                                       |
++---------------+----------------------+---------------------------------------+
+
+Example
+```````
+
+.. code:: bash
+
+    curl -i \
+     -H 'Content-Type: application/json' \
+     -u USERNAME:PASSWORD \
+     -X POST -d '{"survey": {"value": "any"}, "tags": ["layer2", "othertag"], "ongoing": true}' \
+     'https://ws.msregistry.s3it.uzh.ch/api/v1.0/admin/survey/57631e93ec71bc7d2337482e'
+
+
+Response
+::::::::
+
+  .. code:: json
+
+    {
+      "success": true
+    }
+
+
+DELETE /admin/survey/<string:_uid>
+--------------
+
+Delete existing survey by _id.
+
+Resource Information
+````````````````````
+
+   ::
+
+      Method                      DELETE
+      URL                         /api/v1.0/admin/survey/<id>
+      Requires login?             Yes
+      Requires Role?              Every Role can access
+
+Resource Errors
+```````````````
+
+These are the possible errors returned by this endpoint.
+
++---------------+----------------------+---------------------------------------+
+| **status**    | **code**             | **message**                           |
++===============+======================+=======================================+
+| 401           | authorization_error  | Authorization error                   |
++---------------+----------------------+---------------------------------------+
+| 404           | not_found            | Couldn't found a Survey with id=<id>  |
++---------------+----------------------+---------------------------------------+
+| 405           | method_not_allowed   |                                       |
++---------------+----------------------+---------------------------------------+
+
+
+Example
+```````
+
+.. code:: bash
+
+    curl -i -X DELETE \
+     -H 'Content-Type: application/json' \
+     -u USERNAME:PASSWORD \
+     'https://ws.msregistry.s3it.uzh.ch/api/v1.0/admin/survey/d4c74594d841139328695756648b6bd6'
+
+
+Response
+::::::::
+
+
+  .. code:: json
 
     {
       "success": true

@@ -26,6 +26,7 @@ from flask import current_app
 from datetime import datetime
 
 from app import db
+from app.exceptions import SurveyNotFound, MethodNotAllowed, UserNotFound
 
 from user import User
 
@@ -41,33 +42,67 @@ class Survey(db.Document):
     tags = db.ListField(db.StringField(), required=True, default=[])
     ongoing = db.BoolField(default=True, required=True)
     
-    def getAll(self):
-        return Survey.query.all()
-    
-    def getAllByUniqueID(self, uniqueID, from_datetime=None, until_datetime=None,
-                         tags=None, ongoing=None):
+    def getAll(self, from_datetime=None, until_datetime=None,
+               tags=None, ongoing=None):
+        """
+        Return all surveys registered.
+        By setting 'from_datetime'm, 'until_datetime', 'tags' or 'ongoing'
+        one could further filter the scope of the query
+        """
+        # return Survey.query.all()
         query = db.session.query(Survey)
-        
-        query.filter(Survey.user == User().query.filter(User.uniqueID == uniqueID).first().mongo_id)
-        
+
         if from_datetime is not None:
             query.filter(Survey.timestamp >= from_datetime)
-        
+
         if until_datetime is not None:
             query.filter(Survey.timestamp <= until_datetime)
-        
+
         if tags is not None:
             query.filter(Survey.tags.in_(tags))
 
         if ongoing is not None:
             query.filter(Survey.ongoing == ongoing)
-        
+
         return query.all()
-    
+
+    def getAllByUniqueID(self, uniqueID, from_datetime=None, until_datetime=None,
+                         tags=None, ongoing=None):
+        """
+        Return all surveys registered by a given user.
+        By setting 'from_datetime'm, 'until_datetime', 'tags' or 'ongoing'
+        one could further filter the scope of the query
+        """
+
+        # Check if user exists
+        user = User().query.filter(User.uniqueID == uniqueID).first()
+        try:
+            assert not user is None, "User not found"
+        except AssertionError as ax:
+            raise UserNotFound(uniqueID)
+            
+        query = db.session.query(Survey)
+        
+        query.filter(Survey.user == user.mongo_id)
+        
+        if from_datetime is not None:
+            query.filter(Survey.timestamp >= from_datetime)
+
+        if until_datetime is not None:
+            query.filter(Survey.timestamp <= until_datetime)
+
+        if tags is not None:
+            query.filter(Survey.tags.in_(tags))
+
+        if ongoing is not None:
+            query.filter(Survey.ongoing == ongoing)
+
+        return query.all()
+
     def getByUniqueIDAndID(self, uniqueID, _id):
         return Survey.query.filter(Survey.user == User().query.filter(User.uniqueID == uniqueID)
                                    .first().mongo_id, Survey.mongo_id == _id).first()
-    
+
     def addByUniqueID(self, uniqueID, survey, tags=[], ongoing=True):
         self.user = User().query.filter(User.uniqueID == uniqueID).first().mongo_id
         self.timestamp = datetime.utcnow()
@@ -85,7 +120,48 @@ class Survey(db.Document):
                                                         ongoing=ongoing, 
                                                         timestamp=datetime.utcnow()).execute()
         return True
-    
+
+    def updateByUniqueID(self, _id, survey, tags, ongoing):
+        """
+        Verify survey exists.
+        Then update its 'survey' content and save it back.
+        """
+
+        try:
+            surveys = Survey.query.filter(Survey.mongo_id == _id)
+            if surveys.count() == 0:
+                raise SurveyNotFound(_id)
+            if surveys.count() > 1:
+                raise NonUniqueSurveyIDError(_id)
+        except db.BadValueException as error:
+            raise SurveyNotFound(_id)
+
+        existing_survey_object = surveys.first()
+        existing_survey_object.survey = survey
+        existing_survey_object.tags = tags
+        existing_survey_object.ongoing = ongoing
+        existing_survey_object.timestamp=datetime.utcnow()
+        existing_survey_object.save()
+        return True
+        
+    def deleteByUniqueID(self, _id):
+        """
+        Verify survey exists.
+        Then delete it.
+        """
+        try:
+            surveys = Survey.query.filter(Survey.mongo_id == _id)
+            if surveys.count() == 0:
+                raise SurveyNotFound(_id)
+            if surveys.count() > 1:
+                raise NonUniqueSurveyIDError(_id)
+        except db.BadValueException as error:
+            raise SurveyNotFound(_id)
+
+        existing_survey_object = surveys.first()
+        existing_survey_object.remove()
+        return True
+
     def getCSVReportTagsAndOngoing(self):
         data = [ob.serializeTagsAndOngoing() for ob in self.getAll()]
         
