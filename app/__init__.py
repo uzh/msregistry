@@ -17,38 +17,43 @@
 # <http://www.gnu.org/licenses/>.
 
 __author__ = "Filippo Panessa <filippo.panessa@uzh.ch>"
-__copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
-" University of Zurich")
+__copyright__ = "Copyright (c) 2016-2018 University of Zurich"
 
 
 from Crypto.PublicKey import RSA
 
-from flask import Flask, abort
+from flask import (
+    Flask,
+    _app_ctx_stack as stack,
+    abort,
+    current_app,
+    jsonify,
+    request,
+)
 from flask_bootstrap import Bootstrap
-from flask_mongoalchemy import MongoAlchemy
 from flask_environments import Environments
 from flask_mail import Mail, Message
-from flask import jsonify, request, current_app
-from flask import _app_ctx_stack as stack
-from flask_httpauth import HTTPBasicAuth
+from flask_mongoalchemy import MongoAlchemy
 
 from app.exceptions import InvalidUsage, InvalidAuthentication
 
+# pylint: disable=invalid-name
 bootstrap = Bootstrap()
 db = MongoAlchemy()
 mail = Mail()
 
+# pylint: disable=missing-docstring
 def create_app(config_name):
     app = Flask(__name__)
     env = Environments(app, default_env=config_name)
     app.config.from_object(env.from_yaml('config.yml'))
 
     certfile = app.config['OAUTH_CERTIFICATE_PATH']
-    with open(certfile, 'r') as fd:
-        kt = fd.read()
-    key = RSA.importKey(kt)
+    with open(certfile, 'r') as contents:
+        key_contents = contents.read()
+    key = RSA.importKey(key_contents)
     app.oauth_certificate = key.publickey().exportKey()
-    
+
     bootstrap.init_app(app)
     db.init_app(app)
     mail.init_app(app)

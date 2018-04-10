@@ -1,5 +1,12 @@
 # Copyright (C) 2018 University of Zurich.  All rights reserved.
 #
+"""
+Implementation of the 'admin' API for the MS-Registry backend.
+
+The 'admin' API allows limited modification of entities in the
+database.
+"""
+#
 # This file is part of MSRegistry Backend.
 #
 # MSRegistry Backend is free software: you can redistribute it and/or
@@ -17,8 +24,7 @@
 # <http://www.gnu.org/licenses/>.
 
 __author__ = "Sergio Maffioletti <sergio.maffioletti@uzh.ch>"
-__copyright__ = ("Copyright (c) 2018, 2019 S3IT, Zentrale Informatik,"
-" University of Zurich")
+__copyright__ = "Copyright (c) 2018 University of Zurich"
 
 
 from functools import wraps
@@ -28,24 +34,23 @@ from flask_httpauth import HTTPBasicAuth
 
 from mongoalchemy.exceptions import BadValueException
 
-from . import api
-from app.models.survey import Survey
-
-from app import db
 from app.exceptions import (
     InvalidAuthentication,
     SurveyNotFound,
     MethodNotAllowed,
     UserNotFound
 )
+from app.models.survey import Survey
 from app import utils
 
+from . import api
 
-httpbasicauth = HTTPBasicAuth()
+
+httpbasicauth = HTTPBasicAuth()  # pylint: disable=invalid-name
 
 # Simple username/password authentication.
 @httpbasicauth.get_password
-def get_cleartext_password(username):
+def get_cleartext_password(username):  # pylint: disable=missing-docstring
     if username == current_app.config['AUTH_USER']:
         return current_app.config['ACCESS_KEY']
     # 401 ("Unauthorized") seems the correct status code here: a
@@ -53,6 +58,7 @@ def get_cleartext_password(username):
     # sense
     raise InvalidAuthentication()
 
+# pylint: disable=missing-docstring,invalid-name
 def only_authorized_ip_addresses(fn):
     @wraps(fn)
     def with_auth_ip(*args, **kwargs):
@@ -106,12 +112,17 @@ def get_all_surveys_by_user(_uid):
     """
     survey = Survey()
     try:
-        return jsonify(surveys=[ob.serialize() for ob in survey.getAllByUniqueID(_uid,
-                                                                                 utils.Time.Iso8601ToDatetime(request.args.get('from', None)),
-                                                                                 utils.Time.Iso8601ToDatetime(request.args.get('until', None)),
-                                                                                 request.args.get('tags').split(',') if request.args.get('tags', None) is not None else None,
-                                                                                 utils.json.Json._getJSONBool(request.args.get('ongoing', None)),
-                                                                                 )])
+        return jsonify(
+            surveys=[
+                ob.serialize()
+                for ob in survey.getAllByUniqueID(
+                    _uid,
+                    utils.Time.Iso8601ToDatetime(request.args.get('from', None)),
+                    utils.Time.Iso8601ToDatetime(request.args.get('until', None)),
+                    (request.args.get('tags').split(',')
+                     if request.args.get('tags', None) is not None
+                     else None),
+                    utils.json.Json._getJSONBool(request.args.get('ongoing', None)))])
     except ValueError as error:
         raise MethodNotAllowed(error.message)
     except BadValueException as error:
@@ -133,10 +144,13 @@ def update_user_survey_by_id(_id):
     consent = request.get_json(silent=True, force=True)
 
     try:
-        return jsonify(success=bool(survey.updateByUniqueID(_id,
-                                                            consent['survey'],
-                                                            consent['tags'],
-                                                            consent['ongoing'])))
+        return jsonify(
+            success=bool(
+                survey.updateByUniqueID(
+                    _id,
+                    consent['survey'],
+                    consent['tags'],
+                    consent['ongoing'])))
     except ValueError as error:
         raise MethodNotAllowed(error.message)
     except BadValueException as error:
