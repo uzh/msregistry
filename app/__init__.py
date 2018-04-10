@@ -1,4 +1,4 @@
-# Copyright (C) 2016 University of Zurich.  All rights reserved.
+# Copyright (C) 2016-2018  University of Zurich.  All rights reserved.
 #
 # This file is part of MSRegistry Backend.
 #
@@ -37,7 +37,6 @@ from app.exceptions import InvalidUsage, InvalidAuthentication
 bootstrap = Bootstrap()
 db = MongoAlchemy()
 mail = Mail()
-httpbasicauth = HTTPBasicAuth()
 
 def create_app(config_name):
     app = Flask(__name__)
@@ -63,20 +62,6 @@ def create_app(config_name):
         response = jsonify(error.to_dict())
         response.status_code = error.status_code
         return response
-
-    @app.before_request
-    def limit_remote_addr():
-        if not request.remote_addr in app.config['AUTH_IP']:
-	    print "IP {0} not allowed!!".format(request.remote_addr)
-            raise InvalidAuthentication()
-
-    # Simple username/password authentication.
-    @httpbasicauth.get_password
-    def get_pw(username):
-        #app = current_app._get_current_object()
-	if username == app.config['AUTH_USER']:
-            return app.config['ACCESS_KEY']
-        raise InvalidAuthentication()
 
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
