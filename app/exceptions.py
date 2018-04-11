@@ -36,6 +36,14 @@ class InvalidUsage(Exception):
         rv['message'] = self.message
         return rv
 
+class InvalidAuthentication(InvalidUsage):
+    status_code = 401
+
+    def __init__(self):
+        InvalidUsage.__init__(self, 
+                              message='Authentication error', 
+                              payload={'code': 'authentication_error'})
+    
 class TokenIsExpired(InvalidUsage):
     status_code = 400
     
@@ -147,6 +155,14 @@ class MethodNotAllowed(InvalidUsage):
         InvalidUsage.__init__(self, 
                               message=message, 
                               payload={'code': 'method_not_allowed'})
+
+class NonUniqueSurveyIDError(InvalidUsage):
+    status_code = 406
+    
+    def __init__(self, message):
+        InvalidUsage.__init__(self, 
+                              message=message, 
+                              payload={'code': 'duplicate_survey_id'})
 
 class OAuthReturnsIncorrectPayload(InvalidUsage):
     status_code = 500

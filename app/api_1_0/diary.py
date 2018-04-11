@@ -13,7 +13,7 @@
 # 3 of the GNU Affero General Public License for more details.
 #
 # You should have received a copy of the version 3 of the GNU Affero
-# General Public License along with MSRegistry Backend.  If not, see 
+# General Public License along with MSRegistry Backend.  If not, see
 # <http://www.gnu.org/licenses/>.
 
 __author__ = "Filippo Panessa <filippo.panessa@uzh.ch>"
@@ -40,6 +40,8 @@ from app import inputs
 from app import utils
 
 
+# User endpoints
+
 @api.route('/user/diary', methods=['GET'])
 @requires_auth
 @requires_roles(roles=[Role.patient, Role.relative])
@@ -52,7 +54,7 @@ def get_user_diary():
     except ValueError as error:
         raise MethodNotAllowed(error.message)
     except db.BadValueException as error:
-        raise MethodNotAllowed(error.message)    
+        raise MethodNotAllowed(error.message)
 
 
 @api.route('/user/diary/<string:_id>', methods=['GET'])
@@ -73,12 +75,12 @@ def get_user_diary_by_id(_id):
 def add_diary():
     diary = Diary()
     consent = request.get_json(silent=True, force=True)
-    
+
     try:
         validate(consent, inputs.diary)
     except ValidationError as error:
         raise MethodNotAllowed(error.message)
-        
+
     try:
         return jsonify(success=bool(diary.addByUniqueID(stack.top.uniqueID, consent['diary'])))
     except ValueError as error:
@@ -94,22 +96,20 @@ def add_diary():
 def update_user_diary_by_id(_id):
     diary = Diary()
     consent = request.get_json(silent=True, force=True)
-    
+
     try:
         diary.getByUniqueIDAndID(stack.top.uniqueID, _id).serialize()
     except:
         raise DiaryNotFound(_id)
-    
+
     try:
         validate(consent, inputs.diary)
     except ValidationError as error:
         raise MethodNotAllowed(error.message)
-    
+
     try:
         return jsonify(success=bool(diary.updateByUniqueIDAndID(stack.top.uniqueID, _id, consent['diary'])))
     except ValueError as error:
         raise MethodNotAllowed(error.message)
     except db.BadValueException as error:
         raise MethodNotAllowed(error.message)
-
-

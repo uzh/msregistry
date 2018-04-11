@@ -22,11 +22,22 @@ __copyright__ = ("Copyright (c) 2016 S3IT, Zentrale Informatik,"
 
 
 import os
+from flask import abort, request
 
 from app import create_app
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'DEFAULT')
 
+@app.cli.command()
+def get_all_users():
+    """ Get all users """
+    from app.models import User, Survey
+    user = User()
+    survey = Survey()
+    all_users = user.getAll()
+    all_surveys = survey.getAll()
+    print("Found {0} users".format(len(all_users)))
+    print("Found {0} surveys".format(len(all_surveys)))
 
 @app.cli.command()
 def reports():

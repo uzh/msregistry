@@ -39,7 +39,6 @@ from jsonschema import validate, ValidationError
 from app import inputs
 from app import utils
 
-
 @api.route('/user/survey', methods=['GET'])
 @requires_auth
 def get_survey():

@@ -25,5 +25,5 @@ from flask import Blueprint
 
 api = Blueprint('api', __name__)
 
-from . import diary, user, survey
+from . import diary, user, survey, admin
 
