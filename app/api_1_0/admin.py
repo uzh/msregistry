@@ -27,7 +27,10 @@ __author__ = "Sergio Maffioletti <sergio.maffioletti@uzh.ch>"
 __copyright__ = "Copyright (c) 2018 University of Zurich"
 
 
+from datetime import datetime
 from functools import wraps
+import json
+from syslog import *
 
 from flask import abort, current_app, jsonify, request
 from flask_httpauth import HTTPBasicAuth
@@ -82,6 +85,50 @@ def only_authorized_ip_addresses(fn):
         return fn(*args, **kwargs)
     return with_auth_ip
 
+class _AuditLog(object):
+    _facility = {
+        'KERN': LOG_KERN,
+        'USER': LOG_USER,
+        'MAIL': LOG_MAIL,
+        'DAEMON': LOG_DAEMON,
+        'AUTH': LOG_AUTH,
+        'LPR': LOG_LPR,
+        'NEWS': LOG_NEWS,
+        'UUCP': LOG_UUCP,
+        'CRON': LOG_CRON,
+        'SYSLOG': LOG_SYSLOG,
+        'AUTHPRIV': LOG_AUTH,
+        'LOCAL0': LOG_LOCAL0,
+        'LOCAL1': LOG_LOCAL1,
+        'LOCAL2': LOG_LOCAL2,
+        'LOCAL3': LOG_LOCAL3,
+        'LOCAL4': LOG_LOCAL4,
+        'LOCAL5': LOG_LOCAL5,
+        'LOCAL6': LOG_LOCAL6,
+        'LOCAL7': LOG_LOCAL7,
+    }
+    def __init__(self):
+        self._syslog = None
+    def __call__(self, msg):
+        if self._syslog is None:
+            openlog(
+                ident=current_app.config.get(
+                    'MONGOALCHEMY_DATABASE', 'msregistry-api'),
+                logoption=(LOG_PID|LOG_CONS|LOG_NDELAY),
+                facility=self._facility[
+                    current_app.config.get(
+                        'AUDIT_LOG_FACILITY', 'authpriv').upper()]
+            )
+        syslog(msg)
+
+_audit_log = _AuditLog()
+
+def add_to_audit_log(action, **data):
+    data['action'] = action
+    data['timestamp'] = datetime.now().isoformat()
+    data['from'] = request.remote_addr
+    _audit_log(json.dumps(data))
+
 
 # Admin endpoints for Survey management
 
@@ -101,6 +148,8 @@ def get_all_surveys():
         raise MethodNotAllowed(error.message)
     except BadValueException as error:
         raise MethodNotAllowed(error.message)
+    finally:
+        add_to_audit_log('get_all_surveys')
 
 
 @api.route('/admin/survey/user/<string:_uid>', methods=['GET'])
@@ -129,6 +178,8 @@ def get_all_surveys_by_user(_uid):
         raise MethodNotAllowed(error.message)
     except UserNotFound as error:
         raise UserNotFound(_uid)
+    finally:
+        add_to_audit_log('get_all_surveys_by_user', user_id=_uid)
 
 
 ## POST operations
@@ -141,23 +192,27 @@ def update_user_survey_by_id(_id):
     Update/replace existing survey by _id
     """
     survey = Survey()
-    consent = request.get_json(silent=True, force=True)
-
+    content = request.get_json(silent=True, force=True)
     try:
         return jsonify(
             success=bool(
                 survey.updateByUniqueID(
                     _id,
-                    consent['survey'],
-                    consent['tags'],
-                    consent['ongoing'])))
+                    content['survey'],
+                    content['tags'],
+                    content['ongoing'])))
     except ValueError as error:
         raise MethodNotAllowed(error.message)
     except BadValueException as error:
         raise MethodNotAllowed(error.message)
     except SurveyNotFound as error:
         raise SurveyNotFound(_id)
-
+    finally:
+        add_to_audit_log(
+            'update_user_survey_by_id',
+            survey_id=_id,
+            replacement=content,
+        )
 
 ## DELETE operations
 
@@ -177,3 +232,8 @@ def delete_survey_by_id(_id):
         raise MethodNotAllowed(error.message)
     except SurveyNotFound as error:
         raise SurveyNotFound(_id)
+    finally:
+        add_to_audit_log(
+            'delete_survey_by_id',
+            survey_id=_id,
+        )
