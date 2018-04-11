@@ -8,6 +8,8 @@ env:
 
 install:
     - pip install -r requirements/common.txt
+    # requests is only needed to run the tests
+    - pip install requests
 
 notifications:
   email:
