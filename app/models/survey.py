@@ -1,4 +1,4 @@
-# Copyright (C) 2016 University of Zurich.  All rights reserved.
+# Copyright (C) 2016, 2018 University of Zurich.  All rights reserved.
 #
 # This file is part of MSRegistry Backend.
 #
@@ -13,7 +13,7 @@
 # 3 of the GNU Affero General Public License for more details.
 #
 # You should have received a copy of the version 3 of the GNU Affero
-# General Public License along with MSRegistry Backend.  If not, see 
+# General Public License along with MSRegistry Backend.  If not, see
 # <http://www.gnu.org/licenses/>.
 
 __author__ = "Filippo Panessa <filippo.panessa@uzh.ch>"
@@ -41,7 +41,7 @@ class Survey(db.Document):
     survey = db.DictField(db.AnythingField(), required=True)
     tags = db.ListField(db.StringField(), required=True, default=[])
     ongoing = db.BoolField(default=True, required=True)
-    
+
     def getAll(self, from_datetime=None, until_datetime=None,
                tags=None, ongoing=None):
         """
@@ -80,11 +80,11 @@ class Survey(db.Document):
             assert not user is None, "User not found"
         except AssertionError as ax:
             raise UserNotFound(uniqueID)
-            
+
         query = db.session.query(Survey)
-        
+
         query.filter(Survey.user == user.mongo_id)
-        
+
         if from_datetime is not None:
             query.filter(Survey.timestamp >= from_datetime)
 
@@ -103,6 +103,15 @@ class Survey(db.Document):
         return Survey.query.filter(Survey.user == User().query.filter(User.uniqueID == uniqueID)
                                    .first().mongo_id, Survey.mongo_id == _id).first()
 
+    def getByID(self, survey_id):
+        try:
+            surveys = Survey.query.filter(Survey.mongo_id == survey_id)
+            if surveys.count() == 0:
+                raise SurveyNotFound(survey_id)
+            return surveys.first()
+        except db.BadValueException:
+            raise SurveyNotFound(survey_id)
+
     def addByUniqueID(self, uniqueID, survey, tags=[], ongoing=True):
         self.user = User().query.filter(User.uniqueID == uniqueID).first().mongo_id
         self.timestamp = datetime.utcnow()
@@ -111,13 +120,13 @@ class Survey(db.Document):
         self.ongoing = ongoing
         self.save()
         return True
-    
+
     def updateByUniqueIDAndID(self, uniqueID, _id, survey, tags, ongoing):
-        Survey.query.filter(Survey.user == User().query.filter(User.uniqueID == uniqueID).first().mongo_id, 
+        Survey.query.filter(Survey.user == User().query.filter(User.uniqueID == uniqueID).first().mongo_id,
                             Survey.mongo_id == _id).set(
-                                                        survey=survey, 
-                                                        tags=tags, 
-                                                        ongoing=ongoing, 
+                                                        survey=survey,
+                                                        tags=tags,
+                                                        ongoing=ongoing,
                                                         timestamp=datetime.utcnow()).execute()
         return True
 
@@ -143,7 +152,7 @@ class Survey(db.Document):
         existing_survey_object.timestamp=datetime.utcnow()
         existing_survey_object.save()
         return True
-        
+
     def deleteByUniqueID(self, _id):
         """
         Verify survey exists.
@@ -164,11 +173,11 @@ class Survey(db.Document):
 
     def getCSVReportTagsAndOngoing(self):
         data = [ob.serializeTagsAndOngoing() for ob in self.getAll()]
-        
+
         filename = str(uuid.uuid4()) + '.csv'
         path = os.path.join(current_app.config['REPORTS_DIR'], filename)
         csv_file = csv.writer(open(path, mode="w"))
-        
+
         csv_file.writerow(['User ID', 'Survey ID', 'timestamp', 'tags', 'ongoing'])
         for item in data:
             # the `tags` field can apparently contain arbitrary Unicode data (limited to Latin-1, actually, looking
@@ -177,9 +186,9 @@ class Survey(db.Document):
             # and writing Unicode, but it is 8-bit-clean save for some problems with ASCII NUL characters."
             # so reading and writing UTF-8 is OK.
             csv_file.writerow([item['user_id'], item['id'], item['timestamp'], item['tags'].encode('utf-8'), item['ongoing']])
-        
+
         return filename
-    
+
     def serialize(self):
         d = {
                 "id": str(self.mongo_id),
@@ -188,7 +197,7 @@ class Survey(db.Document):
                 "tags": self.tags,
                 "ongoing": bool(self.ongoing)
             }
-        
+
         return d
 
     def serializeTagsAndOngoing(self):
@@ -199,7 +208,5 @@ class Survey(db.Document):
                 "tags": ', '.join(self.tags),
                 "ongoing": bool(self.ongoing)
             }
-        
+
         return d
-
-

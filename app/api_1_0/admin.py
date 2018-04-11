@@ -193,7 +193,9 @@ def update_user_survey_by_id(_id):
     """
     survey = Survey()
     content = request.get_json(silent=True, force=True)
+    old = 'NO OLD SURVEY FOUND!'
     try:
+        old = survey.getByID(_id).serialize()
         return jsonify(
             success=bool(
                 survey.updateByUniqueID(
@@ -211,7 +213,8 @@ def update_user_survey_by_id(_id):
         add_to_audit_log(
             'update_user_survey_by_id',
             survey_id=_id,
-            replacement=content,
+            new=content,
+            old=old,
         )
 
 ## DELETE operations
@@ -224,7 +227,9 @@ def delete_survey_by_id(_id):
     Delete existing survey by _id
     """
     survey = Survey()
+    old = 'NO OLD SURVEY FOUND!'
     try:
+        old = survey.getByID(_id).serialize()
         return jsonify(success=bool(survey.deleteByUniqueID(_id)))
     except ValueError as error:
         raise MethodNotAllowed(error.message)
@@ -236,4 +241,5 @@ def delete_survey_by_id(_id):
         add_to_audit_log(
             'delete_survey_by_id',
             survey_id=_id,
+            old=old,
         )
